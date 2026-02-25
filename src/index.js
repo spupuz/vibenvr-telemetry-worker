@@ -782,12 +782,16 @@ export default {
 	];
 
 	function getFlagEmoji(countryCode) {
-		if (!countryCode || countryCode === 'Unknown') return '❓';
-		const codePoints = countryCode
-			.toUpperCase()
-			.split('')
-			.map(char =>  127397 + char.charCodeAt());
-		return String.fromCodePoint(...codePoints);
+		if (!countryCode || countryCode === 'Unknown' || countryCode.length !== 2) return '❓';
+		try {
+			const codePoints = countryCode
+				.toUpperCase()
+				.split('')
+				.map(char => 127397 + char.charCodeAt());
+			return String.fromCodePoint(...codePoints);
+		} catch (e) {
+			return '❓';
+		}
 	}
 
 	function prepData(list, lk='name', vk='count', limit=8, showFlags=false) {
@@ -841,8 +845,8 @@ export default {
 					}
 				},
 				scales: isBar ? {
-					x: { grid: { color: tok('border') }, ticks: { color: tok('muted'), font: { family: 'Inter', size: 10 } }, beginAtZero: true },
-					y: { grid: { display: false }, ticks: { color: tok('muted'), font: { family: 'Inter', size: 10 } } }
+					x: { grid: { color: tok('border') }, ticks: { color: tok('muted'), font: { family: 'Inter, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } }, beginAtZero: true },
+					y: { grid: { display: false }, ticks: { color: tok('muted'), font: { family: 'Inter, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } } }
 				} : { x: { display:false }, y: { display:false } }
 			}
 		});
