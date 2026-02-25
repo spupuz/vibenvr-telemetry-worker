@@ -1,0 +1,9 @@
+name = "vibenvr-telemetry"
+main = "src/index.js"
+compatibility_date = "2024-02-25"
+
+# Binding per Workers Analytics Engine
+# Permette di scrivere e fare query SQL sui dati telemetry inviati direttamente dall'edge.
+[[analytics_engine_datasets]]
+binding = "VIBENVR_USAGE"
+dataset = "vibenvr_telemetry_events"
