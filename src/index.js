@@ -645,11 +645,19 @@ export default {
 			</div>
 		</div>
 
-		<!-- Row 0: World Map (full width) -->
+		<!-- Row 0: World Map -->
 		<div class="chart-row cols-1">
 			<div class="card">
-				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Installations by Country</div>
+				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Map: Installations by Country</div>
 				<div class="chart-wrap" style="height:340px"><canvas id="chart-worldmap"></canvas></div>
+			</div>
+		</div>
+
+		<!-- Row 0.5: Country Bar Chart -->
+		<div class="chart-row cols-1">
+			<div class="card">
+				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="16" y1="20" x2="16" y2="4"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/></svg> Top Countries (Unique Installs)</div>
+				<div class="chart-wrap" style="height:340px"><canvas id="chart-country-bars"></canvas></div>
 			</div>
 		</div>
 
@@ -773,12 +781,29 @@ export default {
 		'#dbeafe'  // Blue 100
 	];
 
-	function prepData(list, lk='name', vk='count', limit=8) {
+	function getFlagEmoji(countryCode) {
+		if (!countryCode || countryCode === 'Unknown') return '❓';
+		const codePoints = countryCode
+			.toUpperCase()
+			.split('')
+			.map(char =>  127397 + char.charCodeAt());
+		return String.fromCodePoint(...codePoints);
+	}
+
+	function prepData(list, lk='name', vk='count', limit=8, showFlags=false) {
 		list = [...(list||[])].sort((a,b) => b[vk]-a[vk]);
 		const top = list.slice(0, limit);
 		const rest = list.slice(limit).reduce((s,r)=>s+r[vk], 0);
 		if (rest > 0) top.push({[lk]:'Other',[vk]:rest});
-		return { labels: top.map(i=>i[lk]), data: top.map(i=>i[vk]) };
+		
+		const labels = top.map(i => {
+			if (showFlags && i[lk] !== 'Other' && i[lk] !== 'Unknown') {
+				return getFlagEmoji(i[lk]) + ' ' + i[lk];
+			}
+			return i[lk];
+		});
+
+		return { labels, data: top.map(i=>i[vk]) };
 	}
 
 
@@ -872,8 +897,10 @@ export default {
 				});
 			}).catch(() => {
 				// Fallback: simple bar chart if geo fails to load
-				mkChart('chart-worldmap', 'bar', prepData(lastData.countries,'name','count',15), BAR_PALETTE(), true);
+				mkChart('chart-worldmap', 'bar', prepData(lastData.countries,'name','count',15,true), BAR_PALETTE(), false);
 			});
+		
+		mkChart('chart-country-bars', 'bar', prepData(lastData.countries, 'name', 'count', 12, true), BAR_PALETTE(), false);
 		mkChart('chart-os',           'doughnut', prepData(lastData.os), pp);
 		mkChart('chart-arch',         'doughnut', prepData(lastData.arch), pp);
 
