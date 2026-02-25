@@ -631,17 +631,17 @@ export default {
 			<div class="kpi-card">
 				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg> Groups</div>
 				<div class="kpi-value" id="kpi-groups">-</div>
-				<div class="kpi-sub">Camera groups</div>
+				<div class="kpi-sub">Total across active</div>
 			</div>
 			<div class="kpi-card">
 				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> GPU Accel</div>
 				<div class="kpi-value" id="kpi-gpu">-</div>
-				<div class="kpi-sub">HW accel enabled</div>
+				<div class="kpi-sub">Instances with HW accel</div>
 			</div>
 			<div class="kpi-card">
 				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> Notifications</div>
 				<div class="kpi-value" id="kpi-notifications">-</div>
-				<div class="kpi-sub">With webhooks / email</div>
+				<div class="kpi-sub">Instances w/ webhooks/email/telegram</div>
 			</div>
 		</div>
 
