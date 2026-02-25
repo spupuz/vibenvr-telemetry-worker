@@ -98,7 +98,7 @@ export default {
 				});
 			}
 
-			// Query 1: Active instances and their latest properties (Last 7 Days)
+			// Query 1: Active instances and their latest properties (Last 30 Days)
 			const sqlActive = `
 				SELECT 
 					blob1 as instance_id, 
@@ -107,22 +107,33 @@ export default {
 					blob4 as arch,
 					blob6 as country, 
 					blob5 as cpu,
-					max(double1) as cpu_cores,
-					max(double2) as ram,
-					max(double3) as cameras,
-					max(double4) as groups,
-					max(double5) as events,
-					max(double6) as gpu,
-					max(double7) as notifications
+					timestamp,
+					double1 as cpu_cores,
+					double2 as ram,
+					double3 as cameras,
+					double4 as groups,
+					double5 as events,
+					double6 as gpu,
+					double7 as notifications
 				FROM vibenvr_telemetry_events 
-				WHERE timestamp >= NOW() - INTERVAL '7' DAY 
-				GROUP BY blob1, blob2, blob3, blob4, blob6, blob5
+				WHERE timestamp >= NOW() - INTERVAL '30' DAY
 			`;
 
 			const sqlTotal = `SELECT count(DISTINCT blob1) as total FROM vibenvr_telemetry_events`;
 
+			const sqlActivity = `
+				SELECT 
+					toStartOfDay(timestamp) as day,
+					count() as pings,
+					count(DISTINCT blob1) as uniques
+				FROM vibenvr_telemetry_events 
+				WHERE timestamp >= NOW() - INTERVAL '30' DAY 
+				GROUP BY day
+				ORDER BY day ASC
+			`;
+
 			try {
-				const [resActive, resTotal] = await Promise.all([
+				const [resActive, resTotal, resActivity] = await Promise.all([
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
@@ -132,31 +143,35 @@ export default {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlTotal
+					}),
+					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+						method: 'POST',
+						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						body: sqlActivity
 					})
 				]);
 
 				const activeStr = await resActive.text();
 				const totalStr = await resTotal.text();
+				const activityStr = await resActivity.text();
 
 				if (!resActive.ok) throw new Error("SQL API Error: " + activeStr);
 
 				const activeData = JSON.parse(activeStr).data || [];
 				const totalData = JSON.parse(totalStr).data || [];
+				const activityData = JSON.parse(activityStr).data || [];
 
 				let activeCount = activeData.length;
 				const totalCount = parseInt(totalData[0]?.total || "0", 10);
 
-				// Deduplicate instances: pick the best record for each ID
+				// Deduplicate instances: pick the latest record for each ID based on timestamp
 				const uniqueInstances = new Map();
 				for (const row of activeData) {
 					const id = row.instance_id;
+					const ts = new Date(row.timestamp).getTime();
 					const existing = uniqueInstances.get(id);
 
-					// Logic to pick the record with more metadata (prefer identified CPU)
-					const hasCpu = row.cpu && row.cpu !== 'unknown';
-					const existingHasCpu = existing && existing.cpu && existing.cpu !== 'unknown';
-
-					if (!existing || (!existingHasCpu && hasCpu)) {
+					if (!existing || ts > new Date(existing.timestamp).getTime()) {
 						uniqueInstances.set(id, row);
 					}
 				}
@@ -167,6 +182,11 @@ export default {
 				const stats = {
 					active_installs: activeCount,
 					total_installs: Math.max(activeCount, totalCount),
+					activity: activityData.map(row => ({
+						date: row.day,
+						pings: Number(row.pings) || 0,
+						uniques: Number(row.uniques) || 0
+					})),
 					versions: [],
 					countries: [],
 					cpus: [],
@@ -568,7 +588,7 @@ export default {
 <main class="main">
 	<div class="page-title">
 		<h1>Usage Dashboard</h1>
-		<p>Anonymous aggregate statistics from active VibeNVR installations · Last 7 days</p>
+		<p>Anonymous aggregate statistics from active VibeNVR installations · Last 30 days</p>
 	</div>
 
 	<!-- Error -->
@@ -591,7 +611,7 @@ export default {
 			<div class="kpi-card">
 				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Active Installs</div>
 				<div class="kpi-value" id="kpi-active">-</div>
-				<div class="kpi-sub">Last 7 days</div>
+				<div class="kpi-sub">Last 30 days</div>
 			</div>
 			<div class="kpi-card">
 				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg> Total Installs</div>
@@ -630,6 +650,14 @@ export default {
 			<div class="card">
 				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Installations by Country</div>
 				<div class="chart-wrap" style="height:340px"><canvas id="chart-worldmap"></canvas></div>
+			</div>
+		</div>
+
+		<!-- Row 0b: Activity Trend -->
+		<div class="chart-row cols-1">
+			<div class="card">
+				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Activity Trend (Last 30 Days)</div>
+				<div class="chart-wrap" style="height:300px"><canvas id="chart-activity"></canvas></div>
 			</div>
 		</div>
 
@@ -848,6 +876,57 @@ export default {
 			});
 		mkChart('chart-os',           'doughnut', prepData(lastData.os), pp);
 		mkChart('chart-arch',         'doughnut', prepData(lastData.arch), pp);
+
+		// Activity Trend Chart
+		const activityCtx = document.getElementById('chart-activity')?.getContext('2d');
+		if (activityCtx) {
+			if (charts['chart-activity']) charts['chart-activity'].destroy();
+			const activityLabels = lastData.activity.map(d => {
+				const date = new Date(d.date);
+				return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+			});
+			charts['chart-activity'] = new Chart(activityCtx, {
+				type: 'line',
+				data: {
+					labels: activityLabels,
+					datasets: [
+						{
+							label: 'Unique IDs',
+							data: lastData.activity.map(d => d.uniques),
+							borderColor: tok('primary'),
+							backgroundColor: 'transparent',
+							tension: 0.3,
+							pointRadius: 4,
+							borderWidth: 3
+						},
+						{
+							label: 'Total Pings',
+							data: lastData.activity.map(d => d.pings),
+							borderColor: tok('accent'),
+							backgroundColor: 'transparent',
+							tension: 0.3,
+							pointRadius: 0,
+							borderWidth: 2,
+							borderDash: [5, 5]
+						}
+					]
+				},
+				options: {
+					responsive: true, maintainAspectRatio: false,
+					plugins: {
+						legend: { position: 'top', labels: { color: tok('text') } },
+						tooltip: {
+							backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('muted'),
+							borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8
+						}
+					},
+					scales: {
+						x: { grid: { display: false }, ticks: { color: tok('muted'), maxRotation: 0 } },
+						y: { grid: { color: tok('border') }, ticks: { color: tok('muted') }, beginAtZero: true }
+					}
+				}
+			});
+		}
 		const distRaw = lastData.cameras_dist || [];
 		mkChart('chart-cameras-dist', 'bar', { labels: distRaw.map(x=>x.name+' cam'), data: distRaw.map(x=>x.count) }, BAR_PALETTE());
 		const gdistRaw = lastData.groups_dist || [];
