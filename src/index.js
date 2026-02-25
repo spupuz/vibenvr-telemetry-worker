@@ -552,7 +552,7 @@ export default {
 <header class="topbar">
 	<a class="topbar-brand" href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener">
 		<img id="logo-img" src="https://github.com/spupuz/VibeNVR/blob/main/frontend/public/vibe_logo_dark.png?raw=true" alt="VibeNVR">
-		<span>Telemetry</span>
+		<span>VibeNVR Telemetry</span>
 	</a>
 	<div class="topbar-right">
 		<div class="badge-live"><span class="dot"></span> Live</div>
