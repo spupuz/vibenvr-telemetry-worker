@@ -1,42 +1,57 @@
-# VibeNVR Telemetry Dashboard (Cloudflare Worker)
+# VibeNVR Telemetry Worker
 
-Questo modulo gestisce l'ingestione della telemetria anonima di VibeNVR e genera automaticamente un'elegante Dashboard Pubblica, senza esporre dati sensibili o IP degli utenti.
+This module handles the ingestion of anonymous telemetry for VibeNVR and automatically generates an elegant Public Dashboard, **without exposing sensitive data or user IPs** (Privacy-First). It relies on the *Cloudflare Workers* Edge infrastructure to eliminate latency globally and *Analytics Engine* to store high-performance reporting.
 
-## Funzionalità
-1. **Ingestione Sicura**: il backend chiama `GET /telemetry.png` inviando dati di sistema di base (nessun IP, nessuna pwd). La nazione viene dedotta tramite gli header di Cloudflare e non salvata testualmente ma aggregata.
-2. **Dashboard Integrazione**: Una Dashboard scura (Dark Mode) con `Chart.js` disponibile alla rotta `/dashboard`.
-3. **API Privata (Worker-to-CF)**: Il Worker fa da proxy per i dati, chiamando le API di Analytics Engine autenticandosi da dietro le quinte tramite *Worker Secrets*, quindi le chiavi non arrivano mai al browser utente.
+## Key Features
 
-## Come testare e fare il deploy
+1. **Secure Ingestion**: The backend (or VibeNVR frontend) makes a `GET` request to the `/telemetry.png` endpoint sending hardware and installation metrics. IP addresses are never sent or read; the country is deduced and aggregated on the fly at the Edge. At the end of the query, the server instantly responds with a transparent 1x1 micro-PNG pixel, optimizing bandwidth and reducing client-side parsing errors.
+2. **Integrated Dashboard**: A visual Dashboard in *Dark Mode* style integrated natively (using *Chart.js* and *TailwindCSS*) and immediately available at the root `/` or on `/dashboard`.
+3. **Private Aggregation API**: The Worker itself acts as a proxy (`/api/stats`), hiding sensitive API Keys from the client, to transform raw Cloudflare GraphQL queries into a JSON layout convenient for iterating the graphic dashboard.
 
-1. Entra nella cartella: `cd cloudflare-telemetry`
-2. Installa le dipendenze: `npm install`
-3. Esegui il deploy sul tuo account Cloudflare: `npx wrangler deploy`
+## How to test and deploy
 
-## Configurazione della Sicurezza (obbligatorio per la Dashboard)
+The commands make use of `wrangler`, the native CLI executable provided by Cloudflare for manipulating Workers.
 
-Affinchè la pagina `/dashboard` mostri i grafici, devi abilitare il worker a leggere i suoi stessi dati su Analytics Engine inserendo Account ID e API Token. **Queste chiavi vanno caricate come SECRETS e non hard-coded nel file.**
+1. Enter the project folder: 
+```bash
+cd vibenvr-telemetry-worker
+```
+2. Install minimal dependencies: 
+```bash
+npm install
+```
+3. Deploy to your Cloudflare account: 
+```bash
+npm run deploy
+```
+*(On first run, NPM/Wrangler will ask you to login using the browser interface of your Cloudflare account).*
 
-1. Dal pannello Cloudflare, vai sul tuo Profilo (in alto a destra) > **API Tokens** e crea un token con permessi **Account > Analytics > Read**.
-2. Estrai il tuo **Account ID** (reperibile dalla dashboard laterale di qualsiasi tuo dominio).
-3. Dalla console del tuo PC, nella cartella `cloudflare-telemetry` lancia:
+## Security Configuration (Required for Dashboard)
+
+For the visual `/dashboard` page to show charts without returning `API Credentials not configured` errors, you need to enable the worker to fetch and read its own analytical data by entering the `Account ID` and `API Token`. 
+
+**These keys must NEVER be hard-coded into the file as plain text, but loaded as SECRET variables.**
+
+1. From the Cloudflare web panel, go to your User Profile (top right) > **API Tokens** and create a token that strictly has the permissions: **Account > Account Analytics > Read**.
+2. Extract your **Account ID** (found by scrolling down from the sidebar of any of your active domains on Cloudflare, or from your Cloudflare Dashboard URL).
+3. From your PC console, inside the build folder, launch the secrets to load them onto CF servers:
 
 ```bash
 npx wrangler secret put ACCOUNT_ID
-# Incolla il tuo Account ID e premi invio
+# Paste your exact Account ID and press enter
 
 npx wrangler secret put API_TOKEN
-# Incolla il Token API creato e premi invio
+# Paste the newly generated API Token with Read Analytics permissions and press enter
 ```
 
-Una volta configurati i secret, apri `https://tuo-worker.workers.dev/dashboard` e vedrai le statistiche reali!
+Once the secrets are injected at the edge, refresh the page at `https://<your-worker-name>.<your-username>.workers.dev/dashboard` and the charts will come to life displaying live historical data.
 
-## Agganciare il Worker a VibeNVR
+## Linking the Worker to VibeNVR
 
-Nei file di configurazione (`docker-compose.yml` / `docker-compose.prod.yml`), imposta la nuova variabile per la produzione o sviluppo:
+In the base configuration files of the VibeNVR Cloud instance (or `docker-compose.yml` and `docker-compose.prod.yml`), update or set the environment variables targeted for this new Telemetry instance:
 
 ```env
-CLOUDFLARE_TELEMETRY_URL=https://tuo-worker-nome.<tuo-username>.workers.dev/telemetry.png
+CLOUDFLARE_TELEMETRY_URL=https://<your-worker-name>.<your-username>.workers.dev/telemetry.png
 ```
 
-Se non impostato, il backend farà fallback automaticamente sul vecchio Scarf Pixel.
+If this variable is not populated at runtime, the core backend will tend to fall back to the native pre-configured upstream fallback.
