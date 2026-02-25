@@ -590,7 +590,7 @@ export default {
 		<div class="kpi-grid">
 			<div class="kpi-card">
 				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Active Installs</div>
-				<div class="kpi-value accent" id="kpi-active">-</div>
+				<div class="kpi-value" id="kpi-active">-</div>
 				<div class="kpi-sub">Last 7 days</div>
 			</div>
 			<div class="kpi-card">
@@ -618,9 +618,9 @@ export default {
 				<div class="kpi-value" id="kpi-gpu">-</div>
 				<div class="kpi-sub">HW accel enabled</div>
 			</div>
-			<div class="kpi-card" style="border-color: var(--primary);">
+			<div class="kpi-card">
 				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> Notifications</div>
-				<div class="kpi-value accent" id="kpi-notifications">-</div>
+				<div class="kpi-value" id="kpi-notifications">-</div>
 				<div class="kpi-sub">With webhooks / email</div>
 			</div>
 		</div>
@@ -735,7 +735,15 @@ export default {
 	}
 
 	const PIE_PALETTE  = () => [tok('primary'), tok('accent'), '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#84cc16'];
-	const BAR_PALETTE  = () => tok('primary');
+	const BAR_PALETTE  = () => [
+		'#1d4ed8', // Blue 700
+		'#2563eb', // Blue 600
+		'#3b82f6', // Blue 500
+		'#60a5fa', // Blue 400
+		'#93c5fd', // Blue 300
+		'#bfdbfe', // Blue 200
+		'#dbeafe'  // Blue 100
+	];
 
 	function prepData(list, lk='name', vk='count', limit=8) {
 		list = [...(list||[])].sort((a,b) => b[vk]-a[vk]);
@@ -846,7 +854,7 @@ export default {
 		mkChart('chart-groups-dist', 'bar', { labels: gdistRaw.map(x=>x.name+' grp'), data: gdistRaw.map(x=>x.count) }, BAR_PALETTE());
 		mkChart('chart-versions',     'bar',      prepData(lastData.versions), BAR_PALETTE());
 		mkChart('chart-ram',          'bar',      prepData(lastData.ram,'name','count',8), BAR_PALETTE());
-		mkChart('chart-cpu-models', 'bar', prepData(lastData.cpu_models,'name','count',12), pp, true);
+		mkChart('chart-cpu-models', 'bar', prepData(lastData.cpu_models,'name','count',12), BAR_PALETTE(), true);
 		mkChart('chart-cpu-cores',  'bar', prepData(lastData.cpu_cores,'name','count',10), BAR_PALETTE(), true);
 	}
 
