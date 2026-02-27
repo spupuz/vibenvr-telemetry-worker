@@ -646,7 +646,7 @@ export default {
 <!-- TOP BAR -->
 <header class="topbar">
 	<a class="topbar-brand" href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener">
-		<img id="logo-img" src="https://github.com/spupuz/VibeNVR/blob/main/frontend/public/vibe_logo_dark.png?raw=true" alt="VibeNVR">
+		<img id="logo-img" src="https://raw.githubusercontent.com/spupuz/VibeNVR/main/frontend/public/vibe_logo_dark.png" alt="VibeNVR" crossorigin="anonymous">
 		<span>VibeNVR Telemetry</span>
 	</a>
 	<div class="topbar-right">
@@ -827,8 +827,8 @@ export default {
 	let lastData = null;
 
 	// ─── THEME ───────────────────────────────────────────────────────────────
-	const LOGO_DARK  = 'https://github.com/spupuz/VibeNVR/blob/main/frontend/public/vibe_logo_dark.png?raw=true';
-	const LOGO_LIGHT = 'https://github.com/spupuz/VibeNVR/blob/main/docs/logo.png?raw=true';
+	const LOGO_DARK  = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/frontend/public/vibe_logo_dark.png';
+	const LOGO_LIGHT = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/docs/logo.png';
 
 	function applyTheme(dark) {
 		document.documentElement.classList.toggle('dark', dark);
