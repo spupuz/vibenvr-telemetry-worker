@@ -2,11 +2,19 @@ export default {
 	async fetch(request, env, ctx) {
 		const url = new URL(request.url);
 
+		const SECURITY_HEADERS = {
+			'Content-Security-Policy': "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com; img-src 'self' https://github.com data:; connect-src 'self' https://api.cloudflare.com https://cdn.jsdelivr.net;",
+			'X-Frame-Options': 'DENY',
+			'X-Content-Type-Options': 'nosniff',
+			'Referrer-Policy': 'strict-origin-when-cross-origin',
+			'Access-Control-Allow-Origin': '*',
+		};
+
 		// Handle CORS preflight
 		if (request.method === 'OPTIONS') {
 			return new Response(null, {
 				headers: {
-					'Access-Control-Allow-Origin': '*',
+					...SECURITY_HEADERS,
 					'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 				},
 			});
@@ -17,11 +25,16 @@ export default {
 			// 1. Sanitize and trim string inputs to prevent malicious payloads or spam
 			const cleanStr = (val, max = 100) => (val || 'unknown').toString().trim().slice(0, max);
 
-			const instance_id = cleanStr(url.searchParams.get('instance_id'));
-			const version = cleanStr(url.searchParams.get('version'));
-			const os = cleanStr(url.searchParams.get('os'));
-			const arch = cleanStr(url.searchParams.get('arch'));
-			const cpu_model = cleanStr(url.searchParams.get('cpu_model'));
+			const instance_id = cleanStr(url.searchParams.get('instance_id'), 128); // Slightly longer for potential long UUIDs
+			const version = cleanStr(url.searchParams.get('version'), 20);
+			const os = cleanStr(url.searchParams.get('os'), 20);
+			const arch = cleanStr(url.searchParams.get('arch'), 20);
+			const cpu_model = cleanStr(url.searchParams.get('cpu_model'), 100);
+
+			// 1b. Sanity Check: instance_id should be reasonably long (prevent trivial junk)
+			if (instance_id === 'unknown' || instance_id.length < 16) {
+				return new Response("Invalid ID format", { status: 400, headers: SECURITY_HEADERS });
+			}
 
 			// Extract country gracefully from Cloudflare headers (No IPs saved!)
 			const country = request.cf?.country || 'Unknown';
@@ -70,6 +83,27 @@ export default {
 				}
 			}
 
+			// 2. Persistent Unique ID tracking via KV
+			if (env.VIBENVR_IDS && instance_id !== 'unknown') {
+				try {
+					const kvKey = `id:${instance_id}`;
+					const existing = await env.VIBENVR_IDS.get(kvKey);
+					if (!existing) {
+						// New unique instance! 
+						await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
+
+						// Atomically increment the total counter
+						// Note: This is a simple counter. For high-scale, we might need a more robust approach,
+						// but for ~1000 writes/day KV is fine.
+						const countKey = 'stats:total_count';
+						const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
+						await env.VIBENVR_IDS.put(countKey, (currentTotal + 1).toString());
+					}
+				} catch (kvErr) {
+					console.error("KV Storage Error:", kvErr);
+				}
+			}
+
 			// Return 1x1 transparent PNG simulating a tracker pixel
 			const transparentPos = new Uint8Array([
 				0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
@@ -82,9 +116,9 @@ export default {
 
 			return new Response(transparentPos, {
 				headers: {
+					...SECURITY_HEADERS,
 					'Content-Type': 'image/png',
 					'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-					'Access-Control-Allow-Origin': '*',
 				},
 			});
 		}
@@ -162,7 +196,14 @@ export default {
 				const activityData = JSON.parse(activityStr).data || [];
 
 				let activeCount = activeData.length;
-				const totalCount = parseInt(totalData[0]?.total || "0", 10);
+
+				// 3. Get Persistent Total Installs from KV, fallback to SQL if KV is not bound
+				let totalCount = 0;
+				if (env.VIBENVR_IDS) {
+					totalCount = parseInt(await env.VIBENVR_IDS.get('stats:total_count') || "0", 10);
+				} else {
+					totalCount = parseInt(totalData[0]?.total || "0", 10);
+				}
 
 				// Deduplicate instances: pick the latest record for each ID based on timestamp
 				const uniqueInstances = new Map();
@@ -271,8 +312,8 @@ export default {
 
 				return new Response(JSON.stringify(stats), {
 					headers: {
+						...SECURITY_HEADERS,
 						'Content-Type': 'application/json',
-						'Access-Control-Allow-Origin': '*',
 					}
 				});
 			} catch (err) {
@@ -280,7 +321,7 @@ export default {
 				console.error("Dashboard API Error:", err);
 				return new Response(JSON.stringify({ error: "Internal Server Error" }), {
 					status: 500,
-					headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json' }
 				});
 			}
 		}
@@ -1062,7 +1103,10 @@ export default {
 </html>`;
 
 			return new Response(htmlTemplate, {
-				headers: { 'Content-Type': 'text/html;charset=UTF-8' }
+				headers: {
+					...SECURITY_HEADERS,
+					'Content-Type': 'text/html;charset=UTF-8'
+				}
 			});
 		}
 
