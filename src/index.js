@@ -1117,7 +1117,7 @@ export default {
 
 		// Favicon — redirect to the VibeNVR logo on GitHub
 		if (url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
-			return Response.redirect('https://github.com/spupuz/VibeNVR/blob/main/docs/logo.png?raw=true', 302);
+			return Response.redirect('https://raw.githubusercontent.com/spupuz/VibeNVR/main/docs/logo.png', 302);
 		}
 
 		// Fallback for unknown routes
