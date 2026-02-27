@@ -646,7 +646,7 @@ export default {
 <!-- TOP BAR -->
 <header class="topbar">
 	<a class="topbar-brand" href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener">
-		<img id="logo-img" src="https://raw.githubusercontent.com/spupuz/VibeNVR/main/frontend/public/vibe_logo_dark.png" alt="VibeNVR" crossorigin="anonymous">
+		<img id="logo-img" src="/assets/logo-dark" alt="VibeNVR">
 		<span>VibeNVR Telemetry</span>
 	</a>
 	<div class="topbar-right">
@@ -827,8 +827,8 @@ export default {
 	let lastData = null;
 
 	// ─── THEME ───────────────────────────────────────────────────────────────
-	const LOGO_DARK  = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/frontend/public/vibe_logo_dark.png';
-	const LOGO_LIGHT = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/docs/logo.png';
+	const LOGO_DARK  = '/assets/logo-dark';
+	const LOGO_LIGHT = '/assets/logo-light';
 
 	function applyTheme(dark) {
 		document.documentElement.classList.toggle('dark', dark);
@@ -1115,9 +1115,24 @@ export default {
 			});
 		}
 
-		// Favicon — redirect to the VibeNVR logo on GitHub
-		if (url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
-			return Response.redirect('https://raw.githubusercontent.com/spupuz/VibeNVR/main/docs/logo.png', 302);
+		// Assets Proxy — Serves images without GitHub cookies to clean console warnings
+		if (url.pathname.startsWith('/assets/') || url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
+			let target;
+			if (url.pathname === '/assets/logo-dark') {
+				target = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/frontend/public/vibe_logo_dark.png';
+			} else if (url.pathname === '/assets/logo-light' || url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
+				target = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/docs/logo.png';
+			}
+
+			if (target) {
+				const response = await fetch(target);
+				const headers = new Headers(response.headers);
+				headers.set('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
+				// Remove GitHub cookies/identity headers
+				headers.delete('set-cookie');
+				headers.set('Access-Control-Allow-Origin', '*');
+				return new Response(response.body, { headers });
+			}
 		}
 
 		// Fallback for unknown routes
