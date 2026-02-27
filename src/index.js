@@ -2,8 +2,10 @@ export default {
 	async fetch(request, env, ctx) {
 		const url = new URL(request.url);
 
+		// 0. Security Setup
+		const nonce = btoa(crypto.getRandomValues(new Uint8Array(16)).join('')).slice(0, 16);
 		const SECURITY_HEADERS = {
-			'Content-Security-Policy': "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com; img-src 'self' https://github.com data:; connect-src 'self' https://api.cloudflare.com https://cdn.jsdelivr.net;",
+			'Content-Security-Policy': `default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'nonce-${nonce}'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com; img-src 'self' https://github.com https://raw.githubusercontent.com data:; connect-src 'self' https://api.cloudflare.com https://cdn.jsdelivr.net;`,
 			'X-Frame-Options': 'DENY',
 			'X-Content-Type-Options': 'nosniff',
 			'Referrer-Policy': 'strict-origin-when-cross-origin',
@@ -649,7 +651,7 @@ export default {
 	</a>
 	<div class="topbar-right">
 		<div class="badge-live"><span class="dot"></span> Live</div>
-		<button class="theme-btn" id="theme-toggle" title="Toggle theme" onclick="toggleTheme()">
+		<button class="theme-btn" id="theme-toggle" title="Toggle theme">
 			<svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
 			<svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
 			<span id="theme-label">Dark Mode</span>
@@ -667,7 +669,7 @@ export default {
 	<!-- Error -->
 	<div class="err-box" id="error-msg">
 		<span>Failed to load telemetry data. Check Cloudflare API credentials.</span>
-		<button class="retry-btn" onclick="fetchStats()">Retry</button>
+		<button class="retry-btn" id="retry-btn">Retry</button>
 	</div>
 
 	<!-- Loading -->
@@ -819,7 +821,7 @@ export default {
 	</footer>
 </main>
 
-<script>
+<script nonce="${nonce}">
 	// ─── STATE (declared before IIFE to avoid TDZ) ───────────────────────────
 	let charts = {};
 	let lastData = null;
@@ -1096,6 +1098,9 @@ export default {
 			document.getElementById('error-msg').style.display = 'flex';
 		}
 	}
+
+	document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+	document.getElementById('retry-btn')?.addEventListener('click', fetchStats);
 
 	fetchStats();
 </script>
