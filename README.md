@@ -51,7 +51,7 @@ Once the secrets are injected at the edge, refresh the page at `https://<your-wo
 In the base configuration files of the VibeNVR Cloud instance (or `docker-compose.yml` and `docker-compose.prod.yml`), update or set the environment variables targeted for this new Telemetry instance:
 
 ```env
-CLOUDFLARE_TELEMETRY_URL=https://<your-worker-name>.<your-username>.workers.dev/telemetry.png
+TELEMETRY_ENDPOINT_URL=https://<your-worker-name>.<your-username>.workers.dev/telemetry.png
 ```
 
 If this variable is not populated at runtime, the core backend will tend to fall back to the native pre-configured upstream fallback.

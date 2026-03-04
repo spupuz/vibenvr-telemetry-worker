@@ -23,7 +23,7 @@ export default {
 		}
 
 		// 1. TELEMETRY INGESTION ENDPOINT
-		if (url.pathname === '/telemetry' || url.pathname === '/telemetry.png') {
+		if (url.pathname === '/telemetry' || url.pathname === '/telemetry.png' || url.pathname === '/site-telemetry.png') {
 			// 1. Sanitize and trim string inputs to prevent malicious payloads or spam
 			const cleanStr = (val, max = 100) => (val || 'unknown').toString().trim().slice(0, max);
 
@@ -34,8 +34,10 @@ export default {
 			const cpu_model = cleanStr(url.searchParams.get('cpu_model'), 100);
 
 			// 1b. Sanity Check: instance_id should be reasonably long (prevent trivial junk)
-			if (instance_id === 'unknown' || instance_id.length < 16) {
-				return new Response("Invalid ID format", { status: 400, headers: SECURITY_HEADERS });
+			if (url.pathname !== '/site-telemetry.png') {
+				if (instance_id === 'unknown' || instance_id.length < 16) {
+					return new Response("Invalid ID format", { status: 400, headers: SECURITY_HEADERS });
+				}
 			}
 
 			// Extract country gracefully from Cloudflare headers (No IPs saved!)
@@ -58,7 +60,27 @@ export default {
 			const notifications = (url.searchParams.get('notifications') === 'True' || url.searchParams.get('notifications') === 'true' || url.searchParams.get('notifications') === '1') ? 1 : 0;
 
 			// Write to Analytics Engine securely
-			if (env.VIBENVR_USAGE) {
+			if (url.pathname === '/site-telemetry.png') {
+				if (env.VIBENVR_SITE_USAGE) {
+					const visitor_id = cleanStr(url.searchParams.get('visitor_id'), 128);
+					const path = cleanStr(url.searchParams.get('path'), 200);
+
+					if (visitor_id !== 'unknown' && visitor_id.length >= 8) {
+						try {
+							env.VIBENVR_SITE_USAGE.writeDataPoint({
+								blobs: [
+									visitor_id, // blob1
+									path,       // blob2
+									country     // blob3
+								],
+								indexes: [visitor_id]
+							});
+						} catch (e) {
+							console.error("Failed to write to Site Analytics Engine", e);
+						}
+					}
+				}
+			} else if (env.VIBENVR_USAGE) {
 				try {
 					env.VIBENVR_USAGE.writeDataPoint({
 						blobs: [
@@ -85,8 +107,8 @@ export default {
 				}
 			}
 
-			// 2. Persistent Unique ID tracking via KV
-			if (env.VIBENVR_IDS && instance_id !== 'unknown') {
+			// 2. Persistent Unique ID tracking via KV (Only for NVR telemetry)
+			if (url.pathname !== '/site-telemetry.png' && env.VIBENVR_IDS && instance_id !== 'unknown') {
 				try {
 					const kvKey = `id:${instance_id}`;
 					const existing = await env.VIBENVR_IDS.get(kvKey);
@@ -168,8 +190,28 @@ export default {
 				ORDER BY day ASC
 			`;
 
+			const sqlSiteActivity = `
+				SELECT 
+					toStartOfDay(timestamp) as day,
+					count() as pageviews,
+					count(DISTINCT blob1) as uniques
+				FROM vibenvr_site_events 
+				WHERE timestamp >= NOW() - INTERVAL '30' DAY 
+				GROUP BY day
+				ORDER BY day ASC
+			`;
+
+			const sqlSiteCountries = `
+				SELECT
+					blob3 as country,
+					count(DISTINCT blob1) as uniques
+				FROM vibenvr_site_events
+				WHERE timestamp >= NOW() - INTERVAL '30' DAY
+				GROUP BY country
+			`;
+
 			try {
-				const [resActive, resTotal, resActivity] = await Promise.all([
+				const [resActive, resTotal, resActivity, resSiteActivity, resSiteCountries] = await Promise.all([
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
@@ -184,18 +226,32 @@ export default {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlActivity
-					})
+					}),
+					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+						method: 'POST',
+						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						body: sqlSiteActivity
+					}).catch(() => new Response(JSON.stringify({ data: [] }))), // Don't fail the whole API if the site dataset doesn't exist yet
+					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+						method: 'POST',
+						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						body: sqlSiteCountries
+					}).catch(() => new Response(JSON.stringify({ data: [] })))
 				]);
 
 				const activeStr = await resActive.text();
 				const totalStr = await resTotal.text();
 				const activityStr = await resActivity.text();
+				const siteActivityStr = await resSiteActivity.text();
+				const siteCountriesStr = await resSiteCountries.text();
 
 				if (!resActive.ok) throw new Error("SQL API Error: " + activeStr);
 
 				const activeData = JSON.parse(activeStr).data || [];
 				const totalData = JSON.parse(totalStr).data || [];
 				const activityData = JSON.parse(activityStr).data || [];
+				const siteActivityData = JSON.parse(siteActivityStr).data || [];
+				const siteCountriesData = JSON.parse(siteCountriesStr).data || [];
 
 				let activeCount = activeData.length;
 
@@ -241,6 +297,15 @@ export default {
 					total_events: 0,
 					gpu_enabled: 0,
 					notifications_enabled: 0,
+					site_activity: siteActivityData.map(row => ({
+						date: row.day,
+						pageviews: Number(row.pageviews) || 0,
+						uniques: Number(row.uniques) || 0
+					})),
+					site_countries: siteCountriesData.map(row => ({
+						name: row.country || 'Unknown',
+						count: Number(row.uniques) || 0
+					})).sort((a, b) => b.count - a.count)
 				};
 
 				const versionCounts = {};
@@ -815,6 +880,25 @@ export default {
 				<div class="chart-wrap"><canvas id="chart-arch"></canvas></div>
 			</div>
 		</div>
+
+		<!-- Divider & Site Section -->
+		<div style="margin: 3rem 0; border-top: 1px dashed var(--border);"></div>
+		<div class="page-title" style="margin-top: 2rem;">
+			<h2 style="font-size: 1.25rem; font-weight: 700;">Website Analytics</h2>
+			<p>Traffic to VibeNVR-site</p>
+		</div>
+
+		<!-- Row 5: Site Activity + Site Worldmap -->
+		<div class="chart-row cols-2">
+			<div class="card">
+				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Site Activity Trend</div>
+				<div class="chart-wrap"><canvas id="chart-site-activity"></canvas></div>
+			</div>
+			<div class="card">
+				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Site Visitors by Country</div>
+				<div class="chart-wrap"><canvas id="chart-site-worldmap"></canvas></div>
+			</div>
+		</div>
 	<footer class="footer">
 		Powered by Cloudflare Workers Analytics Engine · No IP addresses or personal data stored ·
 		All metrics are anonymous aggregate counts
@@ -1001,6 +1085,53 @@ export default {
 				mkChart('chart-worldmap', 'bar', prepData(lastData.countries,'name','count',15,true), BAR_PALETTE(), false);
 			});
 		
+		// Site map choropleth
+		fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+			.then(r => r.json())
+			.then(worldData => {
+				const countries = ChartGeo.topojson.feature(worldData, worldData.objects.countries).features;
+				const numToAlpha2 = {4:'AF',8:'AL',12:'DZ',24:'AO',32:'AR',36:'AU',40:'AT',50:'BD',56:'BE',76:'BR',100:'BG',124:'CA',152:'CL',156:'CN',170:'CO',191:'HR',203:'CZ',208:'DK',818:'EG',246:'FI',250:'FR',276:'DE',300:'GR',344:'HK',356:'IN',360:'ID',364:'IR',376:'IL',380:'IT',392:'JP',410:'KR',458:'MY',484:'MX',528:'NL',554:'NZ',566:'NG',578:'NO',586:'PK',604:'PE',608:'PH',616:'PL',620:'PT',642:'RO',643:'RU',682:'SA',702:'SG',710:'ZA',724:'ES',752:'SE',756:'CH',764:'TH',792:'TR',804:'UA',784:'AE',826:'GB',840:'US',704:'VN',858:'UY',807:'MK'};
+				const countryMap = {};
+				(lastData.site_countries||[]).forEach(c => { countryMap[c.name] = c.count; });
+				const geoData = countries.map(f => ({
+					feature: f,
+					value: countryMap[numToAlpha2[+f.id]] || 0
+				}));
+				const ctx = document.getElementById('chart-site-worldmap')?.getContext('2d');
+				if (!ctx) return;
+				if (charts['chart-site-worldmap']) charts['chart-site-worldmap'].destroy();
+				const isDark = document.documentElement.classList.contains('dark');
+				charts['chart-site-worldmap'] = new Chart(ctx, {
+					type: 'choropleth',
+					data: { labels: countries.map(f=>f.properties.name), datasets: [{
+						label: 'Visitors',
+						data: geoData,
+						backgroundColor(ctx) {
+							const v = ctx.raw?.value || 0;
+							if (v === 0) return isDark ? '#1c2330' : '#e9ecef';
+							const alpha = Math.min(0.2 + v * 0.3, 1);
+							return isDark ? 'rgba(167,139,250,' + alpha + ')' : 'rgba(139,92,246,' + alpha + ')'; // Use accent color for site map
+						},
+						borderColor: isDark ? '#21262d' : '#d1d5db',
+						borderWidth: 0.5,
+					}]},
+					options: {
+						responsive: true, maintainAspectRatio: false,
+						plugins: {
+							legend: { display: false },
+							tooltip: {
+								backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('muted'),
+								borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8,
+								callbacks: { label: function(ctx){ return ctx.raw.feature.properties.name + ': ' + (ctx.raw.value||0) + ' unique(s)'; } }
+							}
+						},
+						scales: { projection: { axis: 'x', projection: 'naturalEarth1' } }
+					}
+				});
+			}).catch(() => {
+				mkChart('chart-site-worldmap', 'bar', prepData(lastData.site_countries,'name','count',15,true), BAR_PALETTE(), false);
+			});
+
 		mkChart('chart-country-bars', 'bar', prepData(lastData.countries, 'name', 'count', 12, true), BAR_PALETTE(), false);
 		mkChart('chart-os',           'doughnut', prepData(lastData.os), pp);
 		mkChart('chart-arch',         'doughnut', prepData(lastData.arch), pp);
@@ -1055,6 +1186,62 @@ export default {
 				}
 			});
 		}
+		
+		// Site Activity Trend Chart
+		const siteActivityCtx = document.getElementById('chart-site-activity')?.getContext('2d');
+		if (siteActivityCtx && lastData.site_activity && lastData.site_activity.length > 0) {
+			if (charts['chart-site-activity']) charts['chart-site-activity'].destroy();
+			const activityLabels = lastData.site_activity.map(d => {
+				const date = new Date(d.date);
+				return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+			});
+			charts['chart-site-activity'] = new Chart(siteActivityCtx, {
+				type: 'line',
+				data: {
+					labels: activityLabels,
+					datasets: [
+						{
+							label: 'Unique Visitors',
+							data: lastData.site_activity.map(d => d.uniques),
+							borderColor: tok('accent'),
+							backgroundColor: 'transparent',
+							tension: 0.3,
+							pointRadius: 4,
+							borderWidth: 3
+						},
+						{
+							label: 'Total Pageviews',
+							data: lastData.site_activity.map(d => d.pageviews),
+							borderColor: tok('primary'),
+							backgroundColor: 'transparent',
+							tension: 0.3,
+							pointRadius: 0,
+							borderWidth: 2,
+							borderDash: [5, 5]
+						}
+					]
+				},
+				options: {
+					responsive: true, maintainAspectRatio: false,
+					plugins: {
+						legend: { position: 'top', labels: { color: tok('text') } },
+						tooltip: {
+							backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('muted'),
+							borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8
+						}
+					},
+					scales: {
+						x: { grid: { display: false }, ticks: { color: tok('muted'), maxRotation: 0 } },
+						y: { grid: { color: tok('border') }, ticks: { color: tok('muted') }, beginAtZero: true }
+					}
+				}
+			});
+		} else if (siteActivityCtx) {
+		    // Empty state for site activity
+			if (charts['chart-site-activity']) charts['chart-site-activity'].destroy();
+			mkChart('chart-site-activity', 'bar', {labels: ['No Data'], data: [0]}, BAR_PALETTE());
+		}
+
 		const distRaw = lastData.cameras_dist || [];
 		mkChart('chart-cameras-dist', 'bar', { labels: distRaw.map(x=>x.name+' cam'), data: distRaw.map(x=>x.count) }, BAR_PALETTE());
 		const gdistRaw = lastData.groups_dist || [];

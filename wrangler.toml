@@ -8,6 +8,10 @@ compatibility_date = "2024-02-25"
 binding = "VIBENVR_USAGE"
 dataset = "vibenvr_telemetry_events"
 
+[[analytics_engine_datasets]]
+binding = "VIBENVR_SITE_USAGE"
+dataset = "vibenvr_site_events"
+
 [[kv_namespaces]]
 binding = "VIBENVR_IDS"
 id = "746db40f9d15405a861c791e415de2f8"
