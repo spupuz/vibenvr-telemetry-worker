@@ -75,8 +75,27 @@ export default {
 								],
 								indexes: [visitor_id]
 							});
+
+							// Persistent tracking for site visitors
+							if (env.VIBENVR_IDS) {
+								const kvKey = `site_id:${visitor_id}`;
+								const existing = await env.VIBENVR_IDS.get(kvKey);
+
+								// 1. All-time unique visitor counter
+								if (!existing) {
+									await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
+									const countKey = 'site_stats:total_count';
+									const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
+									await env.VIBENVR_IDS.put(countKey, (currentTotal + 1).toString());
+								}
+
+								// 2. All-time total pageviews counter
+								const hitsKey = 'site_stats:total_hits';
+								const currentHits = parseInt(await env.VIBENVR_IDS.get(hitsKey) || "0", 10);
+								await env.VIBENVR_IDS.put(hitsKey, (currentHits + 1).toString());
+							}
 						} catch (e) {
-							console.error("Failed to write to Site Analytics Engine", e);
+							console.error("Failed to write to Site Analytics Engine/KV", e);
 						}
 					}
 				}
@@ -210,8 +229,20 @@ export default {
 				GROUP BY country
 			`;
 
+			const sqlSiteTotalVisitors = `
+				SELECT count(DISTINCT blob1) as total 
+				FROM vibenvr_site_events 
+				WHERE timestamp >= NOW() - INTERVAL '30' DAY
+			`;
+
+			const sqlSiteTotalPageviews = `
+				SELECT count() as total 
+				FROM vibenvr_site_events 
+				WHERE timestamp >= NOW() - INTERVAL '30' DAY
+			`;
+
 			try {
-				const [resActive, resTotal, resActivity, resSiteActivity, resSiteCountries] = await Promise.all([
+				const [resActive, resTotal, resActivity, resSiteActivity, resSiteCountries, resSiteTotalVisitors, resSiteTotalPageviews] = await Promise.all([
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
@@ -236,7 +267,17 @@ export default {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteCountries
-					}).catch(() => new Response(JSON.stringify({ data: [] })))
+					}).catch(() => new Response(JSON.stringify({ data: [] }))),
+					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+						method: 'POST',
+						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						body: sqlSiteTotalVisitors
+					}).catch(() => new Response(JSON.stringify({ data: [{ total: 0 }] }))),
+					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+						method: 'POST',
+						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						body: sqlSiteTotalPageviews
+					}).catch(() => new Response(JSON.stringify({ data: [{ total: 0 }] })))
 				]);
 
 				const activeStr = await resActive.text();
@@ -244,6 +285,8 @@ export default {
 				const activityStr = await resActivity.text();
 				const siteActivityStr = await resSiteActivity.text();
 				const siteCountriesStr = await resSiteCountries.text();
+				const siteTotalVisitorsStr = await resSiteTotalVisitors.text();
+				const siteTotalPageviewsStr = await resSiteTotalPageviews.text();
 
 				if (!resActive.ok) throw new Error("SQL API Error: " + activeStr);
 
@@ -252,15 +295,23 @@ export default {
 				const activityData = JSON.parse(activityStr).data || [];
 				const siteActivityData = JSON.parse(siteActivityStr).data || [];
 				const siteCountriesData = JSON.parse(siteCountriesStr).data || [];
+				const siteTotalVisitorsData = JSON.parse(siteTotalVisitorsStr).data || [];
+				const siteTotalPageviewsData = JSON.parse(siteTotalPageviewsStr).data || [];
 
 				let activeCount = activeData.length;
 
 				// 3. Get Persistent Total Installs from KV, fallback to SQL if KV is not bound
 				let totalCount = 0;
+				let siteTotalCountAllTime = 0;
+				let siteTotalHitsAllTime = 0;
 				if (env.VIBENVR_IDS) {
 					totalCount = parseInt(await env.VIBENVR_IDS.get('stats:total_count') || "0", 10);
+					siteTotalCountAllTime = parseInt(await env.VIBENVR_IDS.get('site_stats:total_count') || "0", 10);
+					siteTotalHitsAllTime = parseInt(await env.VIBENVR_IDS.get('site_stats:total_hits') || "0", 10);
 				} else {
 					totalCount = parseInt(totalData[0]?.total || "0", 10);
+					siteTotalCountAllTime = siteTotalVisitorsData[0]?.total || 0;
+					siteTotalHitsAllTime = siteTotalPageviewsData[0]?.total || 0;
 				}
 
 				// Deduplicate instances: pick the latest record for each ID based on timestamp
@@ -305,7 +356,11 @@ export default {
 					site_countries: siteCountriesData.map(row => ({
 						name: row.country || 'Unknown',
 						count: Number(row.uniques) || 0
-					})).sort((a, b) => b.count - a.count)
+					})).sort((a, b) => b.count - a.count),
+					site_total_visitors_30d: Number(siteTotalVisitorsData[0]?.total) || 0,
+					site_total_visitors_all_time: Math.max(Number(siteTotalVisitorsData[0]?.total) || 0, siteTotalCountAllTime),
+					site_total_pageviews_30d: Number(siteTotalPageviewsData[0]?.total) || 0,
+					site_total_pageviews_all_time: Math.max(Number(siteTotalPageviewsData[0]?.total) || 0, siteTotalHitsAllTime)
 				};
 
 				const versionCounts = {};
@@ -887,6 +942,30 @@ export default {
 			<h2 style="font-size: 1.25rem; font-weight: 700;">Website Analytics</h2>
 			<p>Traffic to VibeNVR-site</p>
 		</div>
+		
+		<!-- Site KPIs -->
+		<div class="kpi-grid" style="margin-bottom: 1.5rem;">
+			<div class="kpi-card">
+				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Unique Visitors</div>
+				<div class="kpi-value" id="kpi-site-visitors-30d">-</div>
+				<div class="kpi-sub">Last 30 days</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Unique Visitors</div>
+				<div class="kpi-value" id="kpi-site-visitors-alltime">-</div>
+				<div class="kpi-sub">All-time distinct</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> Total Visitors</div>
+				<div class="kpi-value" id="kpi-site-pageviews-30d">-</div>
+				<div class="kpi-sub">Pageviews (30d)</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> Total Visitors</div>
+				<div class="kpi-value" id="kpi-site-pageviews-alltime">-</div>
+				<div class="kpi-sub">Pageviews (All-time)</div>
+			</div>
+		</div>
 
 		<!-- Row 5: Site Activity + Site Worldmap -->
 		<div class="chart-row cols-2">
@@ -1262,6 +1341,10 @@ export default {
 		set('kpi-groups',        data.total_groups);
 		set('kpi-gpu',           data.gpu_enabled);
 		set('kpi-notifications', data.notifications_enabled);
+		set('kpi-site-visitors-30d', data.site_total_visitors_30d);
+		set('kpi-site-visitors-alltime', data.site_total_visitors_all_time);
+		set('kpi-site-pageviews-30d', data.site_total_pageviews_30d);
+		set('kpi-site-pageviews-alltime', data.site_total_pageviews_all_time);
 
 		renderChartsIfReady();
 
