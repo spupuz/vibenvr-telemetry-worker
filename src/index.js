@@ -8,6 +8,13 @@ export default {
 	async fetch(request, env, ctx) {
 		const url = new URL(request.url);
 
+		// Handle proxying under /telemetry prefix (e.g. vibenvr.org/telemetry)
+		if (url.pathname === '/telemetry' || url.pathname === '/telemetry/') {
+			url.pathname = '/';
+		} else if (url.pathname.startsWith('/telemetry/')) {
+			url.pathname = url.pathname.replace(/^\/telemetry/, '');
+		}
+
 		// 0. Security Setup
 		const { nonce, SECURITY_HEADERS } = getSecurityContext();
 
