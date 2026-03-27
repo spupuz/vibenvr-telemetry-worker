@@ -1,11 +1,11 @@
-export const getDashboardHtml = (nonce) => {
+export const getDashboardHtml = (nonce, prefix = '') => {
   const htmlTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>VibeNVR Telemetry</title>
-	<link rel="icon" type="image/png" href="/favicon.png">
+	<link rel="icon" type="image/png" href="${prefix}/favicon.png">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -315,7 +315,7 @@ export const getDashboardHtml = (nonce) => {
 <!-- TOP BAR -->
 <header class="topbar">
 	<a class="topbar-brand" href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener">
-		<img id="logo-img" src="/assets/logo-dark" alt="VibeNVR">
+		<img id="logo-img" src="${prefix}/assets/logo-dark" alt="VibeNVR">
 		<span>VibeNVR Telemetry</span>
 	</a>
 	<div class="topbar-right">
@@ -539,8 +539,8 @@ export const getDashboardHtml = (nonce) => {
 	let lastData = null;
 
 	// ─── THEME ───────────────────────────────────────────────────────────────
-	const LOGO_DARK  = '/assets/logo-dark';
-	const LOGO_LIGHT = '/assets/logo-light';
+	const LOGO_DARK  = '${prefix}/assets/logo-dark';
+	const LOGO_LIGHT = '${prefix}/assets/logo-light';
 
 	function applyTheme(dark) {
 		document.documentElement.classList.toggle('dark', dark);
@@ -906,7 +906,7 @@ export const getDashboardHtml = (nonce) => {
 		document.getElementById('dashboard').style.display = 'none';
 		document.getElementById('error-msg').style.display = 'none';
 		try {
-			const res = await fetch('/api/stats');
+			const res = await fetch('${prefix}/api/stats');
 			if (!res.ok) throw new Error('HTTP ' + res.status);
 			const data = await res.json();
 			if (data.error) throw new Error(data.error);

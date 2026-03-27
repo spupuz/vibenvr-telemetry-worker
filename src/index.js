@@ -9,9 +9,12 @@ export default {
 		const url = new URL(request.url);
 
 		// Handle proxying under /telemetry prefix (e.g. vibenvr.org/telemetry)
+		let prefix = '';
 		if (url.pathname === '/telemetry' || url.pathname === '/telemetry/') {
+			prefix = '/telemetry';
 			url.pathname = '/';
 		} else if (url.pathname.startsWith('/telemetry/')) {
+			prefix = '/telemetry';
 			url.pathname = url.pathname.replace(/^\/telemetry/, '');
 		}
 
@@ -40,7 +43,7 @@ export default {
 
 		// 3. HTML DASHBOARD PAGE
 		if (url.pathname === '/dashboard' || url.pathname === '/') {
-			const htmlTemplate = getDashboardHtml(nonce);
+			const htmlTemplate = getDashboardHtml(nonce, prefix);
 			return new Response(htmlTemplate, {
 				headers: {
 					...SECURITY_HEADERS,
