@@ -22,7 +22,14 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					double4 as groups,
 					double5 as events,
 					double6 as gpu,
-					double7 as notifications
+					double7 as notifications,
+					double8 as mqtt_active,
+					double9 as motion_opencv,
+					double10 as motion_onvif,
+					double11 as motion_ai_engine,
+					double12 as motion_ai,
+					double13 as onvif_count,
+					double14 as substream_count
 				FROM vibenvr_telemetry_events 
 				WHERE timestamp >= NOW() - INTERVAL '30' DAY
 			`;
@@ -179,6 +186,14 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					total_events: 0,
 					gpu_enabled: 0,
 					notifications_enabled: 0,
+					total_mqtt_active: 0,
+					total_motion_opencv: 0,
+					total_motion_onvif: 0,
+					total_motion_ai_engine: 0,
+					total_motion_ai: 0,
+					total_onvif_cameras: 0,
+					total_substream_cameras: 0,
+					motion_engines: [],
 					site_activity: siteActivityData.map(row => ({
 						date: row.day,
 						pageviews: Number(row.pageviews) || 0,
@@ -231,6 +246,13 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					stats.total_events += Number(row.events) || 0;
 					if (Number(row.gpu) > 0) stats.gpu_enabled++;
 					if (Number(row.notifications) > 0) stats.notifications_enabled++;
+					if (Number(row.mqtt_active) > 0) stats.total_mqtt_active++;
+					stats.total_motion_opencv += Number(row.motion_opencv) || 0;
+					stats.total_motion_onvif += Number(row.motion_onvif) || 0;
+					stats.total_motion_ai_engine += Number(row.motion_ai_engine) || 0;
+					stats.total_motion_ai += Number(row.motion_ai) || 0;
+					stats.total_onvif_cameras += Number(row.onvif_count) || 0;
+					stats.total_substream_cameras += Number(row.substream_count) || 0;
 
 					// Cameras distribution bucket
 					const nc = Number(row.cameras) || 0;
@@ -252,6 +274,12 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				stats.os = Object.entries(osCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
 				stats.arch = Object.entries(archCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
 				stats.ram = Object.entries(ramCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+				
+				stats.motion_engines = [
+					{ name: 'AI Native', count: stats.total_motion_ai_engine },
+					{ name: 'OpenCV', count: stats.total_motion_opencv },
+					{ name: 'ONVIF Edge', count: stats.total_motion_onvif }
+				].filter(x => x.count > 0).sort((a, b) => b.count - a.count);
 				// Normalise cameras_dist to ordered array
 				const bkOrder = ['0', '1', '2-3', '4-5', '6-10', '11-20', '21+'];
 				stats.cameras_dist = bkOrder

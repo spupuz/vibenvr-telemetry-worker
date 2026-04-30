@@ -24,9 +24,16 @@ export const handleIngestion = async (request, url, env, SECURITY_HEADERS) => {
 	const cameras = parseNum(url.searchParams.get('cameras'));
 	const groups = parseNum(url.searchParams.get('groups'));
 	const events = parseNum(url.searchParams.get('events'));
+	const motion_opencv = parseNum(url.searchParams.get('motion_opencv'));
+	const motion_onvif = parseNum(url.searchParams.get('motion_onvif'));
+	const motion_ai_engine = parseNum(url.searchParams.get('motion_ai_engine'));
+	const motion_ai = parseNum(url.searchParams.get('motion_ai'));
+	const onvif_count = parseNum(url.searchParams.get('onvif_count'));
+	const substream_count = parseNum(url.searchParams.get('substream_count'));
 
 	const gpu = (url.searchParams.get('gpu') === 'True' || url.searchParams.get('gpu') === 'true' || url.searchParams.get('gpu') === '1') ? 1 : 0;
 	const notifications = (url.searchParams.get('notifications') === 'True' || url.searchParams.get('notifications') === 'true' || url.searchParams.get('notifications') === '1') ? 1 : 0;
+	const mqtt_active = (url.searchParams.get('mqtt_active') === 'True' || url.searchParams.get('mqtt_active') === 'true' || url.searchParams.get('mqtt_active') === '1') ? 1 : 0;
 
 	if (url.pathname === '/site-telemetry.png') {
 		if (env.VIBENVR_SITE_USAGE) {
@@ -64,7 +71,11 @@ export const handleIngestion = async (request, url, env, SECURITY_HEADERS) => {
 		try {
 			env.VIBENVR_USAGE.writeDataPoint({
 				blobs: [ instance_id, version, os, arch, cpu_model, country ],
-				doubles: [ cpu, ram, cameras, groups, events, gpu, notifications ],
+				doubles: [ 
+					cpu, ram, cameras, groups, events, gpu, notifications, 
+					mqtt_active, motion_opencv, motion_onvif, motion_ai_engine,
+					motion_ai, onvif_count, substream_count 
+				],
 				indexes: [instance_id]
 			});
 		} catch (e) {

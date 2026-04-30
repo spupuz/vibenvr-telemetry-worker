@@ -411,6 +411,26 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 				<div class="kpi-value" id="kpi-notifications">-</div>
 				<div class="kpi-sub">Instances w/ webhooks/email/telegram</div>
 			</div>
+			<div class="kpi-card">
+				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> AI Cameras</div>
+				<div class="kpi-value" id="kpi-ai">-</div>
+				<div class="kpi-sub">Cameras with AI enabled</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> MQTT Active</div>
+				<div class="kpi-value" id="kpi-mqtt">-</div>
+				<div class="kpi-sub">Instances with MQTT enabled</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ONVIF Devices</div>
+				<div class="kpi-value" id="kpi-onvif">-</div>
+				<div class="kpi-sub">Total ONVIF cameras</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Sub-streams</div>
+				<div class="kpi-value" id="kpi-substreams">-</div>
+				<div class="kpi-sub">Cameras with sub-streams</div>
+			</div>
 		</div>
 
 		<!-- Row 0: World Map -->
@@ -434,6 +454,14 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			<div class="card">
 				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Activity Trend (Last 30 Days)</div>
 				<div class="chart-wrap" style="height:300px"><canvas id="chart-activity"></canvas></div>
+			</div>
+		</div>
+
+		<!-- Row 0c: Motion Engines -->
+		<div class="chart-row cols-1">
+			<div class="card">
+				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9-9a9 9 0 0 1-9 9m9-9V3m0 18a9 9 0 0 1-9-9"/></svg> Motion Detection Engines Distribution</div>
+				<div class="chart-wrap" style="height:300px"><canvas id="chart-motion-engines"></canvas></div>
 			</div>
 		</div>
 
@@ -473,17 +501,6 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			</div>
 		</div>
 
-		<!-- Row 4: Host OS + CPU Architecture (less-variable metrics) -->
-		<div class="chart-row cols-2">
-			<div class="card">
-				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Host OS</div>
-				<div class="chart-wrap"><canvas id="chart-os"></canvas></div>
-			</div>
-			<div class="card">
-				<div class="chart-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></svg> CPU Architecture</div>
-				<div class="chart-wrap"><canvas id="chart-arch"></canvas></div>
-			</div>
-		</div>
 
 		<!-- Divider & Site Section -->
 		<div style="margin: 3rem 0; border-top: 1px dashed var(--border);"></div>
@@ -761,8 +778,6 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			});
 
 		mkChart('chart-country-bars', 'bar', prepData(lastData.countries, 'name', 'count', 12, true), BAR_PALETTE(), false);
-		mkChart('chart-os',           'doughnut', prepData(lastData.os), pp);
-		mkChart('chart-arch',         'doughnut', prepData(lastData.arch), pp);
 
 		// Activity Trend Chart
 		const activityCtx = document.getElementById('chart-activity')?.getContext('2d');
@@ -878,6 +893,8 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 		mkChart('chart-ram',          'bar',      prepData(lastData.ram,'name','count',8), BAR_PALETTE());
 		mkChart('chart-cpu-models', 'bar', prepData(lastData.cpu_models,'name','count',12), BAR_PALETTE(), true);
 		mkChart('chart-cpu-cores',  'bar', prepData(lastData.cpu_cores,'name','count',10), BAR_PALETTE(), true);
+		
+		mkChart('chart-motion-engines', 'doughnut', prepData(lastData.motion_engines), PIE_PALETTE());
 	}
 
 	function renderDashboard(data) {
@@ -890,6 +907,10 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 		set('kpi-groups',        data.total_groups);
 		set('kpi-gpu',           data.gpu_enabled);
 		set('kpi-notifications', data.notifications_enabled);
+		set('kpi-ai',            data.total_motion_ai);
+		set('kpi-mqtt',          data.total_mqtt_active);
+		set('kpi-onvif',         data.total_onvif_cameras);
+		set('kpi-substreams',    data.total_substream_cameras);
 		set('kpi-site-visitors-30d', data.site_total_visitors_30d);
 		set('kpi-site-visitors-alltime', data.site_total_visitors_all_time);
 		set('kpi-site-pageviews-30d', data.site_total_pageviews_30d);
