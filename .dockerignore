@@ -1,0 +1,13 @@
+# Telemetry Worker Build Context Exclusions
+node_modules/
+.git/
+.gitignore
+.agents/
+.wrangler/
+.dev.vars
+0
+*.log
+package-lock.json
+README.md
+CONTEXT.md
+STYLE.md

@@ -39,3 +39,8 @@ worker/
 .Trashes
 Ehthumbs.db
 Thumbs.db
+
+# Agent Workflows & Memory
+.agents/
+.gemini/
+
