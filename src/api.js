@@ -250,7 +250,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					stats.total_motion_opencv += Number(row.motion_opencv) || 0;
 					stats.total_motion_onvif += Number(row.motion_onvif) || 0;
 					stats.total_motion_ai_engine += Number(row.motion_ai_engine) || 0;
-					stats.total_motion_ai += Number(row.motion_ai) || 0;
+					stats.total_motion_ai += Number(row.motion_ai_engine) || 0;
 					stats.total_onvif_cameras += Number(row.onvif_count) || 0;
 					stats.total_substream_cameras += Number(row.substream_count) || 0;
 
