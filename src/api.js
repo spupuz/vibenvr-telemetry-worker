@@ -79,8 +79,25 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				WHERE timestamp >= NOW() - INTERVAL '30' DAY
 			`;
 
+			const sqlEventsTrend = `
+				SELECT 
+					day,
+					sum(max_events) as events
+				FROM (
+					SELECT 
+						toStartOfDay(timestamp) as day,
+						blob1,
+						max(double5) as max_events
+					FROM vibenvr_telemetry_events 
+					WHERE timestamp >= NOW() - INTERVAL '30' DAY 
+					GROUP BY day, blob1
+				)
+				GROUP BY day
+				ORDER BY day ASC
+			`;
+
 			try {
-				const [resActive, resTotal, resActivity, resSiteActivity, resSiteCountries, resSiteTotalVisitors, resSiteTotalPageviews] = await Promise.all([
+				const [resActive, resTotal, resActivity, resSiteActivity, resSiteCountries, resSiteTotalVisitors, resSiteTotalPageviews, resEventsTrend] = await Promise.all([
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
@@ -115,7 +132,12 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteTotalPageviews
-					}).catch(() => new Response(JSON.stringify({ data: [{ total: 0 }] })))
+					}).catch(() => new Response(JSON.stringify({ data: [{ total: 0 }] }))),
+					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+						method: 'POST',
+						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						body: sqlEventsTrend
+					}).catch(() => new Response(JSON.stringify({ data: [] })))
 				]);
 
 				const activeStr = await resActive.text();
@@ -125,6 +147,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				const siteCountriesStr = await resSiteCountries.text();
 				const siteTotalVisitorsStr = await resSiteTotalVisitors.text();
 				const siteTotalPageviewsStr = await resSiteTotalPageviews.text();
+				const eventsTrendStr = await resEventsTrend.text();
 
 				if (!resActive.ok) throw new Error("SQL API Error: " + activeStr);
 
@@ -135,6 +158,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				const siteCountriesData = JSON.parse(siteCountriesStr).data || [];
 				const siteTotalVisitorsData = JSON.parse(siteTotalVisitorsStr).data || [];
 				const siteTotalPageviewsData = JSON.parse(siteTotalPageviewsStr).data || [];
+				const eventsTrendData = JSON.parse(eventsTrendStr).data || [];
 
 				let activeCount = activeData.length;
 
@@ -174,6 +198,10 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 						date: row.day,
 						pings: Number(row.pings) || 0,
 						uniques: Number(row.uniques) || 0
+					})),
+					events_trend: eventsTrendData.map(row => ({
+						date: row.day,
+						events: Number(row.events) || 0
 					})),
 					versions: [],
 					countries: [],
