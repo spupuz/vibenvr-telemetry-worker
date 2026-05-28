@@ -696,7 +696,7 @@ margin-top: 2px;
 			let name = i[lk];
 			if (typeof name === 'string') {
 				// Clean up CPU names to fit in mobile charts
-				name = name.replace(/\(R\)|\(TM\)/g, '').replace(/ Processor/gi, '').replace(/ CPU/gi, '').replace(/ @ \d+\.\d+GHz/gi, '').trim();
+				name = name.replace(/\\(R\\)|\\(TM\\)/g, '').replace(/ Processor/gi, '').replace(/ CPU/gi, '').replace(/ @ \\d+\\.\\d+GHz/gi, '').trim();
 				if (name.length > 28) name = name.substring(0, 26) + '...';
 			}
 			if (showFlags && name !== 'Other' && name !== 'Unknown') {
