@@ -457,7 +457,7 @@ margin-top: 2px;
 			<div class="card" title="Geographic distribution of active instances based on IP address geolocation.">
 				<div class="chart-title">
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Map: Installations by Country
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Geographic distribution based on IP address geolocation)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Geographic distribution based on IP address geolocation — IPs are not collected or stored, they are strictly filtered by Cloudflare)</span>
 				</div>
 				<div class="chart-wrap" style="height:340px"><canvas id="chart-worldmap"></canvas></div>
 			</div>
