@@ -245,6 +245,36 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				const archCounts = {};
 				const ramCounts = {};
 
+				// Calcolo nazioni recenti (ultime 24 e 48 ore)
+				const recent48h = Date.now() - 48 * 60 * 60 * 1000;
+				const recent24h = Date.now() - 24 * 60 * 60 * 1000;
+				const uniqueRecent24h = new Map();
+				const uniqueRecent48_24h = new Map();
+
+				for (const row of activeData) {
+					const ts = new Date(row.timestamp).getTime();
+					if (ts >= recent24h) {
+						uniqueRecent24h.set(row.instance_id, { country: row.country || 'Unknown', version: row.version || 'unknown' });
+					} else if (ts >= recent48h) {
+						uniqueRecent48_24h.set(row.instance_id, { country: row.country || 'Unknown', version: row.version || 'unknown' });
+					}
+				}
+
+				const countryCounts24h = {};
+				const versionCounts24h = {};
+				for (const data of uniqueRecent24h.values()) {
+					countryCounts24h[data.country] = (countryCounts24h[data.country] || 0) + 1;
+					versionCounts24h[data.version] = (versionCounts24h[data.version] || 0) + 1;
+				}
+				const countryCounts48_24h = {};
+				for (const data of uniqueRecent48_24h.values()) {
+					countryCounts48_24h[data.country] = (countryCounts48_24h[data.country] || 0) + 1;
+				}
+				
+				stats.countries_24h = Object.entries(countryCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+				stats.countries_prev24h = Object.entries(countryCounts48_24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+				stats.versions_24h = Object.entries(versionCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+
 				for (const row of deduplicatedData) {
 					// Aggregations
 					const v = row.version || 'unknown';

@@ -27,6 +27,7 @@ export default {
 				headers: {
 					...SECURITY_HEADERS,
 					'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+					'Cache-Control': 'no-cache, no-store, must-revalidate',
 				},
 			});
 		}
@@ -47,8 +48,9 @@ export default {
 			return new Response(htmlTemplate, {
 				headers: {
 					...SECURITY_HEADERS,
-					'Content-Type': 'text/html;charset=UTF-8'
-				}
+					'Content-Type': 'text/html;charset=UTF-8',
+					'Cache-Control': 'no-cache, no-store, must-revalidate',
+				},
 			});
 		}
 
