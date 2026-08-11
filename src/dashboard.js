@@ -9,8 +9,8 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo@4/build/index.umd.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js" nonce="${nonce}"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo@4/build/index.umd.min.js" nonce="${nonce}"></script>
 	<style>
 		*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
