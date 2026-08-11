@@ -133,6 +133,12 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 		}
 		.theme-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
 
+		/* Focus States for Accessibility */
+		:focus-visible {
+			outline: 2px solid var(--primary);
+			outline-offset: 2px;
+		}
+
 		.main { padding: 1.5rem; max-width: 1320px; margin: 0 auto; }
 
 		.page-title {
@@ -388,13 +394,13 @@ margin-top: 2px;
 	</div>
 
 	<!-- Error -->
-	<div class="err-box" id="error-msg">
+	<div class="err-box" id="error-msg" role="alert" aria-live="assertive">
 		<span>Failed to load telemetry data. Check Cloudflare API credentials.</span>
 		<button class="retry-btn" id="retry-btn">Retry</button>
 	</div>
 
 	<!-- Loading -->
-	<div class="state-box" id="loader">
+	<div class="state-box" id="loader" role="status" aria-live="polite">
 		<div class="spinner"></div>
 		<span>Loading telemetry…</span>
 	</div>
