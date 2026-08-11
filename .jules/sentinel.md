@@ -1,0 +1,4 @@
+## 2024-05-24 - CSP Script-Src Broad Permissive Rule
+**Vulnerability:** The Content Security Policy in `security.js` permitted the execution of scripts from `https://cdn.jsdelivr.net` globally, making it vulnerable to XSS if an attacker could execute arbitrary scripts hosted on that CDN (which is common). The CSP nonce was also generated weakly using a truncated string from `crypto.getRandomValues`.
+**Learning:** Permissive script-src configurations that whitelist entire CDNs effectively neuter the protection of a CSP. Nonces must be used for inline and external scripts, and they must have high entropy.
+**Prevention:** Rely strictly on `nonce-<value>` for script execution instead of domain whitelists. Use `crypto.randomUUID()` or a sufficiently long secure random sequence for nonces.
