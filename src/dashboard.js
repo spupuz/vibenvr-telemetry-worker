@@ -14,6 +14,12 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 	<style>
 		*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+		@font-face {
+			font-family: 'Twemoji Country Flags';
+			unicode-range: U+1F1E6-1F1FF, U+1F3F4, U+E0062-E0063, U+E0065, U+E0067, U+E006C, U+E006E, U+E0073-E0074, U+E0077, U+E007F;
+			src: url('https://cdn.jsdelivr.net/npm/country-flag-emoji-polyfill@0.1/dist/TwemojiCountryFlags.woff2') format('woff2');
+		}
+
 		/* === TOKENS === */
 		:root {
 			--bg: #f4f6fb;
@@ -46,7 +52,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 		}
 
 		body {
-			font-family: 'Geist', sans-serif;
+			font-family: 'Geist', 'Twemoji Country Flags', sans-serif;
 			background: var(--bg);
 			color: var(--text);
 			min-height: 100vh;
@@ -820,8 +826,8 @@ margin-top: 2px;
 					}
 				},
 				scales: isBar ? {
-					x: { grid: { color: tok('border') }, ticks: { color: tok('muted'), font: { family: 'Inter, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } }, beginAtZero: true },
-					y: { grid: { display: false }, ticks: { color: tok('muted'), font: { family: 'Inter, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } } }
+					x: { grid: { color: tok('border') }, ticks: { color: tok('muted'), font: { family: 'Inter, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } }, beginAtZero: true },
+					y: { grid: { display: false }, ticks: { color: tok('muted'), font: { family: 'Inter, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } } }
 				} : { x: { display:false }, y: { display:false } }
 			}
 		});
@@ -1122,7 +1128,7 @@ margin-top: 2px;
 			return \`
 				<tr style="border-bottom: 1px solid var(--border); background: linear-gradient(to right, var(--primary-light) \${pct}%, transparent \${pct}%);">
 					<td style="padding: 0.6rem 0.5rem; border-radius: 4px 0 0 4px;">
-						<span style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">\${escapeHtml(emoji)}</span>
+						<span style="font-family: 'Twemoji Country Flags', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">\${escapeHtml(emoji)}</span>
 						<span style="margin-left: 4px;">\${escapeHtml(textName)}</span>
 					</td>
 					<td style="text-align: right; padding: 0.6rem 0.5rem; font-weight: 600; color: var(--primary); border-radius: 0 4px 4px 0;">\${escapeHtml(val)}</td>
