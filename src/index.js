@@ -39,7 +39,17 @@ export default {
 
 		// 2. DASHBOARD PUBLIC API
 		if (url.pathname === '/api/stats') {
-			return handleApiStats(env, SECURITY_HEADERS);
+			const cache = caches.default;
+			const cachedResponse = await cache.match(request);
+			if (cachedResponse) {
+				return cachedResponse;
+			}
+			const response = await handleApiStats(env, SECURITY_HEADERS);
+			if (response.status === 200) {
+				// Clone the response so it can be cached and returned
+				ctx.waitUntil(cache.put(request, response.clone()));
+			}
+			return response;
 		}
 
 		// 3. HTML DASHBOARD PAGE
