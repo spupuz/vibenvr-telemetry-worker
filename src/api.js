@@ -353,6 +353,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					headers: {
 						...SECURITY_HEADERS,
 						'Content-Type': 'application/json',
+						'Cache-Control': 'public, s-maxage=300, max-age=60',
 					}
 				});
 			} catch (err) {
