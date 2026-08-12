@@ -1099,6 +1099,7 @@ margin-top: 2px;
 		mkChart('chart-recent-countries', 'bar', prepData(lastData.countries_24h, 'name', 'count', 12, true), BAR_PALETTE(), window.innerWidth < 600);
 		const leaderboardData = prepData(lastData.countries, 'name', 'count', 10, true);
 		const maxLbValue = Math.max(...leaderboardData.data, 1);
+		const escapeHtml = (unsafe) => (unsafe||'').toString().replace(/[&<"']/g, m => ({'&': '&amp;', '<': '&lt;', '"': '&quot;', "'": '&#039;'}[m]));
 		const leaderboardHtml = leaderboardData.labels.map((name, i) => {
 			const val = leaderboardData.data[i];
 			const pct = (val / maxLbValue) * 100;
@@ -1115,10 +1116,10 @@ margin-top: 2px;
 			return \`
 				<tr style="border-bottom: 1px solid var(--border); background: linear-gradient(to right, var(--primary-light) \${pct}%, transparent \${pct}%);">
 					<td style="padding: 0.6rem 0.5rem; border-radius: 4px 0 0 4px;">
-						<span style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">\${emoji}</span>
-						<span style="margin-left: 4px;">\${textName}</span>
+						<span style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">\${escapeHtml(emoji)}</span>
+						<span style="margin-left: 4px;">\${escapeHtml(textName)}</span>
 					</td>
-					<td style="text-align: right; padding: 0.6rem 0.5rem; font-weight: 600; color: var(--primary); border-radius: 0 4px 4px 0;">\${val}</td>
+					<td style="text-align: right; padding: 0.6rem 0.5rem; font-weight: 600; color: var(--primary); border-radius: 0 4px 4px 0;">\${escapeHtml(val)}</td>
 				</tr>\`;
 		}).join('');
 		const lbEl = document.getElementById('leaderboard-countries');
