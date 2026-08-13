@@ -1111,7 +1111,7 @@ margin-top: 2px;
 		mkChart('chart-recent-countries', 'bar', prepData(lastData.countries_24h, 'name', 'count', 12, true), BAR_PALETTE(), window.innerWidth < 600);
 		const leaderboardData = prepData(lastData.countries, 'name', 'count', 10, true);
 		const maxLbValue = Math.max(...leaderboardData.data, 1);
-		const escapeHtml = (unsafe) => (unsafe||'').toString().replace(/[&<"']/g, m => ({'&': '&amp;', '<': '&lt;', '"': '&quot;', "'": '&#039;'}[m]));
+		const escapeHtml = (unsafe) => (unsafe||'').toString().replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'}[m]));
 		const leaderboardHtml = leaderboardData.labels.map((name, i) => {
 			const val = leaderboardData.data[i];
 			const pct = (val / maxLbValue) * 100;

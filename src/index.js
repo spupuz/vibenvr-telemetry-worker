@@ -39,6 +39,9 @@ export default {
 
 		// 2. DASHBOARD PUBLIC API
 		if (url.pathname === '/api/stats') {
+			if (request.method !== 'GET') {
+				return new Response('Method Not Allowed', { status: 405, headers: SECURITY_HEADERS });
+			}
 			const cache = caches.default;
 			const cachedResponse = await cache.match(request);
 			if (cachedResponse) {

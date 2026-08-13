@@ -7,3 +7,8 @@
 **Vulnerability:** Weak CSP nonce generation and unsanitized data rendered via innerHTML.
 **Learning:** `crypto.getRandomValues(new Uint8Array(16)).join('')` generated a predictable string of numbers, which when base64-encoded, had very low entropy, rendering the CSP nonce ineffective. Furthermore, `innerHTML` was used without escaping data, creating a defense-in-depth failure.
 **Prevention:** Always use standard high-entropy methods like `crypto.randomUUID()` or `btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16))))` for nonces, and sanitize any dynamic strings before injecting them into `innerHTML`.
+
+## 2024-05-24 - Cloudflare Workers Cache API unhandled exception on non-GET
+**Vulnerability:** Application crashed (Error 1101 / DoS) when a non-GET/HEAD request was sent to an endpoint performing a cache lookup (`caches.default.match`).
+**Learning:** Cloudflare Workers `caches.default.match(request)` throws a synchronous TypeError if the request method is not GET or HEAD. This leads to unhandled exceptions if the method is not validated first.
+**Prevention:** Always verify `request.method` (e.g., return 405 Method Not Allowed) before calling Cache API functions in Cloudflare Workers.
