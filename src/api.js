@@ -176,16 +176,31 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					siteTotalHitsAllTime = siteTotalPageviewsData[0]?.total || 0;
 				}
 
+				// Calcolo nazioni recenti (ultime 24 e 48 ore)
+				const recent48h = Date.now() - 48 * 60 * 60 * 1000;
+				const recent24h = Date.now() - 24 * 60 * 60 * 1000;
+				const uniqueRecent24h = new Map();
+				const uniqueRecent48_24h = new Map();
+
 				// Deduplicate instances: pick the latest record for each ID based on timestamp
 				const uniqueInstances = new Map();
 				for (const row of activeData) {
 					const id = row.instance_id;
 					// ⚡ Bolt: Optimize date parsing (Date.parse is ~7x faster than new Date().getTime() in hot loops)
-					const ts = Date.parse(row.timestamp);
+					// Cache it to avoid re-parsing for the same row
+					const ts = row._ts || (row._ts = Date.parse(row.timestamp));
+
 					const existing = uniqueInstances.get(id);
 
-					if (!existing || ts > Date.parse(existing.timestamp)) {
+					if (!existing || ts > existing._ts) {
 						uniqueInstances.set(id, row);
+					}
+
+					// Combined loop for recent 24h/48h stats
+					if (ts >= recent24h) {
+						uniqueRecent24h.set(id, { country: row.country || 'Unknown', version: row.version || 'unknown' });
+					} else if (ts >= recent48h) {
+						uniqueRecent48_24h.set(id, { country: row.country || 'Unknown', version: row.version || 'unknown' });
 					}
 				}
 
@@ -245,22 +260,6 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				const osCounts = {};
 				const archCounts = {};
 				const ramCounts = {};
-
-				// Calcolo nazioni recenti (ultime 24 e 48 ore)
-				const recent48h = Date.now() - 48 * 60 * 60 * 1000;
-				const recent24h = Date.now() - 24 * 60 * 60 * 1000;
-				const uniqueRecent24h = new Map();
-				const uniqueRecent48_24h = new Map();
-
-				for (const row of activeData) {
-					// ⚡ Bolt: Optimize date parsing
-					const ts = Date.parse(row.timestamp);
-					if (ts >= recent24h) {
-						uniqueRecent24h.set(row.instance_id, { country: row.country || 'Unknown', version: row.version || 'unknown' });
-					} else if (ts >= recent48h) {
-						uniqueRecent48_24h.set(row.instance_id, { country: row.country || 'Unknown', version: row.version || 'unknown' });
-					}
-				}
 
 				const countryCounts24h = {};
 				const versionCounts24h = {};
