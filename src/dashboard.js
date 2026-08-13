@@ -372,6 +372,16 @@ margin-top: 2px;
 			.chart-row.cols-3, .chart-row.cols-2 { grid-template-columns: 1fr; }
 			.kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
 		}
+
+		/* Respect user preference for reduced motion */
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after {
+				animation-duration: 0.01ms !important;
+				animation-iteration-count: 1 !important;
+				transition-duration: 0.01ms !important;
+				scroll-behavior: auto !important;
+			}
+		}
 	</style>
 </head>
 <body>
@@ -385,8 +395,8 @@ margin-top: 2px;
 	<div class="topbar-right">
 		<div class="badge-live"><span class="dot"></span> Live</div>
 		<button class="theme-btn" id="theme-toggle" title="Toggle theme">
-			<svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
-			<svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+			<svg aria-hidden="true" id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+			<svg aria-hidden="true" id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
 			<span id="theme-label">Dark Mode</span>
 		</button>
 	</div>
@@ -418,19 +428,19 @@ margin-top: 2px;
 	
 	<div class="footer-links">
 		<a href="https://spupuz.github.io/vibe-nvr-site/" target="_blank" rel="noopener" class="footer-link">
-			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+			<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
 			Website
 		</a>
 		<a href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener" class="footer-link">
-			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> 
+			<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
 			GitHub <span class="github-badge" id="header-github-stars">-</span>
 		</a>
 		<a href="https://github.com/spupuz/VibeNVR/releases/latest" target="_blank" rel="noopener" class="footer-link">
-			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+			<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
 			Latest Version
 		</a>
 		<a href="https://www.buymeacoffee.com/spupuz" target="_blank" rel="noopener" class="footer-link">
-			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg> 
+			<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
 			Buy Me A Coffee
 		</a>
 	</div>
@@ -441,62 +451,62 @@ margin-top: 2px;
 		<!-- KPIs -->
 		<div class="kpi-grid">
 			<div class="kpi-card" title="Number of unique VibeNVR instances that have pinged the telemetry server in the last 30 days.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Active Installs</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Active Installs</div>
 				<div class="kpi-value" id="kpi-active">-</div>
 				<div class="kpi-sub">Last 30 days</div>
 			</div>
 			<div class="kpi-card" title="Total number of unique VibeNVR instances seen since the project started.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg> Total Installs</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg> Total Installs</div>
 				<div class="kpi-value" id="kpi-total">-</div>
 				<div class="kpi-sub">All time distinct</div>
 			</div>
 			<div class="kpi-card" title="Total number of unique countries seen across all active installations.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Active Countries</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Active Countries</div>
 				<div class="kpi-value" id="kpi-countries">-</div>
 				<div class="kpi-sub">Total unique (30d)</div>
 			</div>
 			<div class="kpi-card" title="Total number of security cameras configured across all currently active instances.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Cameras</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Cameras</div>
 				<div class="kpi-value" id="kpi-cameras">-</div>
 				<div class="kpi-sub">Managed across active</div>
 			</div>
 			<div class="kpi-card" title="Snapshot of total events currently stored across all active NVR databases.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Stored Events Volume</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Stored Events Volume</div>
 				<div class="kpi-value" id="kpi-events">-</div>
 				<div class="kpi-sub">Total cumulative across active NVRs</div>
 			</div>
 			<div class="kpi-card" title="Total number of camera groups created across all currently active instances to organize views.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg> Groups</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg> Groups</div>
 				<div class="kpi-value" id="kpi-groups">-</div>
 				<div class="kpi-sub">Total across active</div>
 			</div>
 			<div class="kpi-card" title="Number of active instances currently utilizing Hardware Acceleration (GPU) for video decoding.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> GPU Accel</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> GPU Accel</div>
 				<div class="kpi-value" id="kpi-gpu">-</div>
 				<div class="kpi-sub">Instances with HW accel</div>
 			</div>
 			<div class="kpi-card" title="Number of active instances that have configured at least one external notification service (Email, Telegram, Webhook).">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> Notifications</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> Notifications</div>
 				<div class="kpi-value" id="kpi-notifications">-</div>
 				<div class="kpi-sub">Instances w/ webhooks/email/telegram</div>
 			</div>
 			<div class="kpi-card" title="Total number of cameras across all active instances that have AI object detection explicitly enabled.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> AI Cameras</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> AI Cameras</div>
 				<div class="kpi-value" id="kpi-ai">-</div>
 				<div class="kpi-sub">Cameras with AI enabled</div>
 			</div>
 			<div class="kpi-card" title="Number of active instances that are currently connected to an MQTT broker (e.g., Home Assistant).">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> MQTT Active</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> MQTT Active</div>
 				<div class="kpi-value" id="kpi-mqtt">-</div>
 				<div class="kpi-sub">Instances with MQTT enabled</div>
 			</div>
 			<div class="kpi-card" title="Total number of cameras connected using the ONVIF protocol for PTZ and advanced features.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ONVIF Devices</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ONVIF Devices</div>
 				<div class="kpi-value" id="kpi-onvif">-</div>
 				<div class="kpi-sub">Total ONVIF cameras</div>
 			</div>
 			<div class="kpi-card" title="Total number of cameras utilizing a lower-resolution sub-stream for optimized UI viewing.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Sub-streams</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Sub-streams</div>
 				<div class="kpi-value" id="kpi-substreams">-</div>
 				<div class="kpi-sub">Cameras with sub-streams</div>
 			</div>
@@ -506,7 +516,7 @@ margin-top: 2px;
 		<div class="chart-row cols-1">
 			<div class="card" title="Geographic distribution of active instances based on IP address geolocation.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Map: Installations by Country
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Map: Installations by Country
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Geographic distribution based on IP address geolocation — IPs are not collected or stored, they are strictly filtered by Cloudflare • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:340px"><canvas id="chart-worldmap"></canvas></div>
@@ -517,7 +527,7 @@ margin-top: 2px;
 		<div class="chart-row cols-2">
 			<div class="card" title="List of most consistently active countries over the last 30 days.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Consistent Active Countries
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Consistent Active Countries
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Top 10 leaderboard • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:340px; overflow-y: auto; margin-top: 1rem;">
@@ -528,7 +538,7 @@ margin-top: 2px;
 			</div>
 			<div class="card" title="Daily active installs per country over the last 24h vs previous 24h.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="16" y1="20" x2="16" y2="4"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/></svg> Recent Active Countries (24h)
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="16" y1="20" x2="16" y2="4"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/></svg> Recent Active Countries (24h)
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Installs pinging • <strong>Last 24h</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:340px"><canvas id="chart-recent-countries"></canvas></div>
@@ -539,7 +549,7 @@ margin-top: 2px;
 		<div class="chart-row cols-1">
 			<div class="card" title="Tracks the daily number of active instances (Unique IDs) and the total telemetry pings received.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Activity Trend (Last 30 Days)
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Activity Trend (Last 30 Days)
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Daily number of active instances and total telemetry pings received • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:300px"><canvas id="chart-activity"></canvas></div>
@@ -550,7 +560,7 @@ margin-top: 2px;
 		<div class="chart-row cols-1">
 			<div class="card">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Stored Events Volume Trend (Last 30 Days)
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Stored Events Volume Trend (Last 30 Days)
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Sum of daily snapshots. Fluctuations caused by NVR retention & offline instances • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:300px"><canvas id="chart-events"></canvas></div>
@@ -561,7 +571,7 @@ margin-top: 2px;
 		<div class="chart-row cols-1">
 			<div class="card" title="Breakdown of the software engines used for motion detection (OpenCV, AI, ONVIF) across all cameras.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9-9a9 9 0 0 1-9 9m9-9V3m0 18a9 9 0 0 1-9-9"/></svg> Motion Detection Engines Distribution
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9-9a9 9 0 0 1-9 9m9-9V3m0 18a9 9 0 0 1-9-9"/></svg> Motion Detection Engines Distribution
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Breakdown of software engines used for motion detection across all cameras • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:300px"><canvas id="chart-motion-engines"></canvas></div>
@@ -572,14 +582,14 @@ margin-top: 2px;
 		<div class="chart-row cols-2">
 			<div class="card" title="Distribution showing how many cameras users typically connect to a single VibeNVR instance.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Cameras per Instance
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Cameras per Instance
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(How many cameras users typically connect per instance • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-cameras-dist"></canvas></div>
 			</div>
 			<div class="card" title="Distribution showing how many camera groups users typically create per instance.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg> Groups per Instance
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg> Groups per Instance
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(How many camera groups users typically create per instance • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-groups-dist"></canvas></div>
@@ -590,21 +600,21 @@ margin-top: 2px;
 		<div class="chart-row cols-3">
 			<div class="card" title="Distribution of the VibeNVR server versions currently running in active installations.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg> Active Versions
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg> Active Versions
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Distribution of currently running server versions • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-versions"></canvas></div>
 			</div>
 			<div class="card" title="Market share of active versions.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg> Version Share
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg> Version Share
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Percentage of users • <strong>Last 24h</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-versions-pie"></canvas></div>
 			</div>
 			<div class="card" title="Total system RAM capacity of the host machines running VibeNVR.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg> RAM Capacity
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg> RAM Capacity
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Total system RAM capacity of host machines • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-ram"></canvas></div>
@@ -615,14 +625,14 @@ margin-top: 2px;
 		<div class="chart-row cols-2">
 			<div class="card" title="Most common host CPU models powering VibeNVR installations.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> CPU Models
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> CPU Models
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Most common host CPU models powering installations • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap tall"><canvas id="chart-cpu-models"></canvas></div>
 			</div>
 			<div class="card" title="Distribution of total available CPU cores on the host machines.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> CPU Core Counts
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> CPU Core Counts
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Distribution of total available CPU cores • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap tall"><canvas id="chart-cpu-cores"></canvas></div>
@@ -640,22 +650,22 @@ margin-top: 2px;
 		<!-- Site KPIs -->
 		<div class="kpi-grid" style="margin-bottom: 1.5rem;">
 			<div class="kpi-card" title="Number of unique visitors to the VibeNVR website in the last 30 days.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Unique Visitors</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Unique Visitors</div>
 				<div class="kpi-value" id="kpi-site-visitors-30d">-</div>
 				<div class="kpi-sub">Last 30 days</div>
 			</div>
 			<div class="kpi-card" title="Total number of unique visitors seen on the VibeNVR website since monitoring started.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Unique Visitors</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Unique Visitors</div>
 				<div class="kpi-value" id="kpi-site-visitors-alltime">-</div>
 				<div class="kpi-sub">All-time distinct</div>
 			</div>
 			<div class="kpi-card" title="Total number of page loads/views on the VibeNVR website in the last 30 days.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> Total Pageviews</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> Total Pageviews</div>
 				<div class="kpi-value" id="kpi-site-pageviews-30d">-</div>
 				<div class="kpi-sub">Pageviews (30d)</div>
 			</div>
 			<div class="kpi-card" title="Total number of page loads/views on the VibeNVR website since monitoring started.">
-				<div class="kpi-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> Total Pageviews</div>
+				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> Total Pageviews</div>
 				<div class="kpi-value" id="kpi-site-pageviews-alltime">-</div>
 				<div class="kpi-sub">Pageviews (All-time)</div>
 			</div>
@@ -665,14 +675,14 @@ margin-top: 2px;
 		<div class="chart-row cols-2">
 			<div class="card" title="Daily trend of unique visitors and pageviews for the VibeNVR website over the last 30 days.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Site Activity Trend
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Site Activity Trend
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Daily trend of unique visitors and pageviews • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-site-activity"></canvas></div>
 			</div>
 			<div class="card" title="Geographic distribution of visitors to the VibeNVR website.">
 				<div class="chart-title">
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Site Visitors by Country
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Site Visitors by Country
 					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Geographic distribution of site visitors • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-site-worldmap"></canvas></div>
