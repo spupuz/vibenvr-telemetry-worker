@@ -140,25 +140,24 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					}).catch(() => new Response(JSON.stringify({ data: [] })))
 				]);
 
-				const activeStr = await resActive.text();
-				const totalStr = await resTotal.text();
-				const activityStr = await resActivity.text();
-				const siteActivityStr = await resSiteActivity.text();
-				const siteCountriesStr = await resSiteCountries.text();
-				const siteTotalVisitorsStr = await resSiteTotalVisitors.text();
-				const siteTotalPageviewsStr = await resSiteTotalPageviews.text();
-				const eventsTrendStr = await resEventsTrend.text();
+				if (!resActive.ok) throw new Error("SQL API Error: " + await resActive.text());
 
-				if (!resActive.ok) throw new Error("SQL API Error: " + activeStr);
+				const [
+					activeJson, totalJson, activityJson, siteActivityJson,
+					siteCountriesJson, siteTotalVisitorsJson, siteTotalPageviewsJson, eventsTrendJson
+				] = await Promise.all([
+					resActive.json(), resTotal.json(), resActivity.json(), resSiteActivity.json(),
+					resSiteCountries.json(), resSiteTotalVisitors.json(), resSiteTotalPageviews.json(), resEventsTrend.json()
+				]);
 
-				const activeData = JSON.parse(activeStr).data || [];
-				const totalData = JSON.parse(totalStr).data || [];
-				const activityData = JSON.parse(activityStr).data || [];
-				const siteActivityData = JSON.parse(siteActivityStr).data || [];
-				const siteCountriesData = JSON.parse(siteCountriesStr).data || [];
-				const siteTotalVisitorsData = JSON.parse(siteTotalVisitorsStr).data || [];
-				const siteTotalPageviewsData = JSON.parse(siteTotalPageviewsStr).data || [];
-				const eventsTrendData = JSON.parse(eventsTrendStr).data || [];
+				const activeData = activeJson.data || [];
+				const totalData = totalJson.data || [];
+				const activityData = activityJson.data || [];
+				const siteActivityData = siteActivityJson.data || [];
+				const siteCountriesData = siteCountriesJson.data || [];
+				const siteTotalVisitorsData = siteTotalVisitorsJson.data || [];
+				const siteTotalPageviewsData = siteTotalPageviewsJson.data || [];
+				const eventsTrendData = eventsTrendJson.data || [];
 
 				let activeCount = activeData.length;
 
@@ -272,10 +271,6 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					countryCounts48_24h[data.country] = (countryCounts48_24h[data.country] || 0) + 1;
 				}
 				
-				stats.countries_24h = Object.entries(countryCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.countries_prev24h = Object.entries(countryCounts48_24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.versions_24h = Object.entries(versionCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-
 				for (const row of deduplicatedData) {
 					// Aggregations
 					const v = row.version || 'unknown';
@@ -344,6 +339,10 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				stats.cameras_dist = bkOrder
 					.filter(k => stats.cameras_dist && stats.cameras_dist[k])
 					.map(k => ({ name: k, count: stats.cameras_dist[k] }));
+				stats.countries_24h = Object.entries(countryCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+				stats.countries_prev24h = Object.entries(countryCounts48_24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+				stats.versions_24h = Object.entries(versionCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+
 				// Normalise groups_dist to ordered array
 				const gbkOrder = ['0', '1', '2-3', '4-5', '6-10', '11+'];
 				stats.groups_dist = gbkOrder

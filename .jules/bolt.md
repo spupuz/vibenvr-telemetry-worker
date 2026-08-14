@@ -9,3 +9,7 @@
 ## 2024-11-20 - Redundant iterations on large Analytics API payloads
 **Learning:** Returning multiple tens of thousands of rows from Cloudflare Analytics Engine in a worker and iterating over them with array methods leads to multiple redundant loops and object re-evaluations (like `Date.parse`). When operations like deduplication, filtering by recent dates, and caching values are split into multiple passes, CPU time heavily increases in the worker memory.
 **Action:** Combine multiple array mapping/filtering iterations into a single `for...of` loop on large datasets, and cache expensive parsed values on the row objects directly to prevent recomputation.
+
+## 2024-12-07 - Optimize Cloudflare API payload processing loops
+**Learning:** Returning multiple JSON payloads from `Promise.all` in Cloudflare workers can create blocking operations and high memory limits if read sequentially as strings with `await res.text()` followed by synchronous `JSON.parse`. Similarly, mapping large datasets into temporary `Map()` objects just for filtering recent data (e.g. 24h stats) causes heavy garbage collection and overhead.
+**Action:** Use `await Promise.all([res.json(), res.json()])` to leverage the worker native JSON streaming pipeline. Consolidate multiple analytic data iterations into a single deduplication loop on the primary dataset to avoid allocating temporary map and array objects, drastically speeding up Edge CPU time.
