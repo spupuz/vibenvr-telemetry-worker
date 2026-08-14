@@ -163,6 +163,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			transition: border-color .2s, box-shadow .2s;
 		}
 		.card:hover { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-4px); }
+		.card[title] { cursor: help; }
 
 		/* === KPI GRID === */
 		.kpi-grid {
@@ -194,6 +195,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 		}
 		.kpi-card:hover::before { opacity: 1; }
 		.kpi-card:hover { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-4px); }
+		.kpi-card[title] { cursor: help; }
 		.kpi-label { 
 font-size: .75rem; 
 font-weight: 600; 
@@ -394,7 +396,7 @@ margin-top: 2px;
 	</a>
 	<div class="topbar-right">
 		<div class="badge-live"><span class="dot"></span> Live</div>
-		<button class="theme-btn" id="theme-toggle" title="Toggle theme">
+		<button class="theme-btn" id="theme-toggle" title="Toggle theme" aria-pressed="false">
 			<svg aria-hidden="true" id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
 			<svg aria-hidden="true" id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
 			<span id="theme-label">Dark Mode</span>
@@ -724,10 +726,12 @@ margin-top: 2px;
 		const sun = document.getElementById('icon-sun');
 		const moon = document.getElementById('icon-moon');
 		const lbl = document.getElementById('theme-label');
+		const btn = document.getElementById('theme-toggle');
 		if (logo) logo.src = dark ? LOGO_DARK : LOGO_LIGHT;
 		if (sun) sun.style.display = dark ? 'none' : 'block';
 		if (moon) moon.style.display = dark ? 'block' : 'none';
 		if (lbl) lbl.textContent = dark ? 'Dark Mode' : 'Light Mode';
+		if (btn) btn.setAttribute('aria-pressed', dark);
 		localStorage.setItem('vnvr-theme', dark ? 'dark' : 'light');
 		if (lastData) renderChartsIfReady();
 	}
@@ -1150,7 +1154,7 @@ margin-top: 2px;
 
 	function renderDashboard(data) {
 		lastData = data;
-		const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v ?? '0'; };
+		const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = (v !== undefined && v !== null) ? Number(v).toLocaleString() : '0'; };
 		set('kpi-active',        data.active_installs);
 		set('kpi-total',         data.total_installs);
 		const activeCountriesCount = data.countries ? data.countries.filter(c => c.name !== 'Unknown').length : 0;
