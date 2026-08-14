@@ -1161,7 +1161,7 @@ margin-top: 2px;
 		const activeCountriesCount = data.countries ? data.countries.filter(c => c.name !== 'Unknown').length : 0;
 		set('kpi-countries',     activeCountriesCount);
 		set('kpi-cameras',       data.total_cameras);
-		set('kpi-events',        (data.total_events||0).toLocaleString());
+		set('kpi-events',        data.total_events || 0);
 		set('kpi-groups',        data.total_groups);
 		set('kpi-gpu',           data.gpu_enabled);
 		set('kpi-notifications', data.notifications_enabled);
