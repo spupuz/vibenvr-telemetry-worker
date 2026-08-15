@@ -13,3 +13,7 @@
 ## 2024-12-07 - Optimize Cloudflare API payload processing loops
 **Learning:** Returning multiple JSON payloads from `Promise.all` in Cloudflare workers can create blocking operations and high memory limits if read sequentially as strings with `await res.text()` followed by synchronous `JSON.parse`. Similarly, mapping large datasets into temporary `Map()` objects just for filtering recent data (e.g. 24h stats) causes heavy garbage collection and overhead.
 **Action:** Use `await Promise.all([res.json(), res.json()])` to leverage the worker native JSON streaming pipeline. Consolidate multiple analytic data iterations into a single deduplication loop on the primary dataset to avoid allocating temporary map and array objects, drastically speeding up Edge CPU time.
+
+## 2024-12-19 - Concurrent Cloudflare KV Reads
+**Learning:** Sequential calls to `env.NAMESPACE.get()` in a Cloudflare Worker block execution and accumulate network latency. Fetching 3 independent KV values sequentially means paying the network round-trip penalty 3 times.
+**Action:** When reading multiple independent values from Cloudflare KV, always bundle them using `Promise.all()` to execute the network requests concurrently and reduce latency.

@@ -166,9 +166,16 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				let siteTotalCountAllTime = 0;
 				let siteTotalHitsAllTime = 0;
 				if (env.VIBENVR_IDS) {
-					totalCount = parseInt(await env.VIBENVR_IDS.get('stats:total_count') || "0", 10);
-					siteTotalCountAllTime = parseInt(await env.VIBENVR_IDS.get('site_stats:total_count') || "0", 10);
-					siteTotalHitsAllTime = parseInt(await env.VIBENVR_IDS.get('site_stats:total_hits') || "0", 10);
+					// ⚡ Bolt: Fetch KV values concurrently to reduce network latency
+					const [statsTotalCount, siteStatsTotalCount, siteStatsTotalHits] = await Promise.all([
+						env.VIBENVR_IDS.get('stats:total_count'),
+						env.VIBENVR_IDS.get('site_stats:total_count'),
+						env.VIBENVR_IDS.get('site_stats:total_hits')
+					]);
+
+					totalCount = parseInt(statsTotalCount || "0", 10);
+					siteTotalCountAllTime = parseInt(siteStatsTotalCount || "0", 10);
+					siteTotalHitsAllTime = parseInt(siteStatsTotalHits || "0", 10);
 				} else {
 					totalCount = parseInt(totalData[0]?.total || "0", 10);
 					siteTotalCountAllTime = siteTotalVisitorsData[0]?.total || 0;
