@@ -43,14 +43,22 @@ export default {
 				return new Response('Method Not Allowed', { status: 405, headers: SECURITY_HEADERS });
 			}
 			const cache = caches.default;
-			const cachedResponse = await cache.match(request);
+
+			// 🛡️ Sentinel: Normalize cache key to prevent Cache-Busting DoS
+			// Attackers could append random query strings (?rnd=1) to force cache misses
+			// which would cause heavy SQL queries to be executed for every request.
+			const cacheUrl = new URL(request.url);
+			cacheUrl.search = '';
+			const cacheRequest = new Request(cacheUrl.toString(), request);
+
+			const cachedResponse = await cache.match(cacheRequest);
 			if (cachedResponse) {
 				return cachedResponse;
 			}
 			const response = await handleApiStats(env, SECURITY_HEADERS);
 			if (response.status === 200) {
 				// Clone the response so it can be cached and returned
-				ctx.waitUntil(cache.put(request, response.clone()));
+				ctx.waitUntil(cache.put(cacheRequest, response.clone()));
 			}
 			return response;
 		}

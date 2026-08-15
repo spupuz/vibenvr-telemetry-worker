@@ -12,3 +12,7 @@
 **Vulnerability:** Application crashed (Error 1101 / DoS) when a non-GET/HEAD request was sent to an endpoint performing a cache lookup (`caches.default.match`).
 **Learning:** Cloudflare Workers `caches.default.match(request)` throws a synchronous TypeError if the request method is not GET or HEAD. This leads to unhandled exceptions if the method is not validated first.
 **Prevention:** Always verify `request.method` (e.g., return 405 Method Not Allowed) before calling Cache API functions in Cloudflare Workers.
+## 2024-10-27 - [Cache-Busting DoS on Cloudflare Workers]
+**Vulnerability:** The `/api/stats` endpoint used `caches.default.match(request)` directly, which includes query parameters. Attackers could append random query strings (e.g. `?rnd=1`) to force a cache miss, leading to a Cache-Busting Denial of Service (DoS) by executing expensive SQL queries on every request.
+**Learning:** Cloudflare Workers' Cache API defaults to caching the full URL, including query parameters. When an endpoint should serve identical content regardless of query strings (and when the system doesn't indiscriminately reject requests with query strings to prevent functional regressions), it is vulnerable to cache-busting DoS.
+**Prevention:** Normalize the cache key by stripping the query string (`cacheUrl.search = '';`) before passing it to `caches.default.match()` and `cache.put()`.
