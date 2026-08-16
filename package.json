@@ -1,6 +1,6 @@
 {
     "name": "vibenvr-telemetry-worker",
-    "version": "1.0.0",
+    "version": "1.33.0",
     "description": "Cloudflare Worker for VibeNVR Telemetry",
     "main": "src/index.js",
     "scripts": {
