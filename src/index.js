@@ -43,14 +43,20 @@ export default {
 				return new Response('Method Not Allowed', { status: 405, headers: SECURITY_HEADERS });
 			}
 			const cache = caches.default;
-			const cachedResponse = await cache.match(request);
+
+			// Normalize cache key to prevent Cache-Busting DoS attacks
+			const cacheUrl = new URL(request.url);
+			cacheUrl.search = '';
+			const cacheKey = new Request(cacheUrl.toString(), request);
+
+			const cachedResponse = await cache.match(cacheKey);
 			if (cachedResponse) {
 				return cachedResponse;
 			}
 			const response = await handleApiStats(env, SECURITY_HEADERS);
 			if (response.status === 200) {
 				// Clone the response so it can be cached and returned
-				ctx.waitUntil(cache.put(request, response.clone()));
+				ctx.waitUntil(cache.put(cacheKey, response.clone()));
 			}
 			return response;
 		}
