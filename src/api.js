@@ -178,8 +178,6 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				// Calcolo nazioni recenti (ultime 24 e 48 ore)
 				const recent48h = Date.now() - 48 * 60 * 60 * 1000;
 				const recent24h = Date.now() - 24 * 60 * 60 * 1000;
-				const uniqueRecent24h = new Map();
-				const uniqueRecent48_24h = new Map();
 
 				// Deduplicate instances: pick the latest record for each ID based on timestamp
 				const uniqueInstances = new Map();
@@ -189,17 +187,27 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					// Cache it to avoid re-parsing for the same row
 					const ts = row._ts || (row._ts = Date.parse(row.timestamp));
 
-					const existing = uniqueInstances.get(id);
+					let existing = uniqueInstances.get(id);
 
 					if (!existing || ts > existing._ts) {
+						// Preserve seen flags if the row is replaced by a newer record
+						const seen24h = existing ? existing._seen24h : false;
+						const seen48h = existing ? existing._seen48h : false;
+
 						uniqueInstances.set(id, row);
+						existing = row;
+
+						if (seen24h) existing._seen24h = true;
+						if (seen48h) existing._seen48h = true;
 					}
 
 					// Combined loop for recent 24h/48h stats
+					// ⚡ Bolt: Track 24h/48h activity directly on the deduplicated row object to prevent allocating
+					// temporary Maps per row which causes heavy garbage collection on large datasets
 					if (ts >= recent24h) {
-						uniqueRecent24h.set(id, { country: row.country || 'Unknown', version: row.version || 'unknown' });
+						existing._seen24h = true;
 					} else if (ts >= recent48h) {
-						uniqueRecent48_24h.set(id, { country: row.country || 'Unknown', version: row.version || 'unknown' });
+						existing._seen48h = true;
 					}
 				}
 
@@ -262,21 +270,23 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 
 				const countryCounts24h = {};
 				const versionCounts24h = {};
-				for (const data of uniqueRecent24h.values()) {
-					countryCounts24h[data.country] = (countryCounts24h[data.country] || 0) + 1;
-					versionCounts24h[data.version] = (versionCounts24h[data.version] || 0) + 1;
-				}
 				const countryCounts48_24h = {};
-				for (const data of uniqueRecent48_24h.values()) {
-					countryCounts48_24h[data.country] = (countryCounts48_24h[data.country] || 0) + 1;
-				}
 				
 				for (const row of deduplicatedData) {
 					// Aggregations
 					const v = row.version || 'unknown';
-					versionCounts[v] = (versionCounts[v] || 0) + 1;
-
 					const c = row.country || 'Unknown';
+
+					// 24h/48h counts
+					if (row._seen24h) {
+						countryCounts24h[c] = (countryCounts24h[c] || 0) + 1;
+						versionCounts24h[v] = (versionCounts24h[v] || 0) + 1;
+					}
+					if (row._seen48h) {
+						countryCounts48_24h[c] = (countryCounts48_24h[c] || 0) + 1;
+					}
+
+					versionCounts[v] = (versionCounts[v] || 0) + 1;
 					countryCounts[c] = (countryCounts[c] || 0) + 1;
 
 					const o = row.os || 'Unknown';
