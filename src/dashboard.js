@@ -393,7 +393,7 @@ margin-top: 2px;
 	<a class="topbar-brand" href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener">
 		<img id="logo-img" src="${prefix}/assets/logo-dark" alt="" aria-hidden="true">
 		<span>VibeNVR Telemetry</span>
-		<span style="font-size: 0.6rem; color: var(--text-muted); align-self: flex-end; margin-bottom: 0.15rem; margin-left: 0.2rem;">v1.0.2</span>
+		<span style="font-size: 0.6rem; color: var(--text-muted); align-self: flex-end; margin-bottom: 0.15rem; margin-left: 0.2rem;">v1.33.0</span>
 	</a>
 	<div class="topbar-right">
 		<div class="badge-live"><span class="dot"></span> Live</div>
