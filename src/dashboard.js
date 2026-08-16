@@ -397,7 +397,7 @@ margin-top: 2px;
 	</a>
 	<div class="topbar-right">
 		<div class="badge-live"><span class="dot"></span> Live</div>
-		<button class="theme-btn" id="theme-toggle" title="Switch to Dark Mode">
+		<button class="theme-btn" id="theme-toggle" title="Toggle theme">
 			<svg aria-hidden="true" id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
 			<svg aria-hidden="true" id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
 			<span id="theme-label">Switch to Dark Mode</span>
@@ -727,11 +727,11 @@ margin-top: 2px;
 		const sun = document.getElementById('icon-sun');
 		const moon = document.getElementById('icon-moon');
 		const lbl = document.getElementById('theme-label');
-		const btn = document.getElementById('theme-toggle');
 		if (logo) logo.src = dark ? LOGO_DARK : LOGO_LIGHT;
 		if (sun) sun.style.display = dark ? 'block' : 'none';
 		if (moon) moon.style.display = dark ? 'none' : 'block';
-		if (lbl) lbl.textContent = dark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+		const btn = document.getElementById('theme-toggle');
+		if (lbl) lbl.textContent = dark ? 'Light Mode' : 'Dark Mode';
 		if (btn) btn.title = dark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
 		localStorage.setItem('vnvr-theme', dark ? 'dark' : 'light');
 		if (lastData) renderChartsIfReady();
