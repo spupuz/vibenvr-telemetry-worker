@@ -11,6 +11,8 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 	<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/chart.js" nonce="${nonce}"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo@4/build/index.umd.min.js" nonce="${nonce}"></script>
+	<script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.4.0/dist/ionicons/ionicons.esm.js" integrity="sha384-ka/QOj1/87D5umY1GYq4GS0y8e8vwy0Wj0BKvxJTWpNFUIarDm645Kvr8QaxM3jy" crossorigin="anonymous"></script>
+	<script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.4.0/dist/ionicons/ionicons.js" integrity="sha384-I7UNMgUrv6nA6xNHRbytUMytFlugSJWu/Il4VAV+Rhv73j9qaQqjf5IS1w9vHGsD" crossorigin="anonymous"></script>
 	<style>
 		*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -57,6 +59,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			color: var(--text);
 			min-height: 100vh;
 			transition: background .25s, color .25s;
+			padding-bottom: 80px;
 		}
 
 		/* === LAYOUT === */
@@ -309,6 +312,94 @@ margin-top: 2px;
 		}
 		.retry-btn:hover { background: rgba(239,68,68,.1); }
 
+		/* Smart Footer CSS (Identical to Site) */
+		.smart-footer {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			background-color: var(--surface);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border-top: 1px solid var(--border);
+			box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05);
+			transform: translateY(0);
+			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			z-index: 100;
+			padding: 1rem 0;
+		}
+
+		.smart-footer.hidden {
+			transform: translateY(100%);
+		}
+
+		.footer-content {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 1rem;
+			max-width: 1320px;
+			margin: 0 auto;
+			padding: 0 1.5rem;
+		}
+
+		.footer-logo {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			font-weight: 600;
+			color: var(--text);
+		}
+
+		.footer-links-site {
+			display: flex;
+			gap: 1.5rem;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.footer-link-site {
+			color: var(--text-muted);
+			font-size: 0.85rem;
+			font-weight: 500;
+			transition: color 0.2s;
+			text-decoration: none;
+			-webkit-tap-highlight-color: transparent;
+		}
+
+		.footer-link-site:hover, .footer-link-site:focus {
+			color: var(--primary);
+		}
+
+		.footer-divider {
+			color: var(--border);
+		}
+
+		.footer-copy {
+			font-size: 0.75rem;
+			color: var(--text-muted);
+			text-align: center;
+		}
+
+		@media (max-width: 768px) {
+			.footer-content {
+				flex-direction: column;
+				justify-content: center;
+				text-align: center;
+				gap: 0.75rem;
+			}
+			.footer-links-site {
+				gap: 1rem;
+				justify-content: center;
+				width: 100%;
+			}
+			.footer-divider {
+				display: none;
+			}
+		}
+
 		.footer {
 			text-align: center;
 			padding: 2rem 1rem;
@@ -393,7 +484,6 @@ margin-top: 2px;
 	<a class="topbar-brand" href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener">
 		<img id="logo-img" src="${prefix}/assets/logo-dark" alt="" aria-hidden="true">
 		<span>VibeNVR Telemetry</span>
-		<span style="font-size: 0.6rem; color: var(--text-muted); align-self: flex-end; margin-bottom: 0.15rem; margin-left: 0.2rem;">v1.33.0</span>
 	</a>
 	<div class="topbar-right">
 		<div class="badge-live"><span class="dot"></span> Live</div>
@@ -691,11 +781,49 @@ margin-top: 2px;
 				<div class="chart-wrap"><canvas id="chart-site-worldmap"></canvas></div>
 			</div>
 		</div>
-	<footer class="footer">
+	<div style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 100px; padding: 2rem;">
 		Powered by Cloudflare Workers Analytics Engine · No IP addresses or personal data stored ·
 		All metrics are anonymous aggregate counts
+	</div>
+	<footer id="smart-footer" class="smart-footer">
+		<div class="footer-content">
+			<div class="footer-logo">
+				<ion-icon name="videocam"></ion-icon> VibeNVR
+			</div>
+			
+			<div class="footer-links-site">
+				<a href="https://github.com/spupuz/VibeNVR" class="footer-link-site">GitHub</a>
+				<a href="https://github.com/spupuz/VibeNVR/issues" class="footer-link-site">Issues</a>
+				<a href="https://github.com/spupuz/VibeNVR/discussions" class="footer-link-site">Discussions</a>
+				<span class="footer-divider">|</span>
+				<a href="https://github.com/spupuz/VibeNVR/blob/main/LICENSE" class="footer-link-site">License</a>
+				<a href="https://spupuz.github.io/vibe-nvr-site/docs/Telemetry/" class="footer-link-site">Privacy & Telemetry</a>
+			</div>
+
+			<div class="footer-copy">
+				&copy; 2026 Alessandro Belloni.<br>
+				<div style="margin-top: 0.5rem; font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
+					telemetry version <span id="telemetry-version">...</span>
+				</div>
+			</div>
+		</div>
 	</footer>
 </main>
+
+<script nonce="${nonce}">
+	(async function fetchVersions() {
+		try {
+			const telRes = await fetch('https://api.github.com/repos/spupuz/vibenvr-telemetry-worker/releases/latest');
+			if (telRes.ok) {
+				const telData = await telRes.json();
+				const telEl = document.getElementById('telemetry-version');
+				if (telEl) telEl.textContent = telData.tag_name;
+			}
+		} catch (err) {
+			console.error('Failed to fetch versions', err);
+		}
+	})();
+</script>
 
 <script nonce="${nonce}">
 	// ─── STATE (declared before IIFE to avoid TDZ) ───────────────────────────
