@@ -859,15 +859,21 @@ margin-top: 2px;
 	let lastData = null;
 
 	function animateValue(obj, start, end, duration) {
+		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			obj.innerHTML = end.toLocaleString();
+			return;
+		}
 		let startTimestamp = null;
 		const step = (timestamp) => {
 			if (!startTimestamp) startTimestamp = timestamp;
 			const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-			obj.innerHTML = Math.floor(progress * (end - start) + start);
+			// Ease-out expo function for a smoother finish
+			const easeOut = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+			obj.innerHTML = Math.floor(easeOut * (end - start) + start).toLocaleString();
 			if (progress < 1) {
 				window.requestAnimationFrame(step);
 			} else {
-				obj.innerHTML = end;
+				obj.innerHTML = end.toLocaleString();
 			}
 		};
 		window.requestAnimationFrame(step);
@@ -1311,7 +1317,17 @@ margin-top: 2px;
 
 	function renderDashboard(data) {
 		lastData = data;
-		const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = (v !== undefined && v !== null) ? Number(v).toLocaleString() : '0'; };
+		const set = (id, v) => {
+			const el = document.getElementById(id);
+			if (el) {
+				const num = (v !== undefined && v !== null) ? Number(v) : 0;
+				if (num > 0) {
+					animateValue(el, 0, num, 1200);
+				} else {
+					el.textContent = '0';
+				}
+			}
+		};
 		set('kpi-active',        data.active_installs);
 		set('kpi-total',         data.total_installs);
 		const activeCountriesCount = data.countries ? data.countries.filter(c => c.name !== 'Unknown').length : 0;

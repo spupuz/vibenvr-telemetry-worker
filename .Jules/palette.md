@@ -10,3 +10,7 @@
 ## 2024-08-15 - Action-oriented Toggle Buttons vs aria-pressed
 **Learning:** When changing a toggle button's text to show the *destination* state (e.g., changing from showing "Dark Mode" to "Light Mode" when currently in Dark Mode), the `aria-pressed` attribute becomes semantically incorrect and confusing for screen readers because the label itself is changing.
 **Action:** When converting a state-oriented toggle to an action-oriented toggle (by swapping labels and icons to the destination state), ensure you remove the `aria-pressed` attribute from both the HTML and the JavaScript state handlers.
+
+## 2024-08-20 - Combine CSS and JS for Reduced Motion Checks
+**Learning:** While CSS can handle `prefers-reduced-motion` for style-based transitions, custom JavaScript-driven animations (like dynamic number counters powered by `requestAnimationFrame`) require an explicit `window.matchMedia('(prefers-reduced-motion: reduce)')` check to respect accessibility preferences.
+**Action:** Always implement a JavaScript check to bypass custom JS animations for users with vestibular motion sensitivities.
