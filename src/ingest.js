@@ -1,4 +1,4 @@
-export const handleIngestion = async (request, url, env, SECURITY_HEADERS) => {
+export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) => {
 	const cleanStr = (val, max = 100) => (val || 'unknown').toString().trim().slice(0, max);
 	const instance_id = cleanStr(url.searchParams.get('instance_id'), 128);
 	const version = cleanStr(url.searchParams.get('version'), 20);
@@ -47,23 +47,31 @@ export const handleIngestion = async (request, url, env, SECURITY_HEADERS) => {
 						indexes: [visitor_id]
 					});
 
+					// ⚡ Bolt: Execute blocking KV reads/writes asynchronously in the background using ctx.waitUntil()
+					// to avoid blocking the main thread and drastically reduce TTFB latency for the tracking pixel response.
 					if (env.VIBENVR_IDS) {
-						const kvKey = `site_id:${visitor_id}`;
-						const existing = await env.VIBENVR_IDS.get(kvKey);
+						ctx.waitUntil((async () => {
+							try {
+								const kvKey = `site_id:${visitor_id}`;
+								const existing = await env.VIBENVR_IDS.get(kvKey);
 
-						if (!existing) {
-							await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
-							const countKey = 'site_stats:total_count';
-							const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
-							await env.VIBENVR_IDS.put(countKey, (currentTotal + 1).toString());
-						}
+								if (!existing) {
+									await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
+									const countKey = 'site_stats:total_count';
+									const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
+									await env.VIBENVR_IDS.put(countKey, (currentTotal + 1).toString());
+								}
 
-						const hitsKey = 'site_stats:total_hits';
-						const currentHits = parseInt(await env.VIBENVR_IDS.get(hitsKey) || "0", 10);
-						await env.VIBENVR_IDS.put(hitsKey, (currentHits + 1).toString());
+								const hitsKey = 'site_stats:total_hits';
+								const currentHits = parseInt(await env.VIBENVR_IDS.get(hitsKey) || "0", 10);
+								await env.VIBENVR_IDS.put(hitsKey, (currentHits + 1).toString());
+							} catch (e) {
+								console.error("Failed to write to Site KV in background", e);
+							}
+						})());
 					}
 				} catch (e) {
-					console.error("Failed to write to Site Analytics Engine/KV", e);
+					console.error("Failed to write to Site Analytics Engine", e);
 				}
 			}
 		}
@@ -83,19 +91,23 @@ export const handleIngestion = async (request, url, env, SECURITY_HEADERS) => {
 		}
 	}
 
+	// ⚡ Bolt: Execute blocking KV reads/writes asynchronously in the background using ctx.waitUntil()
+	// to avoid blocking the main thread and drastically reduce TTFB latency for the tracking pixel response.
 	if (url.pathname !== '/site-telemetry.png' && env.VIBENVR_IDS && instance_id !== 'unknown') {
-		try {
-			const kvKey = `id:${instance_id}`;
-			const existing = await env.VIBENVR_IDS.get(kvKey);
-			if (!existing) {
-				await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
-				const countKey = 'stats:total_count';
-				const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
-				await env.VIBENVR_IDS.put(countKey, (currentTotal + 1).toString());
+		ctx.waitUntil((async () => {
+			try {
+				const kvKey = `id:${instance_id}`;
+				const existing = await env.VIBENVR_IDS.get(kvKey);
+				if (!existing) {
+					await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
+					const countKey = 'stats:total_count';
+					const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
+					await env.VIBENVR_IDS.put(countKey, (currentTotal + 1).toString());
+				}
+			} catch (kvErr) {
+				console.error("KV Storage Error in background:", kvErr);
 			}
-		} catch (kvErr) {
-			console.error("KV Storage Error:", kvErr);
-		}
+		})());
 	}
 
 	const transparentPos = new Uint8Array([
