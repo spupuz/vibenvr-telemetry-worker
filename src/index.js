@@ -34,7 +34,7 @@ export default {
 
 		// 1. TELEMETRY INGESTION ENDPOINT
 		if (url.pathname === '/telemetry' || url.pathname === '/telemetry.png' || url.pathname === '/site-telemetry.png') {
-			return handleIngestion(request, url, env, SECURITY_HEADERS);
+			return handleIngestion(request, url, env, ctx, SECURITY_HEADERS);
 		}
 
 		// 2. DASHBOARD PUBLIC API

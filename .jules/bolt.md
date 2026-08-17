@@ -17,3 +17,7 @@
 ## 2024-12-19 - Concurrent Cloudflare KV Reads
 **Learning:** Sequential calls to `env.NAMESPACE.get()` in a Cloudflare Worker block execution and accumulate network latency. Fetching 3 independent KV values sequentially means paying the network round-trip penalty 3 times.
 **Action:** When reading multiple independent values from Cloudflare KV, always bundle them using `Promise.all()` to execute the network requests concurrently and reduce latency.
+
+## 2024-12-24 - Non-blocking Telemetry Ingestion
+**Learning:** Returning a fast tracking pixel response is critical to not hang the client's network stack. However, checking and updating Cloudflare KV (`await env.NAMESPACE.get/put`) on every telemetry hit was blocking the response, slowing down TTFB (Time To First Byte).
+**Action:** When saving telemetry or hit counters, use `ctx.waitUntil()` to move blocking KV reads/writes into the background so the Worker can instantly return the `Response` to the client.
