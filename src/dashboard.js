@@ -823,6 +823,34 @@ margin-top: 2px;
 			console.error('Failed to fetch versions', err);
 		}
 	})();
+
+	(function() {
+		let scrollTimeout;
+		let isTicking = false;
+		let cachedFooter = null;
+
+		window.addEventListener('scroll', () => {
+			if (!isTicking) {
+				window.requestAnimationFrame(() => {
+					if (!cachedFooter) cachedFooter = document.getElementById('smart-footer');
+					if (cachedFooter) {
+						if (window.scrollY > 50) {
+							cachedFooter.classList.add('hidden');
+						} else {
+							cachedFooter.classList.remove('hidden');
+						}
+
+						clearTimeout(scrollTimeout);
+						scrollTimeout = setTimeout(() => {
+							cachedFooter.classList.remove('hidden');
+						}, 400);
+					}
+					isTicking = false;
+				});
+				isTicking = true;
+			}
+		});
+	})();
 </script>
 
 <script nonce="${nonce}">
