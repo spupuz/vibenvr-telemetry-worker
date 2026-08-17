@@ -16,3 +16,7 @@
 **Vulnerability:** The `/api/stats` endpoint used `caches.default.match(request)` directly, which includes query parameters. Attackers could append random query strings (e.g. `?rnd=1`) to force a cache miss, leading to a Cache-Busting Denial of Service (DoS) by executing expensive SQL queries on every request.
 **Learning:** Cloudflare Workers' Cache API defaults to caching the full URL, including query parameters. When an endpoint should serve identical content regardless of query strings (and when the system doesn't indiscriminately reject requests with query strings to prevent functional regressions), it is vulnerable to cache-busting DoS.
 **Prevention:** Normalize the cache key by stripping the query string (`cacheUrl.search = '';`) before passing it to `caches.default.match()` and `cache.put()`.
+## 2024-05-18 - Missing Security Headers on Error Responses
+**Vulnerability:** 404 fallback and 500 error responses were returning without the standardized `SECURITY_HEADERS` (CSP, X-Frame-Options, etc.).
+**Learning:** Security headers must be explicitly attached to *all* responses, including error and fallback paths, to prevent attackers from bypassing protections by forcing errors.
+**Prevention:** Always spread `...SECURITY_HEADERS` into the `headers` object for any `new Response()` call, regardless of the HTTP status code.

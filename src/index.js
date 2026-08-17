@@ -34,6 +34,9 @@ export default {
 
 		// 1. TELEMETRY INGESTION ENDPOINT
 		if (url.pathname === '/telemetry' || url.pathname === '/telemetry.png' || url.pathname === '/site-telemetry.png') {
+			if (request.method !== 'GET') {
+				return new Response('Method Not Allowed', { status: 405, headers: SECURITY_HEADERS });
+			}
 			return handleIngestion(request, url, env, SECURITY_HEADERS);
 		}
 
@@ -82,6 +85,6 @@ export default {
 		}
 
 		// Fallback for unknown routes
-		return new Response("Not Found", { status: 404 });
+		return new Response("Not Found", { status: 404, headers: SECURITY_HEADERS });
 	},
 };

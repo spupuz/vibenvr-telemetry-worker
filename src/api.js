@@ -2,7 +2,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			if (!env.ACCOUNT_ID || !env.API_TOKEN) {
 				return new Response(JSON.stringify({ error: "Cloudflare API credentials not configured." }), {
 					status: 500,
-					headers: { 'Content-Type': 'application/json' }
+					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json' }
 				});
 			}
 
