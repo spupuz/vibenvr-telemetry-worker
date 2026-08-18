@@ -34,14 +34,10 @@ export default {
 
 		// 1. TELEMETRY INGESTION ENDPOINT
 		if (url.pathname === '/telemetry' || url.pathname === '/telemetry.png' || url.pathname === '/site-telemetry.png') {
-<<<<<<< HEAD
-			return handleIngestion(request, url, env, ctx, SECURITY_HEADERS);
-=======
 			if (request.method !== 'GET') {
 				return new Response('Method Not Allowed', { status: 405, headers: SECURITY_HEADERS });
 			}
-			return handleIngestion(request, url, env, SECURITY_HEADERS);
->>>>>>> origin/sentinel/security-headers-and-method-validation-9764575973694595179
+			return handleIngestion(request, url, env, ctx, SECURITY_HEADERS);
 		}
 
 		// 2. DASHBOARD PUBLIC API

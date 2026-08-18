@@ -62,6 +62,28 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			padding-bottom: 80px;
 		}
 
+
+		/* Skip Link */
+		.skip-link {
+			position: absolute;
+			top: -100px;
+			left: 0;
+			background: var(--primary);
+			color: #fff;
+			padding: 8px 16px;
+			z-index: 1000;
+			text-decoration: none;
+			font-weight: 600;
+			font-size: 0.85rem;
+			border-radius: 0 0 var(--radius) 0;
+			transition: top 0.2s;
+		}
+		.skip-link:focus {
+			top: 0;
+			outline: 2px solid var(--primary-dark);
+			outline-offset: 2px;
+		}
+
 		/* === LAYOUT === */
 		.topbar {
 			position: sticky;
@@ -143,7 +165,11 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 		.theme-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
 
 		/* Focus States for Accessibility */
-		:focus-visible {
+		main:focus-visible {
+		outline: none;
+	}
+
+	:focus-visible {
 			outline: 2px solid var(--primary);
 			outline-offset: 2px;
 		}
@@ -478,6 +504,7 @@ margin-top: 2px;
 	</style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
 <!-- TOP BAR -->
 <header class="topbar">
@@ -496,7 +523,7 @@ margin-top: 2px;
 </header>
 
 <!-- MAIN CONTENT -->
-<main class="main">
+<main id="main-content" class="main" tabindex="-1">
 	<div class="page-title">
 		<h1>Usage Dashboard</h1>
 		<p>Anonymous aggregate statistics from active VibeNVR installations · Last 30 days</p>

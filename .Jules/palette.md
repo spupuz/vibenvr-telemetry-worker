@@ -14,3 +14,7 @@
 ## 2024-08-20 - Combine CSS and JS for Reduced Motion Checks
 **Learning:** While CSS can handle `prefers-reduced-motion` for style-based transitions, custom JavaScript-driven animations (like dynamic number counters powered by `requestAnimationFrame`) require an explicit `window.matchMedia('(prefers-reduced-motion: reduce)')` check to respect accessibility preferences.
 **Action:** Always implement a JavaScript check to bypass custom JS animations for users with vestibular motion sensitivities.
+
+## 2024-08-25 - Skip to Content Links
+**Learning:** Keyboard-only and screen reader users are forced to tab through the entire navigation menu on every page load unless a bypass mechanism is provided.
+**Action:** Always include a visually hidden "Skip to main content" link as the first focusable element in the document body that becomes visible on focus and links directly to the main content area.
