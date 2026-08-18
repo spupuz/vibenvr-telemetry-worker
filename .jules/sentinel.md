@@ -20,3 +20,8 @@
 **Vulnerability:** 404 fallback and 500 error responses were returning without the standardized `SECURITY_HEADERS` (CSP, X-Frame-Options, etc.).
 **Learning:** Security headers must be explicitly attached to *all* responses, including error and fallback paths, to prevent attackers from bypassing protections by forcing errors.
 **Prevention:** Always spread `...SECURITY_HEADERS` into the `headers` object for any `new Response()` call, regardless of the HTTP status code.
+
+## 2024-05-24 - Proxied Assets Defense in Depth
+**Vulnerability:** Served assets via `handleAssets` lacked the centralized security headers (HSTS, CSP, etc.), breaking defense in depth.
+**Learning:** Even internally proxied images must be wrapped with the application's strict CSP and headers to avoid creating framing/sniffing loopholes.
+**Prevention:** Always pass `SECURITY_HEADERS` to proxy handlers and apply them to the response headers before returning.

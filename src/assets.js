@@ -1,4 +1,4 @@
-export const handleAssets = async (url) => {
+export const handleAssets = async (url, SECURITY_HEADERS) => {
 	let target;
 	if (url.pathname === '/assets/logo-dark') {
 		target = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/frontend/public/vibe_logo_dark.png';
@@ -12,7 +12,14 @@ export const handleAssets = async (url) => {
 		headers.set('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
 		// Remove GitHub cookies/identity headers
 		headers.delete('set-cookie');
-		headers.set('Access-Control-Allow-Origin', '*');
+		// Apply Sentinel Security Headers to proxied assets
+		if (SECURITY_HEADERS) {
+			for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+				headers.set(key, value);
+			}
+		} else {
+			headers.set('Access-Control-Allow-Origin', '*');
+		}
 		return new Response(response.body, { headers });
 	}
 	return null;
