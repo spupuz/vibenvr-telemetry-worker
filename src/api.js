@@ -218,8 +218,8 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					}
 				}
 
-				const deduplicatedData = Array.from(uniqueInstances.values());
-				activeCount = deduplicatedData.length;
+				// ⚡ Bolt: Iterate directly over Map values to avoid allocating a large intermediate array
+				activeCount = uniqueInstances.size;
 
 				const stats = {
 					active_installs: activeCount,
@@ -279,7 +279,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				const versionCounts24h = {};
 				const countryCounts48_24h = {};
 				
-				for (const row of deduplicatedData) {
+				for (const row of uniqueInstances.values()) {
 					// Aggregations
 					const v = row.version || 'unknown';
 					const c = row.country || 'Unknown';
