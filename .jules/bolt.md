@@ -21,3 +21,11 @@
 ## 2024-12-24 - Non-blocking Telemetry Ingestion
 **Learning:** Returning a fast tracking pixel response is critical to not hang the client's network stack. However, checking and updating Cloudflare KV (`await env.NAMESPACE.get/put`) on every telemetry hit was blocking the response, slowing down TTFB (Time To First Byte).
 **Action:** When saving telemetry or hit counters, use `ctx.waitUntil()` to move blocking KV reads/writes into the background so the Worker can instantly return the `Response` to the client.
+
+## 2024-12-25 - Avoid memory allocation inside hot request handlers
+**Learning:** Instantiating static data structures (like a `Uint8Array` for a transparent tracking pixel) inside the request handler forces V8 to allocate memory and garbage collect it on every single request. For high-throughput endpoints, this creates unnecessary overhead.
+**Action:** Move static data structures to the module scope (outside the request handler) to instantiate them once and reuse them across all requests.
+
+## 2024-12-25 - Iterate directly over Map values
+**Learning:** Using `Array.from(map.values())` creates an intermediate array before iteration, which can cause significant memory allocation and garbage collection overhead on large datasets. Iterating directly over `map.values()` is more efficient.
+**Action:** When you only need to iterate over values in a `Map`, use `for (const value of map.values())` instead of creating an array first.
