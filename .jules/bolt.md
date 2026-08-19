@@ -29,3 +29,7 @@
 ## 2024-12-25 - Iterate directly over Map values
 **Learning:** Using `Array.from(map.values())` creates an intermediate array before iteration, which can cause significant memory allocation and garbage collection overhead on large datasets. Iterating directly over `map.values()` is more efficient.
 **Action:** When you only need to iterate over values in a `Map`, use `for (const value of map.values())` instead of creating an array first.
+
+## 2024-12-25 - Prevent Duplicate Fetch and Parsing
+**Learning:** Initializing multiple components (like identical data charts) with their own independent `fetch` requests can lead to redundant network traffic and repeated JSON/GeoJSON parsing.
+**Action:** When multiple independent parts of the dashboard require the exact same external resource, fetch and parse it once, and place initialization logic for all dependent components within the same resolution block (or store the promise). This reduces duplicate fetching, JSON parsing overhead, and heavy object computation like `ChartGeo.topojson.feature()`.
