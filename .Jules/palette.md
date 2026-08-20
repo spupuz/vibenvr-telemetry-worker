@@ -18,3 +18,7 @@
 ## 2024-08-25 - Skip to Content Links
 **Learning:** Keyboard-only and screen reader users are forced to tab through the entire navigation menu on every page load unless a bypass mechanism is provided.
 **Action:** Always include a visually hidden "Skip to main content" link as the first focusable element in the document body that becomes visible on focus and links directly to the main content area.
+
+## 2024-11-20 - Keyboard Accessibility for Scrollable Regions
+**Learning:** CSS scrollable containers (e.g., `overflow: auto`) cannot be scrolled using the keyboard unless the container itself is focusable, which breaks accessibility for keyboard-only users who need to see the overflowing content.
+**Action:** Always add `tabindex="0"`, `role="region"`, and an accessible name (e.g., `aria-label` or `aria-labelledby`) to any container that scrolls content to ensure it is keyboard-navigable and screen reader friendly.
