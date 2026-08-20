@@ -884,6 +884,8 @@ margin-top: 2px;
 	// ─── STATE (declared before IIFE to avoid TDZ) ───────────────────────────
 	let charts = {};
 	let lastData = null;
+	// ⚡ Bolt: Cache parsed TopoJSON data to prevent redundant network traffic and heavy parsing overhead
+	let cachedCountries = null;
 
 	function animateValue(obj, start, end, duration) {
 		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1040,15 +1042,12 @@ margin-top: 2px;
 	function renderChartsIfReady() {
 		if (!lastData) return;
 		const pp = PIE_PALETTE();
-		// World map choropleth & Site map choropleth
-		fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-			.then(r => r.json())
-			.then(worldData => {
-				const countries = ChartGeo.topojson.feature(worldData, worldData.objects.countries).features;
-				// Build lookup: ISO-numeric -> ISO-alpha2
-				const numToAlpha2 = {4:'AF',8:'AL',12:'DZ',24:'AO',32:'AR',36:'AU',40:'AT',50:'BD',56:'BE',76:'BR',100:'BG',124:'CA',152:'CL',156:'CN',170:'CO',191:'HR',203:'CZ',208:'DK',818:'EG',246:'FI',250:'FR',276:'DE',300:'GR',344:'HK',356:'IN',360:'ID',364:'IR',376:'IL',380:'IT',392:'JP',410:'KR',458:'MY',484:'MX',528:'NL',554:'NZ',566:'NG',578:'NO',586:'PK',604:'PE',608:'PH',616:'PL',620:'PT',642:'RO',643:'RU',682:'SA',702:'SG',710:'ZA',724:'ES',752:'SE',756:'CH',764:'TH',792:'TR',804:'UA',784:'AE',826:'GB',840:'US',704:'VN',858:'UY',807:'MK'};
 
-				// 1. App Installs Map Data
+		const renderMaps = (countries) => {
+			// Build lookup: ISO-numeric -> ISO-alpha2
+			const numToAlpha2 = {4:'AF',8:'AL',12:'DZ',24:'AO',32:'AR',36:'AU',40:'AT',50:'BD',56:'BE',76:'BR',100:'BG',124:'CA',152:'CL',156:'CN',170:'CO',191:'HR',203:'CZ',208:'DK',818:'EG',246:'FI',250:'FR',276:'DE',300:'GR',344:'HK',356:'IN',360:'ID',364:'IR',376:'IL',380:'IT',392:'JP',410:'KR',458:'MY',484:'MX',528:'NL',554:'NZ',566:'NG',578:'NO',586:'PK',604:'PE',608:'PH',616:'PL',620:'PT',642:'RO',643:'RU',682:'SA',702:'SG',710:'ZA',724:'ES',752:'SE',756:'CH',764:'TH',792:'TR',804:'UA',784:'AE',826:'GB',840:'US',704:'VN',858:'UY',807:'MK'};
+
+			// 1. App Installs Map Data
 				const countryMap = {};
 				(lastData.countries||[]).forEach(c => { countryMap[c.name] = c.count; });
 				const geoData = countries.map(f => ({
@@ -1131,12 +1130,23 @@ margin-top: 2px;
 						}
 					});
 				}
+		};
 
-			}).catch(() => {
-				// Fallback: simple bar chart if geo fails to load
-				mkChart('chart-worldmap', 'bar', prepData(lastData.countries,'name','count',15,true), BAR_PALETTE(), false);
-				mkChart('chart-site-worldmap', 'bar', prepData(lastData.site_countries,'name','count',15,true), BAR_PALETTE(), false);
-			});
+		// World map choropleth & Site map choropleth
+		if (cachedCountries) {
+			renderMaps(cachedCountries);
+		} else {
+			fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+				.then(r => r.json())
+				.then(worldData => {
+					cachedCountries = ChartGeo.topojson.feature(worldData, worldData.objects.countries).features;
+					renderMaps(cachedCountries);
+				}).catch(() => {
+					// Fallback: simple bar chart if geo fails to load
+					mkChart('chart-worldmap', 'bar', prepData(lastData.countries,'name','count',15,true), BAR_PALETTE(), false);
+					mkChart('chart-site-worldmap', 'bar', prepData(lastData.site_countries,'name','count',15,true), BAR_PALETTE(), false);
+				});
+		}
 
 		// GitHub Stars (Simple Fetch)
 		fetch('https://api.github.com/repos/spupuz/VibeNVR')
