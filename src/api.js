@@ -67,14 +67,10 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				GROUP BY country
 			`;
 
-			const sqlSiteTotalVisitors = `
-				SELECT count(DISTINCT blob1) as total 
-				FROM vibenvr_site_events 
-				WHERE timestamp >= NOW() - INTERVAL '30' DAY
-			`;
-
-			const sqlSiteTotalPageviews = `
-				SELECT count() as total 
+			const sqlSiteTotals = `
+				SELECT
+					count(DISTINCT blob1) as total_visitors,
+					count() as total_pageviews
 				FROM vibenvr_site_events 
 				WHERE timestamp >= NOW() - INTERVAL '30' DAY
 			`;
@@ -97,57 +93,46 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			`;
 
 			try {
-				const [resActive, resTotal, resActivity, resSiteActivity, resSiteCountries, resSiteTotalVisitors, resSiteTotalPageviews, resEventsTrend] = await Promise.all([
+				// ⚡ Bolt: Chain .json() directly to fetch to parse as soon as response arrives, reducing memory and latency
+				const [
+					activeJson, totalJson, activityJson, siteActivityJson,
+					siteCountriesJson, siteTotalsJson, eventsTrendJson
+				] = await Promise.all([
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlActive
-					}),
+					}).then(async r => { if (!r.ok) throw new Error("SQL API Error: " + await r.text()); return r.json(); }),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlTotal
-					}),
+					}).then(r => r.json()),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlActivity
-					}),
+					}).then(r => r.json()),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteActivity
-					}).catch(() => new Response(JSON.stringify({ data: [] }))), // Don't fail the whole API if the site dataset doesn't exist yet
+					}).then(r => r.json()).catch(() => ({ data: [] })), // Don't fail the whole API if the site dataset doesn't exist yet
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteCountries
-					}).catch(() => new Response(JSON.stringify({ data: [] }))),
+					}).then(r => r.json()).catch(() => ({ data: [] })),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlSiteTotalVisitors
-					}).catch(() => new Response(JSON.stringify({ data: [{ total: 0 }] }))),
-					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
-						method: 'POST',
-						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlSiteTotalPageviews
-					}).catch(() => new Response(JSON.stringify({ data: [{ total: 0 }] }))),
+						body: sqlSiteTotals
+					}).then(r => r.json()).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] })),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlEventsTrend
-					}).catch(() => new Response(JSON.stringify({ data: [] })))
-				]);
-
-				if (!resActive.ok) throw new Error("SQL API Error: " + await resActive.text());
-
-				const [
-					activeJson, totalJson, activityJson, siteActivityJson,
-					siteCountriesJson, siteTotalVisitorsJson, siteTotalPageviewsJson, eventsTrendJson
-				] = await Promise.all([
-					resActive.json(), resTotal.json(), resActivity.json(), resSiteActivity.json(),
-					resSiteCountries.json(), resSiteTotalVisitors.json(), resSiteTotalPageviews.json(), resEventsTrend.json()
+					}).then(r => r.json()).catch(() => ({ data: [] }))
 				]);
 
 				const activeData = activeJson.data || [];
@@ -155,8 +140,9 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				const activityData = activityJson.data || [];
 				const siteActivityData = siteActivityJson.data || [];
 				const siteCountriesData = siteCountriesJson.data || [];
-				const siteTotalVisitorsData = siteTotalVisitorsJson.data || [];
-				const siteTotalPageviewsData = siteTotalPageviewsJson.data || [];
+				const siteTotalsData = siteTotalsJson.data || [];
+				const siteTotalVisitorsCount = siteTotalsData[0]?.total_visitors || 0;
+				const siteTotalPageviewsCount = siteTotalsData[0]?.total_pageviews || 0;
 				const eventsTrendData = eventsTrendJson.data || [];
 
 				let activeCount = activeData.length;
@@ -178,8 +164,8 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					siteTotalHitsAllTime = parseInt(siteStatsTotalHits || "0", 10);
 				} else {
 					totalCount = parseInt(totalData[0]?.total || "0", 10);
-					siteTotalCountAllTime = siteTotalVisitorsData[0]?.total || 0;
-					siteTotalHitsAllTime = siteTotalPageviewsData[0]?.total || 0;
+					siteTotalCountAllTime = siteTotalVisitorsCount;
+					siteTotalHitsAllTime = siteTotalPageviewsCount;
 				}
 
 				// Calcolo nazioni recenti (ultime 24 e 48 ore)
@@ -261,10 +247,10 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 						name: row.country || 'Unknown',
 						count: Number(row.uniques) || 0
 					})).sort((a, b) => b.count - a.count),
-					site_total_visitors_30d: Number(siteTotalVisitorsData[0]?.total) || 0,
-					site_total_visitors_all_time: Math.max(Number(siteTotalVisitorsData[0]?.total) || 0, siteTotalCountAllTime),
-					site_total_pageviews_30d: Number(siteTotalPageviewsData[0]?.total) || 0,
-					site_total_pageviews_all_time: Math.max(Number(siteTotalPageviewsData[0]?.total) || 0, siteTotalHitsAllTime)
+					site_total_visitors_30d: Number(siteTotalVisitorsCount) || 0,
+					site_total_visitors_all_time: Math.max(Number(siteTotalVisitorsCount) || 0, siteTotalCountAllTime),
+					site_total_pageviews_30d: Number(siteTotalPageviewsCount) || 0,
+					site_total_pageviews_all_time: Math.max(Number(siteTotalPageviewsCount) || 0, siteTotalHitsAllTime)
 				};
 
 				const versionCounts = {};
