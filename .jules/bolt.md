@@ -33,3 +33,6 @@
 ## 2024-12-25 - Prevent Duplicate Fetch and Parsing
 **Learning:** Initializing multiple components (like identical data charts) with their own independent `fetch` requests can lead to redundant network traffic and repeated JSON/GeoJSON parsing.
 **Action:** When multiple independent parts of the dashboard require the exact same external resource, fetch and parse it once, and place initialization logic for all dependent components within the same resolution block (or store the promise). This reduces duplicate fetching, JSON parsing overhead, and heavy object computation like `ChartGeo.topojson.feature()`.
+## 2024-05-24 - Optimizing Promise.all fetches and edge requests
+**Learning:** In Cloudflare Edge environments, calling `res.text()` and `JSON.parse()` sequentially after a `Promise.all` completes can cause significant memory allocation and block the event loop if the payloads are large. Additionally, making multiple small `count()` queries to the Analytics Engine adds unnecessary network latency.
+**Action:** Chain `.then(res => res.json())` directly onto fetch calls within `Promise.all` so parsing starts immediately. Combine multiple aggregate queries (like `count()` and `count(DISTINCT x)`) for the same table and time window into a single SQL statement.
