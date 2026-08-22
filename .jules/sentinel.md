@@ -25,3 +25,8 @@
 **Vulnerability:** Served assets via `handleAssets` lacked the centralized security headers (HSTS, CSP, etc.), breaking defense in depth.
 **Learning:** Even internally proxied images must be wrapped with the application's strict CSP and headers to avoid creating framing/sniffing loopholes.
 **Prevention:** Always pass `SECURITY_HEADERS` to proxy handlers and apply them to the response headers before returning.
+
+## 2026-08-22 - CSP Nonce Base64 Requirement
+**Vulnerability:** CSP nonces must be base64-encoded strings. Using `crypto.randomUUID()` produces hyphens which are invalid in base64, causing the browser to reject the nonce entirely.
+**Learning:** The browser's CSP parser strictly checks if the nonce is a valid base64 token. Invalid characters break the directive, exposing the application to XSS or blocking legitimate scripts.
+**Prevention:** Always generate CSP nonces using a robust cryptographic method and encode it to base64. e.g., `btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16))))`.
