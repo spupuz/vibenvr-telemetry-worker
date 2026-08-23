@@ -97,57 +97,54 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			`;
 
 			try {
-				const [resActive, resTotal, resActivity, resSiteActivity, resSiteCountries, resSiteTotalVisitors, resSiteTotalPageviews, resEventsTrend] = await Promise.all([
+				// ⚡ Bolt: Chain .then(res => res.json()) directly to fetch calls so JSON parsing begins as soon as each response arrives
+				const [
+					activeJson, totalJson, activityJson, siteActivityJson,
+					siteCountriesJson, siteTotalVisitorsJson, siteTotalPageviewsJson, eventsTrendJson
+				] = await Promise.all([
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlActive
+					}).then(async res => {
+						if (!res.ok) throw new Error("SQL API Error: " + await res.text());
+						return res.json();
 					}),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlTotal
-					}),
+					}).then(res => res.json()),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlActivity
-					}),
+					}).then(res => res.json()),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteActivity
-					}).catch(() => new Response(JSON.stringify({ data: [] }))), // Don't fail the whole API if the site dataset doesn't exist yet
+					}).then(res => res.json()).catch(() => ({ data: [] })), // Don't fail the whole API if the site dataset doesn't exist yet
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteCountries
-					}).catch(() => new Response(JSON.stringify({ data: [] }))),
+					}).then(res => res.json()).catch(() => ({ data: [] })),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteTotalVisitors
-					}).catch(() => new Response(JSON.stringify({ data: [{ total: 0 }] }))),
+					}).then(res => res.json()).catch(() => ({ data: [{ total: 0 }] })),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteTotalPageviews
-					}).catch(() => new Response(JSON.stringify({ data: [{ total: 0 }] }))),
+					}).then(res => res.json()).catch(() => ({ data: [{ total: 0 }] })),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlEventsTrend
-					}).catch(() => new Response(JSON.stringify({ data: [] })))
-				]);
-
-				if (!resActive.ok) throw new Error("SQL API Error: " + await resActive.text());
-
-				const [
-					activeJson, totalJson, activityJson, siteActivityJson,
-					siteCountriesJson, siteTotalVisitorsJson, siteTotalPageviewsJson, eventsTrendJson
-				] = await Promise.all([
-					resActive.json(), resTotal.json(), resActivity.json(), resSiteActivity.json(),
-					resSiteCountries.json(), resSiteTotalVisitors.json(), resSiteTotalPageviews.json(), resEventsTrend.json()
+					}).then(res => res.json()).catch(() => ({ data: [] }))
 				]);
 
 				const activeData = activeJson.data || [];
