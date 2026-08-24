@@ -25,3 +25,7 @@
 **Vulnerability:** Served assets via `handleAssets` lacked the centralized security headers (HSTS, CSP, etc.), breaking defense in depth.
 **Learning:** Even internally proxied images must be wrapped with the application's strict CSP and headers to avoid creating framing/sniffing loopholes.
 **Prevention:** Always pass `SECURITY_HEADERS` to proxy handlers and apply them to the response headers before returning.
+## 2024-10-28 - CSP Broad Permissive Rule (Public CDN Whitelisted)
+**Vulnerability:** The Content Security Policy in `security.js` permitted the execution of scripts from `https://cdn.jsdelivr.net` globally.
+**Learning:** Permissive `script-src` configurations that whitelist entire public CDNs are dangerous because attackers can use them to bypass CSP (e.g. by loading vulnerable older versions of libraries or exploiting JSONP endpoints hosted on the same CDN). While a previous fix added `nonce` to scripts, the CDN domain was left whitelisted globally, neutralizing the benefit of the nonce for external scripts.
+**Prevention:** Rely strictly on secure `nonce-<value>` or hashes for script execution, instead of domain whitelists for CDNs.
