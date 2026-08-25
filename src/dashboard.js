@@ -884,6 +884,7 @@ margin-top: 2px;
 	// ─── STATE (declared before IIFE to avoid TDZ) ───────────────────────────
 	let charts = {};
 	let lastData = null;
+	let cachedGeoDataPromise = null;
 
 	function animateValue(obj, start, end, duration) {
 		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1041,10 +1042,12 @@ margin-top: 2px;
 		if (!lastData) return;
 		const pp = PIE_PALETTE();
 		// World map choropleth & Site map choropleth
-		fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-			.then(r => r.json())
-			.then(worldData => {
-				const countries = ChartGeo.topojson.feature(worldData, worldData.objects.countries).features;
+		if (!cachedGeoDataPromise) {
+			cachedGeoDataPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+				.then(r => r.json())
+				.then(worldData => ChartGeo.topojson.feature(worldData, worldData.objects.countries).features);
+		}
+		cachedGeoDataPromise.then(countries => {
 				// Build lookup: ISO-numeric -> ISO-alpha2
 				const numToAlpha2 = {4:'AF',8:'AL',12:'DZ',24:'AO',32:'AR',36:'AU',40:'AT',50:'BD',56:'BE',76:'BR',100:'BG',124:'CA',152:'CL',156:'CN',170:'CO',191:'HR',203:'CZ',208:'DK',818:'EG',246:'FI',250:'FR',276:'DE',300:'GR',344:'HK',356:'IN',360:'ID',364:'IR',376:'IL',380:'IT',392:'JP',410:'KR',458:'MY',484:'MX',528:'NL',554:'NZ',566:'NG',578:'NO',586:'PK',604:'PE',608:'PH',616:'PL',620:'PT',642:'RO',643:'RU',682:'SA',702:'SG',710:'ZA',724:'ES',752:'SE',756:'CH',764:'TH',792:'TR',804:'UA',784:'AE',826:'GB',840:'US',704:'VN',858:'UY',807:'MK'};
 

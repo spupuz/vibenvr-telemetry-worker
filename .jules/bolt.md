@@ -33,3 +33,7 @@
 ## 2024-12-25 - Prevent Duplicate Fetch and Parsing
 **Learning:** Initializing multiple components (like identical data charts) with their own independent `fetch` requests can lead to redundant network traffic and repeated JSON/GeoJSON parsing.
 **Action:** When multiple independent parts of the dashboard require the exact same external resource, fetch and parse it once, and place initialization logic for all dependent components within the same resolution block (or store the promise). This reduces duplicate fetching, JSON parsing overhead, and heavy object computation like `ChartGeo.topojson.feature()`.
+
+## 2025-01-20 - Cache Parsed External Resources
+**Learning:** Fetching and parsing external resources synchronously during component re-rendering (e.g., in UI event handlers like theme toggles) can cause redundant network traffic and heavy parsing overhead (such as `ChartGeo.topojson.feature`). This results in noticeable UI lag when maps or charts are re-rendered.
+**Action:** When a UI rendering function relies on an external resource, cache the promise resolving to the parsed data (e.g., `cachedDataPromise = fetch(...).then(...)`) instead of re-fetching and re-parsing every time the render function is called.
