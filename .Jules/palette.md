@@ -18,3 +18,7 @@
 ## 2024-08-25 - Skip to Content Links
 **Learning:** Keyboard-only and screen reader users are forced to tab through the entire navigation menu on every page load unless a bypass mechanism is provided.
 **Action:** Always include a visually hidden "Skip to main content" link as the first focusable element in the document body that becomes visible on focus and links directly to the main content area.
+
+## 2024-11-20 - Accessible Scrollable Areas for Leaderboards
+**Learning:** Adding `overflow: auto` or `overflow-y: auto` to containers like leaderboards or tables creates a scrolling area that isn't keyboard-navigable by default, hiding content from keyboard-only and screen reader users.
+**Action:** Always add `tabindex="0"`, `role="region"`, and an accessible name (e.g., `aria-labelledby="[id-of-title]"`) to CSS scrollable containers to ensure full accessibility.
