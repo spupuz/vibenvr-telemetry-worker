@@ -33,3 +33,6 @@
 ## 2024-12-25 - Prevent Duplicate Fetch and Parsing
 **Learning:** Initializing multiple components (like identical data charts) with their own independent `fetch` requests can lead to redundant network traffic and repeated JSON/GeoJSON parsing.
 **Action:** When multiple independent parts of the dashboard require the exact same external resource, fetch and parse it once, and place initialization logic for all dependent components within the same resolution block (or store the promise). This reduces duplicate fetching, JSON parsing overhead, and heavy object computation like `ChartGeo.topojson.feature()`.
+## 2024-05-24 - Optimize concurrent JSON parsing
+**Learning:** In Cloudflare Workers, awaiting all fetches in `Promise.all` before parsing their responses sequentially blocks the event loop and increases time-to-first-byte (TTFB), especially with large JSON payloads.
+**Action:** Chain `.then(res => res.json())` directly onto fetch calls within `Promise.all` to begin parsing JSON streams concurrently as each response arrives.
