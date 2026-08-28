@@ -22,3 +22,7 @@
 ## 2026-08-27 - Keyboard Accessibility for CSS Scrollable Containers
 **Learning:** CSS scrollable containers (e.g., `overflow: auto` or `overflow-y: auto`) are not inherently keyboard-navigable or accessible to screen readers, which can trap users or hide content. In `src/dashboard.js`, a leaderboard table was placed in a scrollable div without keyboard support.
 **Action:** When creating elements with CSS overflow scrolling, always ensure they include `tabindex="0"`, `role="region"`, and an accessible name (e.g., `aria-labelledby="[id-of-title]"`) so users can focus on the container and scroll it using arrow keys.
+
+## 2026-10-25 - Explicit Toggle States and Single-key Shortcuts
+**Learning:** Toggle buttons should always use action verbs describing the result (e.g., "Switch to Light Mode") rather than ambiguously displaying the destination state ("Light Mode"), which can be misconstrued as current status. Additionally, when implementing single-key global shortcuts (like 'T'), missing modifier checks can trigger the UI state when users type in input fields or use OS-level shortcuts.
+**Action:** Consistently pair toggle texts with explicit verbs, and implement robust event listener checks (`!e.ctrlKey && !e.altKey && !e.metaKey` and `activeElement` tag exclusion) for single-letter keyboard shortcuts.

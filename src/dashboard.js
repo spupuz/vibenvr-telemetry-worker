@@ -815,7 +815,7 @@ margin-top: 2px;
 	<footer id="smart-footer" class="smart-footer">
 		<div class="footer-content">
 			<div class="footer-logo">
-				<ion-icon name="videocam"></ion-icon> VibeNVR
+				<ion-icon name="videocam" aria-hidden="true"></ion-icon> VibeNVR
 			</div>
 			
 			<div class="footer-links-site">
@@ -922,8 +922,8 @@ margin-top: 2px;
 		if (sun) sun.style.display = dark ? 'block' : 'none';
 		if (moon) moon.style.display = dark ? 'none' : 'block';
 		const btn = document.getElementById('theme-toggle');
-		if (lbl) lbl.textContent = dark ? 'Light Mode' : 'Dark Mode';
-		if (btn) btn.title = dark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+		if (lbl) lbl.textContent = dark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+		if (btn) btn.title = dark ? 'Switch to Light Mode (T)' : 'Switch to Dark Mode (T)';
 		localStorage.setItem('vnvr-theme', dark ? 'dark' : 'light');
 		if (lastData) renderChartsIfReady();
 	}
@@ -1347,7 +1347,7 @@ margin-top: 2px;
 						<span style="font-family: 'Twemoji Country Flags', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">\${escapeHtml(emoji)}</span>
 						<span style="margin-left: 4px;">\${escapeHtml(textName)}</span>
 					</td>
-					<td style="text-align: right; padding: 0.6rem 0.5rem; font-weight: 600; color: var(--primary); border-radius: 0 4px 4px 0;">\${escapeHtml(val)}</td>
+					<td style="text-align: right; padding: 0.6rem 0.5rem; font-weight: 600; color: var(--primary); border-radius: 0 4px 4px 0;">\${escapeHtml(val.toLocaleString())}</td>
 				</tr>\`;
 		}).join('');
 		const lbEl = document.getElementById('leaderboard-countries');
@@ -1427,6 +1427,16 @@ margin-top: 2px;
 
 	document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
 	document.getElementById('retry-btn')?.addEventListener('click', fetchStats);
+
+	// Keyboard shortcut for theme toggle
+	document.addEventListener('keydown', (e) => {
+		if (e.key.toLowerCase() === 't' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+			const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+			if (activeTag !== 'input' && activeTag !== 'textarea' && activeTag !== 'select') {
+				toggleTheme();
+			}
+		}
+	});
 
 	fetchStats();
 </script>
