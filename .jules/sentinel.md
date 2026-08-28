@@ -29,3 +29,7 @@
 **Vulnerability:** Public CDN whitelisted in `script-src` directive
 **Learning:** Whitelisting an entire public CDN (like `https://cdn.jsdelivr.net`) in the `script-src` directive of the Content-Security-Policy enables an attacker to load and execute malicious scripts. An attacker can upload a malicious package to the CDN, or find a gadget script already hosted on the CDN (e.g. angularjs) to execute arbitrary JavaScript, completely bypassing the CSP.
 **Prevention:** Rely strictly on secure nonces or hashes for script execution, rather than whitelisting domains.
+## 2026-08-28 - Secure Error Handling & Asset Proxy
+**Vulnerability:** Unhandled exceptions in the top-level request handler and external proxy fetches could silently leak internal error details via default Cloudflare Worker error pages, and upstream 404s in the asset proxy were incorrectly returning 200 OK without security headers.
+**Learning:** Cloudflare Workers implicitly return 500 errors if an unhandled promise rejection or error occurs in the `fetch` event listener, which drops our manually constructed `SECURITY_HEADERS`. Furthermore, a failed external fetch in `src/assets.js` would crash the request if unhandled, rather than returning a safe fallback.
+**Prevention:** Always wrap the main `fetch` event handler in a global `try...catch` block that returns a generic 500 Internal Server Error explicitly configured with `SECURITY_HEADERS`. Ensure external proxy fetches also handle network failures securely, passing upstream HTTP status codes accurately.
