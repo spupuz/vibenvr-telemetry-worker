@@ -36,3 +36,7 @@
 ## 2024-05-24 - Optimize concurrent JSON parsing
 **Learning:** In Cloudflare Workers, awaiting all fetches in `Promise.all` before parsing their responses sequentially blocks the event loop and increases time-to-first-byte (TTFB), especially with large JSON payloads.
 **Action:** Chain `.then(res => res.json())` directly onto fetch calls within `Promise.all` to begin parsing JSON streams concurrently as each response arrives.
+
+## 2024-12-25 - Combine multiple aggregate queries
+**Learning:** Cloudflare Analytics Engine supports combining multiple aggregate selections (e.g. `count(DISTINCT x)`, `count()`) into a single SQL query on the same dataset. Running them as separate concurrent network requests creates unnecessary edge latency and consumes more API connections.
+**Action:** When querying the exact same table and time range for multiple aggregate metrics, always combine them into a single `SELECT count(DISTINCT X), count()` statement to reduce the number of fetch requests to the Analytics Engine.
