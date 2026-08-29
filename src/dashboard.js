@@ -884,8 +884,22 @@ margin-top: 2px;
 	// ─── STATE (declared before IIFE to avoid TDZ) ───────────────────────────
 	let charts = {};
 	let lastData = null;
-	// ⚡ Bolt: Cache parsed TopoJSON data to prevent redundant network traffic and heavy parsing overhead
-	let cachedCountries = null;
+
+	// ⚡ Bolt: Cache the Promise itself so fetching/parsing only happens exactly once,
+	// and multiple calls to render() can simply await it without redundant logic.
+	const cachedCountriesPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+		.then(r => r.json())
+		.then(worldData => ChartGeo.topojson.feature(worldData, worldData.objects.countries).features);
+
+	// ⚡ Bolt: Fetch GitHub stars once on load rather than inside renderChartsIfReady
+	// which fires repeatedly on theme toggles
+	fetch('https://api.github.com/repos/spupuz/VibeNVR')
+		.then(r => r.json())
+		.then(repo => {
+			const currentStars = repo.stargazers_count || 0;
+			const el = document.getElementById('header-github-stars');
+			if (el) animateValue(el, 0, currentStars, 1500);
+		}).catch(e => console.error("Error fetching GitHub stars:", e));
 
 	function animateValue(obj, start, end, duration) {
 		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1133,31 +1147,11 @@ margin-top: 2px;
 		};
 
 		// World map choropleth & Site map choropleth
-		if (cachedCountries) {
-			renderMaps(cachedCountries);
-		} else {
-			fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-				.then(r => r.json())
-				.then(worldData => {
-					cachedCountries = ChartGeo.topojson.feature(worldData, worldData.objects.countries).features;
-					renderMaps(cachedCountries);
-				}).catch(() => {
-					// Fallback: simple bar chart if geo fails to load
-					mkChart('chart-worldmap', 'bar', prepData(lastData.countries,'name','count',15,true), BAR_PALETTE(), false);
-					mkChart('chart-site-worldmap', 'bar', prepData(lastData.site_countries,'name','count',15,true), BAR_PALETTE(), false);
-				});
-		}
-
-		// GitHub Stars (Simple Fetch)
-		fetch('https://api.github.com/repos/spupuz/VibeNVR')
-			.then(r => r.json())
-			.then(repo => {
-				const currentStars = repo.stargazers_count || 0;
-				const el = document.getElementById('header-github-stars');
-				if (el) {
-					animateValue(el, 0, currentStars, 1500);
-				}
-			}).catch(e => console.error("Error fetching GitHub stars:", e));
+		cachedCountriesPromise.then(renderMaps).catch(() => {
+			// Fallback: simple bar chart if geo fails to load
+			mkChart('chart-worldmap', 'bar', prepData(lastData.countries,'name','count',15,true), BAR_PALETTE(), false);
+			mkChart('chart-site-worldmap', 'bar', prepData(lastData.site_countries,'name','count',15,true), BAR_PALETTE(), false);
+		});
 
 		mkChart('chart-country-bars', 'bar', prepData(lastData.countries, 'name', 'count', 12, true), BAR_PALETTE(), false);
 
