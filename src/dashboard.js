@@ -899,6 +899,7 @@ margin-top: 2px;
 	// ─── STATE (declared before IIFE to avoid TDZ) ───────────────────────────
 	let charts = {};
 	let lastData = null;
+<<<<<<< HEAD
 	// ⚡ Bolt: Cache fetch promises to prevent redundant network traffic and heavy parsing overhead on every render
 	const countriesPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
 		.then(r => r.json())
@@ -908,6 +909,24 @@ margin-top: 2px;
 	const githubStarsPromise = fetch('https://api.github.com/repos/spupuz/VibeNVR')
 		.then(r => r.json())
 		.catch(() => null);
+=======
+
+	// ⚡ Bolt: Cache the Promise itself so fetching/parsing only happens exactly once,
+	// and multiple calls to render() can simply await it without redundant logic.
+	const cachedCountriesPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+		.then(r => r.json())
+		.then(worldData => ChartGeo.topojson.feature(worldData, worldData.objects.countries).features);
+
+	// ⚡ Bolt: Fetch GitHub stars once on load rather than inside renderChartsIfReady
+	// which fires repeatedly on theme toggles
+	fetch('https://api.github.com/repos/spupuz/VibeNVR')
+		.then(r => r.json())
+		.then(repo => {
+			const currentStars = repo.stargazers_count || 0;
+			const el = document.getElementById('header-github-stars');
+			if (el) animateValue(el, 0, currentStars, 1500);
+		}).catch(e => console.error("Error fetching GitHub stars:", e));
+>>>>>>> origin/bolt-optimize-dashboard-fetches-5006001366876163278
 
 	function animateValue(obj, start, end, duration) {
 		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1155,13 +1174,18 @@ margin-top: 2px;
 		};
 
 		// World map choropleth & Site map choropleth
+<<<<<<< HEAD
 		countriesPromise.then(countries => {
 			renderMaps(countries);
 		}).catch(() => {
+=======
+		cachedCountriesPromise.then(renderMaps).catch(() => {
+>>>>>>> origin/bolt-optimize-dashboard-fetches-5006001366876163278
 			// Fallback: simple bar chart if geo fails to load
 			mkChart('chart-worldmap', 'bar', prepData(lastData.countries,'name','count',15,true), BAR_PALETTE(), false);
 			mkChart('chart-site-worldmap', 'bar', prepData(lastData.site_countries,'name','count',15,true), BAR_PALETTE(), false);
 		});
+<<<<<<< HEAD
 
 		// GitHub Stars (Simple Fetch)
 		githubStarsPromise.then(repo => {
@@ -1173,6 +1197,8 @@ margin-top: 2px;
 				}
 			}
 		});
+=======
+>>>>>>> origin/bolt-optimize-dashboard-fetches-5006001366876163278
 
 		mkChart('chart-country-bars', 'bar', prepData(lastData.countries, 'name', 'count', 12, true), BAR_PALETTE(), false);
 
