@@ -889,7 +889,7 @@ margin-top: 2px;
 
 	function animateValue(obj, start, end, duration) {
 		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			obj.innerHTML = end.toLocaleString();
+			obj.textContent = end.toLocaleString();
 			return;
 		}
 		let startTimestamp = null;
@@ -898,11 +898,11 @@ margin-top: 2px;
 			const progress = Math.min((timestamp - startTimestamp) / duration, 1);
 			// Ease-out expo function for a smoother finish
 			const easeOut = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-			obj.innerHTML = Math.floor(easeOut * (end - start) + start).toLocaleString();
+			obj.textContent = Math.floor(easeOut * (end - start) + start).toLocaleString();
 			if (progress < 1) {
 				window.requestAnimationFrame(step);
 			} else {
-				obj.innerHTML = end.toLocaleString();
+				obj.textContent = end.toLocaleString();
 			}
 		};
 		window.requestAnimationFrame(step);
