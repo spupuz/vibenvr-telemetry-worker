@@ -213,6 +213,8 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 
 				const stats = {
 					active_installs: activeCount,
+					active_installs_24h: 0,
+					active_installs_prev24h: 0,
 					total_installs: Math.max(activeCount, totalCount),
 					activity: activityData.map(row => ({
 						date: row.day,
@@ -268,28 +270,34 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				const countryCounts24h = {};
 				const versionCounts24h = {};
 				const countryCounts48_24h = {};
+				const osCounts24h = {};
+				const archCounts24h = {};
+				let activeCount24h = 0;
+				let activeCountPrev24h = 0;
 				
 				for (const row of uniqueInstances.values()) {
 					// Aggregations
 					const v = row.version || 'unknown';
 					const c = row.country || 'Unknown';
+					const o = row.os || 'Unknown';
+					const a = row.arch || 'Unknown';
 
 					// 24h/48h counts
 					if (row._seen24h) {
+						activeCount24h++;
 						countryCounts24h[c] = (countryCounts24h[c] || 0) + 1;
 						versionCounts24h[v] = (versionCounts24h[v] || 0) + 1;
+						osCounts24h[o] = (osCounts24h[o] || 0) + 1;
+						archCounts24h[a] = (archCounts24h[a] || 0) + 1;
 					}
 					if (row._seen48h) {
+						activeCountPrev24h++;
 						countryCounts48_24h[c] = (countryCounts48_24h[c] || 0) + 1;
 					}
 
 					versionCounts[v] = (versionCounts[v] || 0) + 1;
 					countryCounts[c] = (countryCounts[c] || 0) + 1;
-
-					const o = row.os || 'Unknown';
 					osCounts[o] = (osCounts[o] || 0) + 1;
-
-					const a = row.arch || 'Unknown';
 					archCounts[a] = (archCounts[a] || 0) + 1;
 
 					const r = row.ram ? `${row.ram} GB` : 'Unknown';
@@ -349,6 +357,10 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				stats.countries_24h = Object.entries(countryCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
 				stats.countries_prev24h = Object.entries(countryCounts48_24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
 				stats.versions_24h = Object.entries(versionCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+				stats.os_24h = Object.entries(osCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+				stats.arch_24h = Object.entries(archCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+				stats.active_installs_24h = activeCount24h;
+				stats.active_installs_prev24h = activeCountPrev24h;
 
 				// Normalise groups_dist to ordered array
 				const gbkOrder = ['0', '1', '2-3', '4-5', '6-10', '11+'];
