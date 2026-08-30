@@ -41,13 +41,6 @@
 ## 2024-12-25 - Combine multiple aggregate queries
 **Learning:** Cloudflare Analytics Engine supports combining multiple aggregate selections (e.g. `count(DISTINCT x)`, `count()`) into a single SQL query on the same dataset. Running them as separate concurrent network requests creates unnecessary edge latency and consumes more API connections.
 **Action:** When querying the exact same table and time range for multiple aggregate metrics, always combine them into a single `SELECT count(DISTINCT X), count()` statement to reduce the number of fetch requests to the Analytics Engine.
-<<<<<<< HEAD
-## 2026-08-30 - Prevent redundant fetch promises
-**Learning:** Re-initiating fetches in render loops causes redundant network requests.
-**Action:** Use module-scoped promises instead of conditionally resolved data.
-=======
-
 ## 2025-02-23 - Prevent Duplicate Fetching in Render Loops
 **Learning:** Placing independent fetch calls (e.g., getting map data or GitHub stars) inside rendering functions (like `renderChartsIfReady()`) that fire on UI state changes (like toggling themes) will trigger redundant requests and heavy parsing. Additionally, trying to `if/else` cache the resolved data rather than caching the `Promise` itself can result in race conditions where the fetch is fired again before the first one completes.
 **Action:** Always move static, one-time external fetch calls outside of render functions (e.g., to the root scope or a `useEffect` equivalent). For complex payloads like TopoJSON, cache the `Promise` itself so multiple consumers can simply `.then()` it without worrying about race conditions.
->>>>>>> origin/bolt-optimize-dashboard-fetches-5006001366876163278
