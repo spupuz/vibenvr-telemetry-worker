@@ -29,7 +29,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			--surface2: #f0f2f8;
 			--border: #e2e6f0;
 			--text: #111827;
-			--text-muted: #6b7280;
+			--text-muted: #4b5563;
 			--primary: #3b82f6;
 			--primary-light: #eff6ff;
 			--primary-dark: #1d4ed8;
@@ -45,7 +45,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			--surface2: #1c2330;
 			--border: #21262d;
 			--text: #e6edf3;
-			--text-muted: #7d8590;
+			--text-muted: #9ca3af;
 			--primary: #58a6ff;
 			--primary-light: rgba(88,166,255,.1);
 			--primary-dark: #1f6feb;
@@ -163,6 +163,20 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			white-space: nowrap;
 		}
 		.theme-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
+
+		.shortcut-key {
+			display: none;
+			padding: 0.1rem 0.35rem;
+			font-size: 0.65rem;
+			font-family: var(--font-mono, monospace);
+			font-weight: 600;
+			border: 1px solid var(--border);
+			border-radius: 4px;
+			color: var(--text-muted);
+		}
+		@media (min-width: 768px) {
+			.shortcut-key { display: inline-block; }
+		}
 
 		/* Focus States for Accessibility */
 		main:focus-visible {
@@ -518,6 +532,7 @@ margin-top: 2px;
 			<svg aria-hidden="true" id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
 			<svg aria-hidden="true" id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
 			<span id="theme-label">Switch to Dark Mode</span>
+			<kbd class="shortcut-key">T</kbd>
 		</button>
 	</div>
 </header>
