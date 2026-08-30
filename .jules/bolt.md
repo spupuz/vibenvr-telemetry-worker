@@ -40,3 +40,6 @@
 ## 2024-12-25 - Combine multiple aggregate queries
 **Learning:** Cloudflare Analytics Engine supports combining multiple aggregate selections (e.g. `count(DISTINCT x)`, `count()`) into a single SQL query on the same dataset. Running them as separate concurrent network requests creates unnecessary edge latency and consumes more API connections.
 **Action:** When querying the exact same table and time range for multiple aggregate metrics, always combine them into a single `SELECT count(DISTINCT X), count()` statement to reduce the number of fetch requests to the Analytics Engine.
+## 2026-08-30 - Prevent redundant fetch promises
+**Learning:** Re-initiating fetches in render loops causes redundant network requests.
+**Action:** Use module-scoped promises instead of conditionally resolved data.
