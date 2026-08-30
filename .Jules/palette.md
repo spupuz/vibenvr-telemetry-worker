@@ -26,3 +26,7 @@
 ## 2026-10-25 - Explicit Toggle States and Single-key Shortcuts
 **Learning:** Toggle buttons should always use action verbs describing the result (e.g., "Switch to Light Mode") rather than ambiguously displaying the destination state ("Light Mode"), which can be misconstrued as current status. Additionally, when implementing single-key global shortcuts (like 'T'), missing modifier checks can trigger the UI state when users type in input fields or use OS-level shortcuts.
 **Action:** Consistently pair toggle texts with explicit verbs, and implement robust event listener checks (`!e.ctrlKey && !e.altKey && !e.metaKey` and `activeElement` tag exclusion) for single-letter keyboard shortcuts.
+
+## 2026-11-12 - Visual Affordance for Keyboard Shortcuts
+**Learning:** Keyboard shortcuts hidden in `title` attributes (e.g. "Switch to Light Mode (T)") are often missed by users who do not hover, reducing the discoverability of power-user features.
+**Action:** Expose single-key global shortcuts visually within the button UI using `<kbd>` elements, while hiding them on mobile devices where hardware keyboards are typically unavailable.
