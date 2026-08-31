@@ -30,3 +30,6 @@
 ## 2026-11-12 - Visual Affordance for Keyboard Shortcuts
 **Learning:** Keyboard shortcuts hidden in `title` attributes (e.g. "Switch to Light Mode (T)") are often missed by users who do not hover, reducing the discoverability of power-user features.
 **Action:** Expose single-key global shortcuts visually within the button UI using `<kbd>` elements, while hiding them on mobile devices where hardware keyboards are typically unavailable.
+## 2026-08-31 - Undefined CSS Variables Break Text Contrast
+**Learning:** Incorrect CSS variable references (e.g. `var(--muted)` instead of `var(--text-muted)`) silently fail, falling back to body text color which can ruin visual hierarchy in dense data dashboards without throwing any developer warnings. Similarly, missing palette definitions (like `--err` for negative trends) can cause critical user feedback to blend in or adopt misleading primary colors.
+**Action:** Always verify that mapped CSS variables exist in the `:root` definitions. When adding missing state variables (like error states), ensure they are added to both base `:root` and `.dark` modifier blocks to maintain consistency across theme toggles.
