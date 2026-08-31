@@ -109,7 +109,8 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 						if (!res.ok) throw new Error("SQL API Error: " + await res.text());
 						return res.json();
 					}),
-					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+					// ⚡ Bolt: Conditionally skip sqlTotal fetch if KV is available, as the data is overwritten by the KV response anyway
+					env.VIBENVR_IDS ? Promise.resolve({ data: [] }) : fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlTotal
