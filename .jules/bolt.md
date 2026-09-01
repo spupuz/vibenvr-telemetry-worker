@@ -44,3 +44,7 @@
 ## 2025-02-23 - Prevent Duplicate Fetching in Render Loops
 **Learning:** Placing independent fetch calls (e.g., getting map data or GitHub stars) inside rendering functions (like `renderChartsIfReady()`) that fire on UI state changes (like toggling themes) will trigger redundant requests and heavy parsing. Additionally, trying to `if/else` cache the resolved data rather than caching the `Promise` itself can result in race conditions where the fetch is fired again before the first one completes.
 **Action:** Always move static, one-time external fetch calls outside of render functions (e.g., to the root scope or a `useEffect` equivalent). For complex payloads like TopoJSON, cache the `Promise` itself so multiple consumers can simply `.then()` it without worrying about race conditions.
+
+## 2025-02-23 - Skip Fallback Fetch Requests
+**Learning:** Performing a fallback fetch (like a full table scan query) in a `Promise.all` block when the primary source (like Cloudflare KV) is available causes redundant network traffic and unnecessary load on the backend.
+**Action:** When a fetch inside a `Promise.all` block is only needed as a fallback, conditionally check for the availability of the primary data source and return a `Promise.resolve(default_value)` to skip the redundant fetch.
