@@ -34,3 +34,6 @@
 ## 2026-09-01 - Prevent keyboard shortcuts from breaking button context and improve badge clarity
 **Learning:** Adding `<kbd>` tags inside buttons causes screen readers to append the key character to the button's name (e.g. "Switch to Dark Mode T"). Additionally, standalone numbers in badges (like GitHub stars) lack context when read by screen readers.
 **Action:** Always add `aria-hidden="true"` to visual keyboard hints inside interactive elements. For badges displaying standalone data, use a `.sr-only` utility class to add descriptive words (like "stars") for screen readers.
+## 2026-08-31 - Undefined CSS Variables Break Text Contrast
+**Learning:** Incorrect CSS variable references (e.g. `var(--muted)` instead of `var(--text-muted)`) silently fail, falling back to body text color which can ruin visual hierarchy in dense data dashboards without throwing any developer warnings. Similarly, missing palette definitions (like `--err` for negative trends) can cause critical user feedback to blend in or adopt misleading primary colors.
+**Action:** Always verify that mapped CSS variables exist in the `:root` definitions. When adding missing state variables (like error states), ensure they are added to both base `:root` and `.dark` modifier blocks to maintain consistency across theme toggles.

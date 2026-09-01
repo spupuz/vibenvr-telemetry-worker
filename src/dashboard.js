@@ -35,6 +35,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			--primary-dark: #1d4ed8;
 			--accent: #8b5cf6;
 			--success: #10b981;
+			--err: #ef4444;
 			--radius: 16px;
 			--shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
 			--shadow-hover: 0 10px 25px -5px rgba(59, 130, 246, 0.15), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
@@ -49,6 +50,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			--primary: #58a6ff;
 			--primary-light: rgba(88,166,255,.1);
 			--primary-dark: #1f6feb;
+			--err: #f87171;
 			--shadow: 0 1px 4px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
 			--shadow-hover: 0 10px 25px rgba(0,0,0,.5);
 		}
