@@ -30,3 +30,7 @@
 ## 2026-11-12 - Visual Affordance for Keyboard Shortcuts
 **Learning:** Keyboard shortcuts hidden in `title` attributes (e.g. "Switch to Light Mode (T)") are often missed by users who do not hover, reducing the discoverability of power-user features.
 **Action:** Expose single-key global shortcuts visually within the button UI using `<kbd>` elements, while hiding them on mobile devices where hardware keyboards are typically unavailable.
+
+## 2026-09-01 - Prevent keyboard shortcuts from breaking button context and improve badge clarity
+**Learning:** Adding `<kbd>` tags inside buttons causes screen readers to append the key character to the button's name (e.g. "Switch to Dark Mode T"). Additionally, standalone numbers in badges (like GitHub stars) lack context when read by screen readers.
+**Action:** Always add `aria-hidden="true"` to visual keyboard hints inside interactive elements. For badges displaying standalone data, use a `.sr-only` utility class to add descriptive words (like "stars") for screen readers.
