@@ -872,7 +872,7 @@ margin-top: 2px;
 			<div class="footer-copy">
 				&copy; 2026 Alessandro Belloni.<br>
 				<div style="margin-top: 0.5rem; font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
-					telemetry version <span id="telemetry-version">v1.35.0</span>
+					telemetry version <span id="telemetry-version">v1.37.1</span>
 				</div>
 			</div>
 		</div>
