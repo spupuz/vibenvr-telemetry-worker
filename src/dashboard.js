@@ -293,7 +293,7 @@ filter: drop-shadow(0 0 2px var(--primary-light));
 grid-column: 2;
 font-size: 12px;
 font-weight: normal;
-color: var(--muted);
+color: var(--text-muted);
 margin-top: 2px;
 }
 		.chart-wrap { position: relative; height: 220px; }
@@ -515,6 +515,18 @@ margin-top: 2px;
 				scroll-behavior: auto !important;
 			}
 		}
+
+		.sr-only {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			white-space: nowrap;
+			border-width: 0;
+		}
 	</style>
 </head>
 <body>
@@ -532,7 +544,7 @@ margin-top: 2px;
 			<svg aria-hidden="true" id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
 			<svg aria-hidden="true" id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
 			<span id="theme-label">Switch to Dark Mode</span>
-			<kbd class="shortcut-key">T</kbd>
+			<kbd class="shortcut-key" aria-hidden="true">T</kbd>
 		</button>
 	</div>
 </header>
@@ -568,7 +580,7 @@ margin-top: 2px;
 		</a>
 		<a href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener" class="footer-link">
 			<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-			GitHub <span class="github-badge" id="header-github-stars">-</span>
+			GitHub <span class="github-badge"><span class="sr-only">stars </span><span id="header-github-stars">-</span></span>
 		</a>
 		<a href="https://github.com/spupuz/VibeNVR/releases/latest" target="_blank" rel="noopener" class="footer-link">
 			<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -588,7 +600,7 @@ margin-top: 2px;
 			<div class="kpi-card" title="Number of unique VibeNVR instances that have pinged the telemetry server in the last 30 days.">
 				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Active Installs</div>
 				<div class="kpi-value" id="kpi-active">-</div>
-				<div class="kpi-sub">Last 30 days</div>
+				<div class="kpi-sub">Last 30 days <span id="kpi-active-24h" style="color: var(--primary); font-weight: 600; margin-left: 6px;"></span></div>
 			</div>
 			<div class="kpi-card" title="Total number of unique VibeNVR instances seen since the project started.">
 				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg> Total Installs</div>
@@ -598,7 +610,7 @@ margin-top: 2px;
 			<div class="kpi-card" title="Total number of unique countries seen across all active installations.">
 				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Active Countries</div>
 				<div class="kpi-value" id="kpi-countries">-</div>
-				<div class="kpi-sub">Total unique (30d)</div>
+				<div class="kpi-sub">Last 30 days <span id="kpi-countries-24h" style="color: var(--primary); font-weight: 600; margin-left: 6px;"></span></div>
 			</div>
 			<div class="kpi-card" title="Total number of security cameras configured across all currently active instances.">
 				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Cameras</div>
@@ -652,7 +664,7 @@ margin-top: 2px;
 			<div class="card" title="Geographic distribution of active instances based on IP address geolocation.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Map: Installations by Country
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Geographic distribution based on IP address geolocation — IPs are not collected or stored, they are strictly filtered by Cloudflare • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Geographic distribution based on IP address geolocation — IPs are not collected or stored, they are strictly filtered by Cloudflare • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:340px"><canvas id="chart-worldmap"></canvas></div>
 			</div>
@@ -663,7 +675,7 @@ margin-top: 2px;
 			<div class="card" title="List of most consistently active countries over the last 30 days.">
 				<div class="chart-title" id="consistent-countries-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Consistent Active Countries
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Top 10 leaderboard • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Top 10 leaderboard • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:340px; overflow-y: auto; margin-top: 1rem;" tabindex="0" role="region" aria-labelledby="consistent-countries-title">
 					<table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" id="leaderboard-countries">
@@ -674,27 +686,20 @@ margin-top: 2px;
 			<div class="card" title="Daily active installs per country over the last 24h vs previous 24h.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="16" y1="20" x2="16" y2="4"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/></svg> Recent Active Countries (24h)
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Installs pinging • <strong>Last 24h</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Installs pinging • <strong>Last 24h</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:340px"><canvas id="chart-recent-countries"></canvas></div>
 			</div>
 		</div>
 
 		<!-- Row 0b: Activity Trend -->
-		<div class="chart-row cols-2">
+		<div class="chart-row cols-1">
 			<div class="card" title="Tracks the daily number of active instances (Unique IDs) and the total telemetry pings received.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Activity Trend (Last 30 Days)
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Daily number of active instances and total telemetry pings received • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Daily number of active instances and total telemetry pings received • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:300px"><canvas id="chart-activity"></canvas></div>
-			</div>
-			<div class="card" title="Tracks the hourly number of active instances (Unique IDs) and the total telemetry pings received in the last 24 hours.">
-				<div class="chart-title">
-					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Activity Trend (Last 24 Hours)
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Hourly active instances and telemetry pings • <strong>Last 24h</strong>)</span>
-				</div>
-				<div class="chart-wrap" style="height:300px"><canvas id="chart-activity-24h"></canvas></div>
 			</div>
 		</div>
 
@@ -703,7 +708,7 @@ margin-top: 2px;
 			<div class="card">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Stored Events Volume Trend (Last 30 Days)
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Sum of daily snapshots. Fluctuations caused by NVR retention & offline instances • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Sum of daily snapshots. Fluctuations caused by NVR retention & offline instances • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:300px"><canvas id="chart-events"></canvas></div>
 			</div>
@@ -714,7 +719,7 @@ margin-top: 2px;
 			<div class="card" title="Breakdown of the software engines used for motion detection (OpenCV, AI, ONVIF) across all cameras.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9-9a9 9 0 0 1-9 9m9-9V3m0 18a9 9 0 0 1-9-9"/></svg> Motion Detection Engines Distribution
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Breakdown of software engines used for motion detection across all cameras • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Breakdown of software engines used for motion detection across all cameras • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:300px"><canvas id="chart-motion-engines"></canvas></div>
 			</div>
@@ -725,14 +730,14 @@ margin-top: 2px;
 			<div class="card" title="Distribution showing how many cameras users typically connect to a single VibeNVR instance.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Cameras per Instance
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(How many cameras users typically connect per instance • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(How many cameras users typically connect per instance • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-cameras-dist"></canvas></div>
 			</div>
 			<div class="card" title="Distribution showing how many camera groups users typically create per instance.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg> Groups per Instance
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(How many camera groups users typically create per instance • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(How many camera groups users typically create per instance • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-groups-dist"></canvas></div>
 			</div>
@@ -743,21 +748,21 @@ margin-top: 2px;
 			<div class="card" title="Distribution of the VibeNVR server versions currently running in active installations.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg> Active Versions
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Distribution of currently running server versions • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Distribution of currently running server versions • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-versions"></canvas></div>
 			</div>
 			<div class="card" title="Market share of active versions.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg> Version Share
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Percentage of users • <strong>Last 24h</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Percentage of users • <strong>Last 24h</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-versions-pie"></canvas></div>
 			</div>
 			<div class="card" title="Total system RAM capacity of the host machines running VibeNVR.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg> RAM Capacity
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Total system RAM capacity of host machines • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Total system RAM capacity of host machines • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-ram"></canvas></div>
 			</div>
@@ -768,19 +773,32 @@ margin-top: 2px;
 			<div class="card" title="Most common host CPU models powering VibeNVR installations.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> CPU Models
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Most common host CPU models powering installations • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Most common host CPU models powering installations • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap tall"><canvas id="chart-cpu-models"></canvas></div>
 			</div>
 			<div class="card" title="Distribution of total available CPU cores on the host machines.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> CPU Core Counts
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Distribution of total available CPU cores • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Distribution of total available CPU cores • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap tall"><canvas id="chart-cpu-cores"></canvas></div>
 			</div>
 		</div>
 
+		<!-- Row 4: CPU Architecture -->
+		<div class="chart-row cols-1" style="margin-top: 1rem;">
+			<div class="card">
+				<div class="chart-title">
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> CPU Architecture
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(<strong>Last 30 Days</strong> vs <strong>Last 24h</strong>)</span>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; height: 250px;">
+					<div class="chart-wrap" style="height: 100%;"><canvas id="chart-arch"></canvas></div>
+					<div class="chart-wrap" style="height: 100%;"><canvas id="chart-arch-24h"></canvas></div>
+				</div>
+			</div>
+		</div>
 
 		<!-- Divider & Site Section -->
 		<div style="margin: 3rem 0; border-top: 1px dashed var(--border);"></div>
@@ -818,14 +836,14 @@ margin-top: 2px;
 			<div class="card" title="Daily trend of unique visitors and pageviews for the VibeNVR website over the last 30 days.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Site Activity Trend
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Daily trend of unique visitors and pageviews • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Daily trend of unique visitors and pageviews • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-site-activity"></canvas></div>
 			</div>
 			<div class="card" title="Geographic distribution of visitors to the VibeNVR website.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Site Visitors by Country
-					<span style="font-size: 12px; font-weight: normal; color: var(--muted); margin-top: 4px;">(Geographic distribution of site visitors • <strong>Last 30 Days</strong>)</span>
+					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Geographic distribution of site visitors • <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap"><canvas id="chart-site-worldmap"></canvas></div>
 			</div>
@@ -852,7 +870,7 @@ margin-top: 2px;
 			<div class="footer-copy">
 				&copy; 2026 Alessandro Belloni.<br>
 				<div style="margin-top: 0.5rem; font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
-					telemetry version <span id="telemetry-version">...</span>
+					telemetry version <span id="telemetry-version">v1.35.0</span>
 				</div>
 			</div>
 		</div>
@@ -1228,74 +1246,6 @@ margin-top: 2px;
 			});
 		}
 
-		// Activity Trend 24h Chart (Cumulative)
-		const activity24hCtx = document.getElementById('chart-activity-24h')?.getContext('2d');
-		if (activity24hCtx && lastData.activity_24h && lastData.activity_24h.length > 0) {
-			if (charts['chart-activity-24h']) charts['chart-activity-24h'].destroy();
-			
-			const activity24hLabels = [];
-			const uniquesData = [];
-			const pingsData = [];
-			
-			let cumUniques = 0;
-			let cumPings = 0;
-			
-			lastData.activity_24h.forEach(d => {
-				const date = new Date(d.date);
-				activity24hLabels.push(date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }));
-				cumUniques += d.uniques;
-				cumPings += d.pings;
-				uniquesData.push(cumUniques);
-				pingsData.push(cumPings);
-			});
-
-			charts['chart-activity-24h'] = new Chart(activity24hCtx, {
-				type: 'line',
-				data: {
-					labels: activity24hLabels,
-					datasets: [
-						{
-							label: 'Total Unique IDs (Cumulative)',
-							data: uniquesData,
-							borderColor: tok('primary'),
-							backgroundColor: 'rgba(59, 130, 246, 0.1)',
-							tension: 0.3,
-							pointRadius: 4,
-							borderWidth: 3,
-							fill: true
-						},
-						{
-							label: 'Total Pings (Cumulative)',
-							data: pingsData,
-							borderColor: tok('accent'),
-							backgroundColor: 'transparent',
-							tension: 0.3,
-							pointRadius: 0,
-							borderWidth: 2,
-							borderDash: [5, 5]
-						}
-					]
-				},
-				options: {
-					responsive: true, maintainAspectRatio: false,
-					plugins: {
-						legend: { position: 'top', labels: { color: tok('text') } },
-						tooltip: {
-							backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('muted'),
-							borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8
-						}
-					},
-					scales: {
-						x: { grid: { display: false }, ticks: { color: tok('muted'), maxRotation: 45 } },
-						y: { grid: { color: tok('border') }, ticks: { color: tok('muted') }, beginAtZero: true }
-					}
-				}
-			});
-		} else if (activity24hCtx) {
-			if (charts['chart-activity-24h']) charts['chart-activity-24h'].destroy();
-			mkChart('chart-activity-24h', 'bar', {labels: ['No Data'], data: [0]}, BAR_PALETTE());
-		}
-		
 		// Events Trend Chart
 		const eventsCtx = document.getElementById('chart-events')?.getContext('2d');
 		if (eventsCtx && lastData.events_trend && lastData.events_trend.length > 0) {
@@ -1403,64 +1353,43 @@ margin-top: 2px;
 		mkChart('chart-versions',     'bar',      prepData(lastData.versions), BAR_PALETTE());
 		mkChart('chart-versions-pie', 'doughnut', prepData(lastData.versions_24h), PIE_PALETTE());
 		mkChart('chart-ram',          'bar',      prepData(lastData.ram,'name','count',8), BAR_PALETTE());
-		mkChart('chart-cpu-models', 'bar', prepData(lastData.cpu_models,'name','count',12), BAR_PALETTE(), true);
-		mkChart('chart-cpu-cores',  'bar', prepData(lastData.cpu_cores,'name','count',10), BAR_PALETTE(), true);
+		mkChart('chart-cpu-models',   'bar',      prepData(lastData.cpu_models,'name','count',12), BAR_PALETTE(), true);
+		mkChart('chart-cpu-cores',    'bar',      prepData(lastData.cpu_cores,'name','count',10), BAR_PALETTE(), true);
+		
+		mkChart('chart-arch',         'doughnut', prepData(lastData.arch), PIE_PALETTE());
+		mkChart('chart-arch-24h',     'doughnut', prepData(lastData.arch_24h), PIE_PALETTE());
+		
 		mkChart('chart-motion-engines', 'doughnut', prepData(lastData.motion_engines), PIE_PALETTE());
 		
 		// New Charts logic
 		mkChart('chart-recent-countries', 'bar', prepData(lastData.countries_24h, 'name', 'count', 12, true), BAR_PALETTE(), window.innerWidth < 600);
 		const leaderboardData = prepData(lastData.countries, 'name', 'count', 10, true);
 		const maxLbValue = Math.max(...leaderboardData.data, 1);
-
-		const lbEl = document.getElementById('leaderboard-countries');
-		if(lbEl) {
-			lbEl.textContent = ''; // Clear existing using textContent
-			leaderboardData.labels.forEach((name, i) => {
-				const val = leaderboardData.data[i];
-				const pct = (val / maxLbValue) * 100;
-				// Extract emoji (first 2 chars if surrogate pair) and the rest
-				let emoji = '';
-				let textName = name;
-				if (name !== 'Other' && name.length > 2) {
-					const parts = name.split(' ');
-					if (parts.length > 1) {
-						emoji = parts[0];
-						textName = parts.slice(1).join(' ');
-					}
+		const escapeHtml = (unsafe) => (unsafe||'').toString().replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'}[m]));
+		const leaderboardHtml = leaderboardData.labels.map((name, i) => {
+			const val = leaderboardData.data[i];
+			const pct = (val / maxLbValue) * 100;
+			// Extract emoji (first 2 chars if surrogate pair) and the rest
+			let emoji = '';
+			let textName = name;
+			if (name !== 'Other' && name.length > 2) {
+				const parts = name.split(' ');
+				if (parts.length > 1) {
+					emoji = parts[0];
+					textName = parts.slice(1).join(' ');
 				}
-
-				const tr = document.createElement('tr');
-				tr.style.borderBottom = '1px solid var(--border)';
-				tr.style.background = \`linear-gradient(to right, var(--primary-light) \${pct}%, transparent \${pct}%)\`;
-
-				const td1 = document.createElement('td');
-				td1.style.padding = '0.6rem 0.5rem';
-				td1.style.borderRadius = '4px 0 0 4px';
-
-				const spanEmoji = document.createElement('span');
-				spanEmoji.style.fontFamily = "'Twemoji Country Flags', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'";
-				spanEmoji.textContent = emoji;
-
-				const spanName = document.createElement('span');
-				spanName.style.marginLeft = '4px';
-				spanName.textContent = textName;
-
-				td1.appendChild(spanEmoji);
-				td1.appendChild(spanName);
-
-				const td2 = document.createElement('td');
-				td2.style.textAlign = 'right';
-				td2.style.padding = '0.6rem 0.5rem';
-				td2.style.fontWeight = '600';
-				td2.style.color = 'var(--primary)';
-				td2.style.borderRadius = '0 4px 4px 0';
-				td2.textContent = val.toLocaleString();
-
-				tr.appendChild(td1);
-				tr.appendChild(td2);
-				lbEl.appendChild(tr);
-			});
-		}
+			}
+			return \`
+				<tr style="border-bottom: 1px solid var(--border); background: linear-gradient(to right, var(--primary-light) \${pct}%, transparent \${pct}%);">
+					<td style="padding: 0.6rem 0.5rem; border-radius: 4px 0 0 4px;">
+						<span style="font-family: 'Twemoji Country Flags', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">\${escapeHtml(emoji)}</span>
+						<span style="margin-left: 4px;">\${escapeHtml(textName)}</span>
+					</td>
+					<td style="text-align: right; padding: 0.6rem 0.5rem; font-weight: 600; color: var(--primary); border-radius: 0 4px 4px 0;">\${escapeHtml(val.toLocaleString())}</td>
+				</tr>\`;
+		}).join('');
+		const lbEl = document.getElementById('leaderboard-countries');
+		if(lbEl) lbEl.innerHTML = leaderboardHtml;
 	}
 
 	function renderDashboard(data) {
@@ -1477,9 +1406,29 @@ margin-top: 2px;
 			}
 		};
 		set('kpi-active',        data.active_installs);
+		
+		const activeDelta = (data.active_installs_24h || 0) - (data.active_installs_prev24h || 0);
+		const activeBadge = document.getElementById('kpi-active-24h');
+		if (activeBadge) {
+			const sign = activeDelta > 0 ? '+' : '';
+			activeBadge.textContent = \`(\${sign}\${activeDelta} today)\`;
+			activeBadge.style.color = activeDelta >= 0 ? 'var(--primary)' : '#ef4444';
+		}
+
 		set('kpi-total',         data.total_installs);
 		const activeCountriesCount = data.countries ? data.countries.filter(c => c.name !== 'Unknown').length : 0;
 		set('kpi-countries',     activeCountriesCount);
+		
+		const activeCountries24hCount = data.countries_24h ? data.countries_24h.filter(c => c.name !== 'Unknown').length : 0;
+		const activeCountriesPrev24hCount = data.countries_prev24h ? data.countries_prev24h.filter(c => c.name !== 'Unknown').length : 0;
+		const countryDelta = activeCountries24hCount - activeCountriesPrev24hCount;
+		const countryBadge = document.getElementById('kpi-countries-24h');
+		if (countryBadge) {
+			const sign = countryDelta > 0 ? '+' : '';
+			countryBadge.textContent = \`(\${sign}\${countryDelta} today)\`;
+			countryBadge.style.color = countryDelta >= 0 ? 'var(--primary)' : '#ef4444';
+		}
+
 		set('kpi-cameras',       data.total_cameras);
 		set('kpi-events',        data.total_events || 0);
 		set('kpi-groups',        data.total_groups);
