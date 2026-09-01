@@ -1411,31 +1411,56 @@ margin-top: 2px;
 		mkChart('chart-recent-countries', 'bar', prepData(lastData.countries_24h, 'name', 'count', 12, true), BAR_PALETTE(), window.innerWidth < 600);
 		const leaderboardData = prepData(lastData.countries, 'name', 'count', 10, true);
 		const maxLbValue = Math.max(...leaderboardData.data, 1);
-		const escapeHtml = (unsafe) => (unsafe||'').toString().replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'}[m]));
-		const leaderboardHtml = leaderboardData.labels.map((name, i) => {
-			const val = leaderboardData.data[i];
-			const pct = (val / maxLbValue) * 100;
-			// Extract emoji (first 2 chars if surrogate pair) and the rest
-			let emoji = '';
-			let textName = name;
-			if (name !== 'Other' && name.length > 2) {
-				const parts = name.split(' ');
-				if (parts.length > 1) {
-					emoji = parts[0];
-					textName = parts.slice(1).join(' ');
-				}
-			}
-			return \`
-				<tr style="border-bottom: 1px solid var(--border); background: linear-gradient(to right, var(--primary-light) \${pct}%, transparent \${pct}%);">
-					<td style="padding: 0.6rem 0.5rem; border-radius: 4px 0 0 4px;">
-						<span style="font-family: 'Twemoji Country Flags', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';">\${escapeHtml(emoji)}</span>
-						<span style="margin-left: 4px;">\${escapeHtml(textName)}</span>
-					</td>
-					<td style="text-align: right; padding: 0.6rem 0.5rem; font-weight: 600; color: var(--primary); border-radius: 0 4px 4px 0;">\${escapeHtml(val.toLocaleString())}</td>
-				</tr>\`;
-		}).join('');
+
 		const lbEl = document.getElementById('leaderboard-countries');
-		if(lbEl) lbEl.innerHTML = leaderboardHtml;
+		if(lbEl) {
+			lbEl.textContent = ''; // Clear existing using textContent
+			leaderboardData.labels.forEach((name, i) => {
+				const val = leaderboardData.data[i];
+				const pct = (val / maxLbValue) * 100;
+				// Extract emoji (first 2 chars if surrogate pair) and the rest
+				let emoji = '';
+				let textName = name;
+				if (name !== 'Other' && name.length > 2) {
+					const parts = name.split(' ');
+					if (parts.length > 1) {
+						emoji = parts[0];
+						textName = parts.slice(1).join(' ');
+					}
+				}
+
+				const tr = document.createElement('tr');
+				tr.style.borderBottom = '1px solid var(--border)';
+				tr.style.background = \`linear-gradient(to right, var(--primary-light) \${pct}%, transparent \${pct}%)\`;
+
+				const td1 = document.createElement('td');
+				td1.style.padding = '0.6rem 0.5rem';
+				td1.style.borderRadius = '4px 0 0 4px';
+
+				const spanEmoji = document.createElement('span');
+				spanEmoji.style.fontFamily = "'Twemoji Country Flags', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'";
+				spanEmoji.textContent = emoji;
+
+				const spanName = document.createElement('span');
+				spanName.style.marginLeft = '4px';
+				spanName.textContent = textName;
+
+				td1.appendChild(spanEmoji);
+				td1.appendChild(spanName);
+
+				const td2 = document.createElement('td');
+				td2.style.textAlign = 'right';
+				td2.style.padding = '0.6rem 0.5rem';
+				td2.style.fontWeight = '600';
+				td2.style.color = 'var(--primary)';
+				td2.style.borderRadius = '0 4px 4px 0';
+				td2.textContent = val.toLocaleString();
+
+				tr.appendChild(td1);
+				tr.appendChild(td2);
+				lbEl.appendChild(tr);
+			});
+		}
 	}
 
 	function renderDashboard(data) {
