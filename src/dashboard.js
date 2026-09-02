@@ -713,7 +713,7 @@ margin-top: 2px;
 
 		<!-- Row 0c: Events Trend -->
 		<div class="chart-row cols-1">
-			<div class="card">
+			<div class="card" title="Daily trend of stored events across all active NVR databases.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Stored Events Volume Trend (Last 30 Days)
 					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Sum of daily snapshots. Fluctuations caused by NVR retention & offline instances • <strong>Last 30 Days</strong>)</span>
@@ -796,7 +796,7 @@ margin-top: 2px;
 
 		<!-- Row 4: CPU Architecture -->
 		<div class="chart-row cols-1" style="margin-top: 1rem;">
-			<div class="card">
+			<div class="card" title="Breakdown of host CPU architectures running VibeNVR.">
 				<div class="chart-title">
 					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M9 2v2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M15 20v2"/><path d="M9 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/></svg> CPU Architecture
 					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(<strong>Last 30 Days</strong> vs <strong>Last 24h</strong>)</span>
