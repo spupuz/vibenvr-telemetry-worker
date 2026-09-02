@@ -48,3 +48,7 @@
 ## 2025-02-23 - Skip Fallback Fetch Requests
 **Learning:** Performing a fallback fetch (like a full table scan query) in a `Promise.all` block when the primary source (like Cloudflare KV) is available causes redundant network traffic and unnecessary load on the backend.
 **Action:** When a fetch inside a `Promise.all` block is only needed as a fallback, conditionally check for the availability of the primary data source and return a `Promise.resolve(default_value)` to skip the redundant fetch.
+
+## 2025-02-23 - Eager API Fetching
+**Learning:** Kicking off a data `fetch()` unconditionally inside the main application script (which loads after heavy charting libraries) creates a waterfall.
+**Action:** To parallelize network requests with blocking script downloads in frontend code, implement eager API fetching by kicking off the `fetch()` request in an inline `<script>` in the `<head>`, caching the promise globally (e.g., `window.__apiStatsPromise`), and `await`ing it in the main logic. Ensure you clear the cached promise after use so retries work, and add a `.catch(() => {})` on the eager promise to suppress unhandled rejection warnings if it fails before being awaited.
