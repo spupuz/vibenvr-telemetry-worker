@@ -52,3 +52,7 @@
 ## 2025-02-23 - Eager API Fetching
 **Learning:** Kicking off a data `fetch()` unconditionally inside the main application script (which loads after heavy charting libraries) creates a waterfall.
 **Action:** To parallelize network requests with blocking script downloads in frontend code, implement eager API fetching by kicking off the `fetch()` request in an inline `<script>` in the `<head>`, caching the promise globally (e.g., `window.__apiStatsPromise`), and `await`ing it in the main logic. Ensure you clear the cached promise after use so retries work, and add a `.catch(() => {})` on the eager promise to suppress unhandled rejection warnings if it fails before being awaited.
+
+## 2025-02-23 - Edge Cache for Proxied Assets
+**Learning:** Proxying static external assets (like GitHub hosted logos/images) on every request without leveraging the Cloudflare Cache API (`caches.default`) results in redundant external network calls, increasing TTFB and Worker CPU time.
+**Action:** Always wrap proxy endpoints for static assets with the Edge Cache API by checking `caches.default.match()` and storing successful responses with `ctx.waitUntil(caches.default.put())`.
