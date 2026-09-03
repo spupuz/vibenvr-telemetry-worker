@@ -37,3 +37,6 @@
 ## 2026-08-31 - Undefined CSS Variables Break Text Contrast
 **Learning:** Incorrect CSS variable references (e.g. `var(--muted)` instead of `var(--text-muted)`) silently fail, falling back to body text color which can ruin visual hierarchy in dense data dashboards without throwing any developer warnings. Similarly, missing palette definitions (like `--err` for negative trends) can cause critical user feedback to blend in or adopt misleading primary colors.
 **Action:** Always verify that mapped CSS variables exist in the `:root` definitions. When adding missing state variables (like error states), ensure they are added to both base `:root` and `.dark` modifier blocks to maintain consistency across theme toggles.
+## 2026-11-20 - Adding Accessibility Labels to Canvas Charts
+**Learning:** HTML `<canvas>` elements are completely opaque to screen readers, meaning users who rely on assistive technologies will miss all visual data representations unless explicitly labeled, leading to a broken or incomplete dashboard experience.
+**Action:** Always add `role="img"` and descriptive `aria-label` attributes to `<canvas>` elements that display charts or graphs so they can be announced properly by screen readers with the necessary context.
