@@ -81,7 +81,15 @@ export default {
 
 			// Assets Proxy
 			if (url.pathname.startsWith('/assets/') || url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
+				const cache = caches.default;
+				const cachedResponse = await cache.match(request);
+				if (cachedResponse) {
+					return cachedResponse;
+				}
 				const assetResponse = await handleAssets(url, SECURITY_HEADERS);
+				if (assetResponse && assetResponse.status === 200) {
+					ctx.waitUntil(cache.put(request, assetResponse.clone()));
+				}
 				if (assetResponse) return assetResponse;
 			}
 
