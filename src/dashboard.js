@@ -608,7 +608,7 @@ margin-top: 2px;
 			<div class="kpi-card" title="Number of unique VibeNVR instances that have pinged the telemetry server in the last 30 days.">
 				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Active Installs</div>
 				<div class="kpi-value" id="kpi-active">-</div>
-				<div class="kpi-sub">Last 30 days <span id="kpi-active-24h" style="color: var(--primary); font-weight: 600; margin-left: 6px;"></span></div>
+				<div class="kpi-sub">Last 30 days</div>
 			</div>
 			<div class="kpi-card" title="Total number of unique VibeNVR instances seen since the project started.">
 				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg> Total Installs</div>
@@ -618,7 +618,7 @@ margin-top: 2px;
 			<div class="kpi-card" title="Total number of unique countries seen across all active installations.">
 				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Active Countries</div>
 				<div class="kpi-value" id="kpi-countries">-</div>
-				<div class="kpi-sub">Last 30 days <span id="kpi-countries-24h" style="color: var(--primary); font-weight: 600; margin-left: 6px;"></span></div>
+				<div class="kpi-sub">Last 30 days</div>
 			</div>
 			<div class="kpi-card" title="Total number of security cameras configured across all currently active instances.">
 				<div class="kpi-label"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Cameras</div>
@@ -878,7 +878,7 @@ margin-top: 2px;
 			<div class="footer-copy">
 				&copy; 2026 Alessandro Belloni.<br>
 				<div style="margin-top: 0.5rem; font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
-					telemetry version <span id="telemetry-version">v1.37.2</span>
+					telemetry version <span id="telemetry-version">v1.37.3</span>
 				</div>
 			</div>
 		</div>
@@ -1440,28 +1440,11 @@ margin-top: 2px;
 		};
 		set('kpi-active',        data.active_installs);
 		
-		const activeDelta = (data.active_installs_24h || 0) - (data.active_installs_prev24h || 0);
-		const activeBadge = document.getElementById('kpi-active-24h');
-		if (activeBadge) {
-			const sign = activeDelta > 0 ? '+' : '';
-			activeBadge.textContent = \`(\${sign}\${activeDelta} today)\`;
-			activeBadge.style.color = activeDelta >= 0 ? 'var(--primary)' : '#ef4444';
-		}
 
 		set('kpi-total',         data.total_installs);
 		const activeCountriesCount = data.countries ? data.countries.filter(c => c.name !== 'Unknown').length : 0;
 		set('kpi-countries',     activeCountriesCount);
 		
-		const activeCountries24hCount = data.countries_24h ? data.countries_24h.filter(c => c.name !== 'Unknown').length : 0;
-		const activeCountriesPrev24hCount = data.countries_prev24h ? data.countries_prev24h.filter(c => c.name !== 'Unknown').length : 0;
-		const countryDelta = activeCountries24hCount - activeCountriesPrev24hCount;
-		const countryBadge = document.getElementById('kpi-countries-24h');
-		if (countryBadge) {
-			const sign = countryDelta > 0 ? '+' : '';
-			countryBadge.textContent = \`(\${sign}\${countryDelta} today)\`;
-			countryBadge.style.color = countryDelta >= 0 ? 'var(--primary)' : '#ef4444';
-		}
-
 		set('kpi-cameras',       data.total_cameras);
 		set('kpi-events',        data.total_events || 0);
 		set('kpi-groups',        data.total_groups);
