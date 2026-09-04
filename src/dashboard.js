@@ -34,8 +34,8 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			--primary-light: #eff6ff;
 			--primary-dark: #1d4ed8;
 			--accent: #8b5cf6;
-			--success: #10b981;
-			--err: #ef4444;
+			--success: #047857;
+			--err: #dc2626;
 			--radius: 16px;
 			--shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
 			--shadow-hover: 0 10px 25px -5px rgba(59, 130, 246, 0.15), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
@@ -50,6 +50,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			--primary: #58a6ff;
 			--primary-light: rgba(88,166,255,.1);
 			--primary-dark: #1f6feb;
+			--success: #10b981;
 			--err: #f87171;
 			--shadow: 0 1px 4px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
 			--shadow-hover: 0 10px 25px rgba(0,0,0,.5);
@@ -70,7 +71,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			position: absolute;
 			top: -100px;
 			left: 0;
-			background: var(--primary);
+			background: var(--primary-dark);
 			color: #fff;
 			padding: 8px 16px;
 			z-index: 1000;
@@ -333,7 +334,7 @@ margin-top: 2px;
 			display: none;
 			background: rgba(239,68,68,.08);
 			border: 1px solid rgba(239,68,68,.3);
-			color: #ef4444;
+			color: var(--err);
 			border-radius: var(--radius);
 			padding: 1rem 1.25rem;
 			align-items: center;
@@ -347,7 +348,7 @@ margin-top: 2px;
 			background: transparent;
 			border-radius: 8px;
 			padding: .3rem .8rem;
-			color: #ef4444;
+			color: var(--err);
 			font-size: .8rem;
 			white-space: nowrap;
 			transition: background .2s;
@@ -474,7 +475,7 @@ margin-top: 2px;
 			font-weight: 500;
 		}
 		.github-badge {
-			background: var(--primary);
+			background: var(--primary-dark);
 			color: #fff;
 			padding: 0.1rem 0.45rem;
 			border-radius: 12px;
@@ -870,7 +871,7 @@ margin-top: 2px;
 				<a href="https://github.com/spupuz/VibeNVR" class="footer-link-site">GitHub</a>
 				<a href="https://github.com/spupuz/VibeNVR/issues" class="footer-link-site">Issues</a>
 				<a href="https://github.com/spupuz/VibeNVR/discussions" class="footer-link-site">Discussions</a>
-				<span class="footer-divider">|</span>
+				<span class="footer-divider" aria-hidden="true">|</span>
 				<a href="https://github.com/spupuz/VibeNVR/blob/main/LICENSE" class="footer-link-site">License</a>
 				<a href="https://spupuz.github.io/vibe-nvr-site/docs/Telemetry/" class="footer-link-site">Privacy & Telemetry</a>
 			</div>

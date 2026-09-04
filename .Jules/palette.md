@@ -40,3 +40,10 @@
 ## 2026-11-20 - Adding Accessibility Labels to Canvas Charts
 **Learning:** HTML `<canvas>` elements are completely opaque to screen readers, meaning users who rely on assistive technologies will miss all visual data representations unless explicitly labeled, leading to a broken or incomplete dashboard experience.
 **Action:** Always add `role="img"` and descriptive `aria-label` attributes to `<canvas>` elements that display charts or graphs so they can be announced properly by screen readers with the necessary context.
+## 2026-11-20 - Ensure CSS Variables For Theme-Responsive Components
+**Learning:** Hardcoding hex values like `#ef4444` in theme-agnostic elements (e.g. `.err-box`) breaks their ability to adapt when switching between Light/Dark mode.
+**Action:** Always reference CSS variables (`var(--err)`) instead of hex values when styling elements so they respond to the root theme definition.
+
+## 2026-11-20 - Prevent Screen Readers from Announcing Decorative Dividers
+**Learning:** Decorative inline text nodes used as visual dividers (e.g., `|` in footers) are read aloud by screen readers (e.g. "vertical bar"), creating a noisy, confusing experience.
+**Action:** Wrap decorative text characters in elements with `aria-hidden="true"` to hide them from assistive technology.
