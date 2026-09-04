@@ -69,6 +69,9 @@ export default {
 
 			// 3. HTML DASHBOARD PAGE
 			if (url.pathname === '/dashboard' || url.pathname === '/') {
+				if (request.method !== 'GET') {
+					return new Response('Method Not Allowed', { status: 405, headers: SECURITY_HEADERS });
+				}
 				const htmlTemplate = getDashboardHtml(nonce, prefix);
 				return new Response(htmlTemplate, {
 					headers: {
@@ -81,14 +84,23 @@ export default {
 
 			// Assets Proxy
 			if (url.pathname.startsWith('/assets/') || url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
+				if (request.method !== 'GET') {
+					return new Response('Method Not Allowed', { status: 405, headers: SECURITY_HEADERS });
+				}
 				const cache = caches.default;
-				const cachedResponse = await cache.match(request);
+
+				// 🛡️ Sentinel: Normalize cache key to prevent Cache-Busting DoS
+				const cacheUrl = new URL(request.url);
+				cacheUrl.search = '';
+				const cacheRequest = new Request(cacheUrl.toString(), request);
+
+				const cachedResponse = await cache.match(cacheRequest);
 				if (cachedResponse) {
 					return cachedResponse;
 				}
 				const assetResponse = await handleAssets(url, SECURITY_HEADERS);
 				if (assetResponse && assetResponse.status === 200) {
-					ctx.waitUntil(cache.put(request, assetResponse.clone()));
+					ctx.waitUntil(cache.put(cacheRequest, assetResponse.clone()));
 				}
 				if (assetResponse) return assetResponse;
 			}
