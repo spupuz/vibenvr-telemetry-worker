@@ -1194,6 +1194,9 @@ margin-top: 2px;
 				}
 		};
 
+		// ⚡ Bolt: Cache DateTimeFormat instance to prevent instantiating new formatters in loops
+		const dateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+
 		// World map choropleth & Site map choropleth
 		cachedCountriesPromise.then(renderMaps).catch(() => {
 			// Fallback: simple bar chart if geo fails to load
@@ -1209,7 +1212,7 @@ margin-top: 2px;
 			if (charts['chart-activity']) charts['chart-activity'].destroy();
 			const activityLabels = lastData.activity.map(d => {
 				const date = new Date(d.date);
-				return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+				return dateFormatter.format(date);
 			});
 			charts['chart-activity'] = new Chart(activityCtx, {
 				type: 'line',
@@ -1260,7 +1263,7 @@ margin-top: 2px;
 			if (charts['chart-events']) charts['chart-events'].destroy();
 			const eventsLabels = lastData.events_trend.map(d => {
 				const date = new Date(d.date);
-				return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+				return dateFormatter.format(date);
 			});
 			charts['chart-events'] = new Chart(eventsCtx, {
 				type: 'line',
@@ -1305,7 +1308,7 @@ margin-top: 2px;
 			if (charts['chart-site-activity']) charts['chart-site-activity'].destroy();
 			const activityLabels = lastData.site_activity.map(d => {
 				const date = new Date(d.date);
-				return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+				return dateFormatter.format(date);
 			});
 			charts['chart-site-activity'] = new Chart(siteActivityCtx, {
 				type: 'line',
