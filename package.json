@@ -1,13 +1,13 @@
 {
-    "name": "vibenvr-telemetry-worker",
-    "version": "1.37.0",
-    "description": "Cloudflare Worker for VibeNVR Telemetry",
-    "main": "src/index.js",
-    "scripts": {
-        "dev": "wrangler dev",
-        "deploy": "wrangler deploy"
-    },
-    "devDependencies": {
-        "wrangler": "^3.0.0"
-    }
+  "name": "vibenvr-telemetry-worker",
+  "version": "1.35.1",
+  "description": "Cloudflare Worker for VibeNVR Telemetry",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
 }
