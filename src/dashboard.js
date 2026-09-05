@@ -332,8 +332,8 @@ margin-top: 2px;
 		@keyframes spin { to { transform: rotate(360deg); } }
 		.err-box {
 			display: none;
-			background: rgba(239,68,68,.08);
-			border: 1px solid rgba(239,68,68,.3);
+			background: color-mix(in srgb, var(--err) 8%, transparent);
+			border: 1px solid color-mix(in srgb, var(--err) 30%, transparent);
 			color: var(--err);
 			border-radius: var(--radius);
 			padding: 1rem 1.25rem;
@@ -344,7 +344,7 @@ margin-top: 2px;
 		}
 		.retry-btn {
 			cursor: pointer;
-			border: 1px solid rgba(239,68,68,.4);
+			border: 1px solid color-mix(in srgb, var(--err) 40%, transparent);
 			background: transparent;
 			border-radius: 8px;
 			padding: .3rem .8rem;
@@ -352,8 +352,11 @@ margin-top: 2px;
 			font-size: .8rem;
 			white-space: nowrap;
 			transition: background .2s;
+			display: inline-flex;
+			align-items: center;
+			gap: 0.35rem;
 		}
-		.retry-btn:hover { background: rgba(239,68,68,.1); }
+		.retry-btn:hover { background: color-mix(in srgb, var(--err) 10%, transparent); }
 
 		/* Smart Footer CSS (Identical to Site) */
 		.smart-footer {
@@ -568,7 +571,10 @@ margin-top: 2px;
 	<!-- Error -->
 	<div class="err-box" id="error-msg" role="alert" aria-live="assertive">
 		<span>Failed to load telemetry data. Check Cloudflare API credentials.</span>
-		<button class="retry-btn" id="retry-btn">Retry</button>
+		<button class="retry-btn" id="retry-btn">
+			<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+			Retry
+		</button>
 	</div>
 
 	<!-- Loading -->
