@@ -59,3 +59,6 @@
 ## $(date +%Y-%m-%d) - [Optimize Date Formatting in Render Loops]
 **Learning:** Calling `toLocaleDateString()` with options inside a hot loop (like a `map` over chart dataset items) creates a severe performance bottleneck because V8 implicitly instantiates a new `Intl.DateTimeFormat` object on every iteration (in testing, 1000 calls took ~404ms vs ~2ms for a cached formatter).
 **Action:** Always instantiate `new Intl.DateTimeFormat(...)` once outside the loop and reuse the instance by calling `.format(date)` inside the loop.
+## 2025-02-23 - Optimize Date Formatting in Render Loops
+**Learning:** Calling `.toLocaleString()` inside a hot loop (like `requestAnimationFrame` for KPI animations or rendering a list) creates a severe performance bottleneck because V8 implicitly instantiates a new `Intl.NumberFormat` or `Intl.DateTimeFormat` object on every iteration, leading to significant CPU overhead and garbage collection pauses.
+**Action:** Always instantiate `new Intl.NumberFormat()` or `new Intl.DateTimeFormat()` once outside the loop and reuse the cached instance by calling `.format(value)` inside the loop.
