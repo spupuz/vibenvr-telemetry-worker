@@ -259,19 +259,19 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					site_total_pageviews_all_time: Math.max(Number(siteTotalsData[0]?.total_pageviews) || 0, siteTotalHitsAllTime)
 				};
 
-				const versionCounts = {};
-				const countryCounts = {};
-				const cpuModelCounts = {};
-				const cpuCoresCounts = {};
-				const osCounts = {};
-				const archCounts = {};
-				const ramCounts = {};
+				const versionCounts = Object.create(null);
+				const countryCounts = Object.create(null);
+				const cpuModelCounts = Object.create(null);
+				const cpuCoresCounts = Object.create(null);
+				const osCounts = Object.create(null);
+				const archCounts = Object.create(null);
+				const ramCounts = Object.create(null);
 
-				const countryCounts24h = {};
-				const versionCounts24h = {};
-				const countryCounts48_24h = {};
-				const osCounts24h = {};
-				const archCounts24h = {};
+				const countryCounts24h = Object.create(null);
+				const versionCounts24h = Object.create(null);
+				const countryCounts48_24h = Object.create(null);
+				const osCounts24h = Object.create(null);
+				const archCounts24h = Object.create(null);
 				let activeCount24h = 0;
 				let activeCountPrev24h = 0;
 				
@@ -326,13 +326,13 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					// Cameras distribution bucket
 					const nc = Number(row.cameras) || 0;
 					const bk = nc === 0 ? '0' : nc === 1 ? '1' : nc <= 3 ? '2-3' : nc <= 5 ? '4-5' : nc <= 10 ? '6-10' : nc <= 20 ? '11-20' : '21+';
-					if (!stats.cameras_dist) stats.cameras_dist = {};
+					if (!stats.cameras_dist) stats.cameras_dist = Object.create(null);
 					stats.cameras_dist[bk] = (stats.cameras_dist[bk] || 0) + 1;
 
 					// Groups distribution bucket
 					const ng = Number(row.groups) || 0;
 					const gbk = ng === 0 ? '0' : ng === 1 ? '1' : ng <= 3 ? '2-3' : ng <= 5 ? '4-5' : ng <= 10 ? '6-10' : '11+';
-					if (!stats.groups_dist) stats.groups_dist = {};
+					if (!stats.groups_dist) stats.groups_dist = Object.create(null);
 					stats.groups_dist[gbk] = (stats.groups_dist[gbk] || 0) + 1;
 				}
 
