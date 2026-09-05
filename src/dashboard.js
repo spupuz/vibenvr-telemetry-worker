@@ -940,6 +940,9 @@ margin-top: 2px;
 		.then(worldData => ChartGeo.topojson.feature(worldData, worldData.objects.countries).features);
 	cachedCountriesPromise.catch(() => {}); // Suppress uncaught promise rejection warning
 
+	// ⚡ Bolt: Cache NumberFormat instance to prevent instantiating new formatters in loops
+	const numberFormatter = new Intl.NumberFormat();
+
 	// ⚡ Bolt: Fetch GitHub stars once on load rather than inside renderChartsIfReady
 	// which fires repeatedly on theme toggles
 	fetch('https://api.github.com/repos/spupuz/VibeNVR')
@@ -952,7 +955,7 @@ margin-top: 2px;
 
 	function animateValue(obj, start, end, duration) {
 		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			obj.textContent = end.toLocaleString();
+			obj.textContent = numberFormatter.format(end);
 			return;
 		}
 		let startTimestamp = null;
@@ -961,11 +964,11 @@ margin-top: 2px;
 			const progress = Math.min((timestamp - startTimestamp) / duration, 1);
 			// Ease-out expo function for a smoother finish
 			const easeOut = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-			obj.textContent = Math.floor(easeOut * (end - start) + start).toLocaleString();
+			obj.textContent = numberFormatter.format(Math.floor(easeOut * (end - start) + start));
 			if (progress < 1) {
 				window.requestAnimationFrame(step);
 			} else {
-				obj.textContent = end.toLocaleString();
+				obj.textContent = numberFormatter.format(end);
 			}
 		};
 		window.requestAnimationFrame(step);
@@ -1419,7 +1422,7 @@ margin-top: 2px;
 				tdRight.style.fontWeight = '600';
 				tdRight.style.color = 'var(--primary)';
 				tdRight.style.borderRadius = '0 4px 4px 0';
-				tdRight.textContent = val.toLocaleString();
+				tdRight.textContent = numberFormatter.format(val);
 
 				tr.appendChild(tdLeft);
 				tr.appendChild(tdRight);
