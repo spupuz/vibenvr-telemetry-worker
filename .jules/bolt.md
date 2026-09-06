@@ -62,3 +62,6 @@
 ## 2025-02-23 - Optimize Date Formatting in Render Loops
 **Learning:** Calling `.toLocaleString()` inside a hot loop (like `requestAnimationFrame` for KPI animations or rendering a list) creates a severe performance bottleneck because V8 implicitly instantiates a new `Intl.NumberFormat` or `Intl.DateTimeFormat` object on every iteration, leading to significant CPU overhead and garbage collection pauses.
 **Action:** Always instantiate `new Intl.NumberFormat()` or `new Intl.DateTimeFormat()` once outside the loop and reuse the cached instance by calling `.format(value)` inside the loop.
+## 2025-02-25 - Combine aggregate SQL queries to reduce edge requests
+**Learning:** Cloudflare Analytics Engine queries to the same dataset with identical grouping (e.g. by day) can be combined using subqueries. This reduces the number of expensive network roundtrips to the Cloudflare API, lowering tail latency.
+**Action:** Always combine aggregate query selections (e.g., count(DISTINCT X), count()) into single SQL requests where possible in Edge environments.

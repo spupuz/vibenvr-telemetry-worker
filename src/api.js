@@ -36,13 +36,22 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 
 			const sqlTotal = `SELECT count(DISTINCT blob1) as total FROM vibenvr_telemetry_events`;
 
-			const sqlActivity = `
+			const sqlActivityAndEvents = `
 				SELECT 
-					toStartOfDay(timestamp) as day,
-					count() as pings,
-					count(DISTINCT blob1) as uniques
-				FROM vibenvr_telemetry_events 
-				WHERE timestamp >= NOW() - INTERVAL '30' DAY 
+					day,
+					sum(user_pings) as pings,
+					count(DISTINCT blob1) as uniques,
+					sum(max_events) as events
+				FROM (
+					SELECT
+						toStartOfDay(timestamp) as day,
+						blob1,
+						count() as user_pings,
+						max(double5) as max_events
+					FROM vibenvr_telemetry_events
+					WHERE timestamp >= NOW() - INTERVAL '30' DAY
+					GROUP BY day, blob1
+				)
 				GROUP BY day
 				ORDER BY day ASC
 			`;
@@ -75,31 +84,14 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				WHERE timestamp >= NOW() - INTERVAL '30' DAY
 			`;
 
-			const sqlEventsTrend = `
-				SELECT 
-					day,
-					sum(max_events) as events
-				FROM (
-					SELECT 
-						toStartOfDay(timestamp) as day,
-						blob1,
-						max(double5) as max_events
-					FROM vibenvr_telemetry_events 
-					WHERE timestamp >= NOW() - INTERVAL '30' DAY 
-					GROUP BY day, blob1
-				)
-				GROUP BY day
-				ORDER BY day ASC
-			`;
-
 			try {
 				// ⚡ Bolt: Optimize JSON parsing concurrency
 				// By chaining .json() directly to the fetch promises, we allow V8 to begin reading and parsing
 				// each individual response stream as soon as it arrives, rather than waiting for the slowest query
 				// to finish TTFB before processing any data.
 				const [
-					activeJson, totalJson, activityJson, siteActivityJson,
-					siteCountriesJson, siteTotalsJson, eventsTrendJson
+					activeJson, totalJson, activityAndEventsJson, siteActivityJson,
+					siteCountriesJson, siteTotalsJson
 				] = await Promise.all([
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
@@ -117,7 +109,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlActivity
+						body: sqlActivityAndEvents
 					}).then(res => res.json()),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
@@ -133,21 +125,15 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteTotals
-					}).then(res => res.json()).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] })),
-					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
-						method: 'POST',
-						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlEventsTrend
-					}).then(res => res.json()).catch(() => ({ data: [] }))
+					}).then(res => res.json()).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] }))
 				]);
 
 				const activeData = activeJson.data || [];
 				const totalData = totalJson.data || [];
-				const activityData = activityJson.data || [];
+				const activityAndEventsData = activityAndEventsJson.data || [];
 				const siteActivityData = siteActivityJson.data || [];
 				const siteCountriesData = siteCountriesJson.data || [];
 				const siteTotalsData = siteTotalsJson.data || [];
-				const eventsTrendData = eventsTrendJson.data || [];
 
 				let activeCount = activeData.length;
 
@@ -216,12 +202,12 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					active_installs_24h: 0,
 					active_installs_prev24h: 0,
 					total_installs: Math.max(activeCount, totalCount),
-					activity: activityData.map(row => ({
+					activity: activityAndEventsData.map(row => ({
 						date: row.day,
 						pings: Number(row.pings) || 0,
 						uniques: Number(row.uniques) || 0
 					})),
-					events_trend: eventsTrendData.map(row => ({
+					events_trend: activityAndEventsData.map(row => ({
 						date: row.day,
 						events: Number(row.events) || 0
 					})),
