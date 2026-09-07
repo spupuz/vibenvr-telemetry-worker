@@ -54,3 +54,8 @@
 **Vulnerability:** Prototype pollution leading to Denial of Service via unsafe object initialization (`{}`) for aggregation dictionaries.
 **Learning:** When using unsanitized user input (like telemetry metrics e.g., `os`, `country`) as keys for counting in a standard JavaScript object (`obj[key] = (obj[key] || 0) + 1`), an attacker can supply keys like `__proto__`, `constructor`, or `toString`. This pollutes the object's prototype, potentially crashing the application when iterating over `Object.entries()` or throwing type errors when attempting to re-assign read-only prototype properties.
 **Prevention:** Always initialize dictionaries meant for arbitrary key-value storage using `Object.create(null)` to ensure they do not inherit from `Object.prototype`, or use ES6 `Map` objects.
+
+## 2024-11-02 - Missing Timeouts on External Fetch Calls
+**Vulnerability:** External `fetch` requests inside `Promise.all` in `src/api.js` and `src/assets.js` did not have explicit timeouts configured.
+**Learning:** In Cloudflare Workers and Node.js environments, outbound `fetch` requests can hang indefinitely if the upstream server is unresponsive. This can consume concurrent connection slots and lead to resource exhaustion, effectively creating a Denial of Service (DoS) vulnerability.
+**Prevention:** Always configure a timeout for external `fetch` calls. Modern environments support the native `signal: AbortSignal.timeout(ms)` option for a clean, built-in solution to abort hanging requests.

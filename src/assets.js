@@ -8,7 +8,7 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 
 	if (target) {
 		try {
-			const response = await fetch(target);
+			const response = await fetch(target, { signal: AbortSignal.timeout(10000) });
 			const headers = new Headers(response.headers);
 			headers.set('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
 			// Remove GitHub cookies/identity headers
