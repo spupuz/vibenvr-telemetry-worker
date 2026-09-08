@@ -93,6 +93,13 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			`;
 
 			try {
+				// ⚡ Bolt: Kick off KV reads concurrently with SQL queries to prevent sequential network blocking and reduce overall TTFB
+				const kvPromise = env.VIBENVR_IDS ? Promise.all([
+					env.VIBENVR_IDS.get('stats:total_count'),
+					env.VIBENVR_IDS.get('site_stats:total_count'),
+					env.VIBENVR_IDS.get('site_stats:total_hits')
+				]) : null;
+
 				// ⚡ Bolt: Optimize JSON parsing concurrency
 				// By chaining .json() directly to the fetch promises, we allow V8 to begin reading and parsing
 				// each individual response stream as soon as it arrives, rather than waiting for the slowest query
@@ -155,13 +162,8 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				let totalCount = 0;
 				let siteTotalCountAllTime = 0;
 				let siteTotalHitsAllTime = 0;
-				if (env.VIBENVR_IDS) {
-					// ⚡ Bolt: Fetch KV values concurrently to reduce network latency
-					const [statsTotalCount, siteStatsTotalCount, siteStatsTotalHits] = await Promise.all([
-						env.VIBENVR_IDS.get('stats:total_count'),
-						env.VIBENVR_IDS.get('site_stats:total_count'),
-						env.VIBENVR_IDS.get('site_stats:total_hits')
-					]);
+				if (kvPromise) {
+					const [statsTotalCount, siteStatsTotalCount, siteStatsTotalHits] = await kvPromise;
 
 					totalCount = parseInt(statsTotalCount || "0", 10);
 					siteTotalCountAllTime = parseInt(siteStatsTotalCount || "0", 10);

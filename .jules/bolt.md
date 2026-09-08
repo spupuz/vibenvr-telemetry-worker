@@ -62,3 +62,11 @@
 ## 2025-02-23 - Optimize Date Formatting in Render Loops
 **Learning:** Calling `.toLocaleString()` inside a hot loop (like `requestAnimationFrame` for KPI animations or rendering a list) creates a severe performance bottleneck because V8 implicitly instantiates a new `Intl.NumberFormat` or `Intl.DateTimeFormat` object on every iteration, leading to significant CPU overhead and garbage collection pauses.
 **Action:** Always instantiate `new Intl.NumberFormat()` or `new Intl.DateTimeFormat()` once outside the loop and reuse the cached instance by calling `.format(value)` inside the loop.
+
+## 2024-05-18 - Avoid micro-optimizations that sacrifice type safety
+**Learning:** Replacing `new Date(dateString)` with `Date.parse(dateString)` in a `.map()` loop to avoid object allocation was rejected as a micro-optimization with no measurable impact. Furthermore, while `Intl.DateTimeFormat.prototype.format()` accepts a timestamp number, coercing variables to primitive numbers removes the type safety of a `Date` object, creating edge-case bugs if the input is already a numeric timestamp (where `Date.parse()` returns `NaN`).
+**Action:** Do not propose frontend variable type conversions (like `Date` to timestamp) just to avoid negligible object allocations unless resolving a confirmed memory leak. Focus on measurable architectural bottlenecks (e.g., TTFB, network blocking, payload size) instead.
+
+## 2024-05-18 - Concurrent API Execution TTFB Win
+**Learning:** In Cloudflare Workers, awaiting multiple separate `Promise.all()` blocks sequentially (e.g., waiting for SQL queries to finish before initiating KV store reads) artificially inflates the API response Time To First Byte (TTFB).
+**Action:** Always scan API handler functions for independent asynchronous data fetching operations and ensure their promises are kicked off simultaneously at the beginning of the function scope, awaiting them only exactly when their data is required to construct the response.
