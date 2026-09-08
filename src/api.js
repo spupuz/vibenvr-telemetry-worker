@@ -138,13 +138,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteTotals,
 						signal: AbortSignal.timeout(15000)
-					}).then(res => res.json()).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] })),
-					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
-						method: 'POST',
-						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlEventsTrend,
-						signal: AbortSignal.timeout(15000)
-					}).then(res => res.json()).catch(() => ({ data: [] }))
+					}).then(res => res.json()).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] }))
 				]);
 
 				const activeData = activeJson.data || [];
