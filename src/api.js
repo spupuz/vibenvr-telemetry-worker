@@ -104,41 +104,48 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlActive
-					}).then(async res => {
+						body: sqlActive,
+						signal: AbortSignal.timeout(10000)
+						}).then(async res => {
 						if (!res.ok) throw new Error("SQL API Error: " + await res.text());
 						return res.json();
 					}),
 					env.VIBENVR_IDS ? Promise.resolve({ data: [] }) : fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlTotal
-					}).then(res => res.json()),
+						body: sqlTotal,
+						signal: AbortSignal.timeout(10000)
+						}).then(res => res.json()),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlActivity
-					}).then(res => res.json()),
+						body: sqlActivity,
+						signal: AbortSignal.timeout(10000)
+						}).then(res => res.json()),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlSiteActivity
-					}).then(res => res.json()).catch(() => ({ data: [] })), // Don't fail the whole API if the site dataset doesn't exist yet
+						body: sqlSiteActivity,
+						signal: AbortSignal.timeout(10000)
+						}).then(res => res.json()).catch(() => ({ data: [] })), // Don't fail the whole API if the site dataset doesn't exist yet
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlSiteCountries
-					}).then(res => res.json()).catch(() => ({ data: [] })),
+						body: sqlSiteCountries,
+						signal: AbortSignal.timeout(10000)
+						}).then(res => res.json()).catch(() => ({ data: [] })),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlSiteTotals
-					}).then(res => res.json()).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] })),
+						body: sqlSiteTotals,
+						signal: AbortSignal.timeout(10000)
+						}).then(res => res.json()).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] })),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
-						body: sqlEventsTrend
-					}).then(res => res.json()).catch(() => ({ data: [] }))
+						body: sqlEventsTrend,
+						signal: AbortSignal.timeout(10000)
+						}).then(res => res.json()).catch(() => ({ data: [] }))
 				]);
 
 				const activeData = activeJson.data || [];
