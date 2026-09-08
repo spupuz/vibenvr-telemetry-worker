@@ -47,3 +47,7 @@
 ## 2026-11-20 - Prevent Screen Readers from Announcing Decorative Dividers
 **Learning:** Decorative inline text nodes used as visual dividers (e.g., `|` in footers) are read aloud by screen readers (e.g. "vertical bar"), creating a noisy, confusing experience.
 **Action:** Wrap decorative text characters in elements with `aria-hidden="true"` to hide them from assistive technology.
+
+## 2026-09-07 - Informing Screen Readers of External Links and Hiding Decorative Emojis
+**Learning:** Screen readers blindly read emojis in dynamic text which can be highly redundant (e.g., "Flag of United States United States"). Additionally, links opening in new tabs without warning disorient screen reader users.
+**Action:** Always add `aria-hidden="true"` to dynamically generated decorative emojis next to text labels. Always append `<span class="sr-only"> (opens in a new tab)</span>` to `target="_blank"` links.
