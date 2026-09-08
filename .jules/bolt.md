@@ -65,3 +65,6 @@
 ## 2025-02-25 - Combine aggregate SQL queries to reduce edge requests
 **Learning:** Cloudflare Analytics Engine queries to the same dataset with identical grouping (e.g. by day) can be combined using subqueries. This reduces the number of expensive network roundtrips to the Cloudflare API, lowering tail latency.
 **Action:** Always combine aggregate query selections (e.g., count(DISTINCT X), count()) into single SQL requests where possible in Edge environments.
+## 2026-09-07 - Optimize Date object creation in mapping
+**Learning:** Instantiating `new Date(dateString)` in mapping functions (like `activity.map`) inside render loops creates unnecessary object allocations. `Intl.DateTimeFormat.format()` supports numeric timestamps directly.
+**Action:** Use `Date.parse(dateString)` instead to return a simple numeric timestamp, which reduces memory allocations and is significantly faster than object creation in high-frequency functions.

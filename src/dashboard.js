@@ -1226,7 +1226,9 @@ margin-top: 2px;
 		if (activityCtx) {
 			if (charts['chart-activity']) charts['chart-activity'].destroy();
 			const activityLabels = lastData.activity.map(d => {
-				const date = new Date(d.date);
+				// ⚡ Bolt: Optimize date parsing. Date.parse is faster than new Date()
+				// and dateFormatter.format() natively accepts timestamps.
+				const date = Date.parse(d.date);
 				return dateFormatter.format(date);
 			});
 			charts['chart-activity'] = new Chart(activityCtx, {
@@ -1277,7 +1279,9 @@ margin-top: 2px;
 		if (eventsCtx && lastData.events_trend && lastData.events_trend.length > 0) {
 			if (charts['chart-events']) charts['chart-events'].destroy();
 			const eventsLabels = lastData.events_trend.map(d => {
-				const date = new Date(d.date);
+				// ⚡ Bolt: Optimize date parsing. Date.parse is faster than new Date()
+				// and dateFormatter.format() natively accepts timestamps.
+				const date = Date.parse(d.date);
 				return dateFormatter.format(date);
 			});
 			charts['chart-events'] = new Chart(eventsCtx, {
@@ -1322,7 +1326,9 @@ margin-top: 2px;
 		if (siteActivityCtx && lastData.site_activity && lastData.site_activity.length > 0) {
 			if (charts['chart-site-activity']) charts['chart-site-activity'].destroy();
 			const activityLabels = lastData.site_activity.map(d => {
-				const date = new Date(d.date);
+				// ⚡ Bolt: Optimize date parsing. Date.parse is faster than new Date()
+				// and dateFormatter.format() natively accepts timestamps.
+				const date = Date.parse(d.date);
 				return dateFormatter.format(date);
 			});
 			charts['chart-site-activity'] = new Chart(siteActivityCtx, {
