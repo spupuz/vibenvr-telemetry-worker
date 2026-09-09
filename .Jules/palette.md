@@ -51,3 +51,7 @@
 ## 2026-09-07 - Informing Screen Readers of External Links and Hiding Decorative Emojis
 **Learning:** Screen readers blindly read emojis in dynamic text which can be highly redundant (e.g., "Flag of United States United States"). Additionally, links opening in new tabs without warning disorient screen reader users.
 **Action:** Always add `aria-hidden="true"` to dynamically generated decorative emojis next to text labels. Always append `<span class="sr-only"> (opens in a new tab)</span>` to `target="_blank"` links.
+
+## 2024-05-28 - Screen Reader Redundancy and Consistent External Links
+**Learning:** Adding screen reader text (like "opens in a new tab") multiple times within the same link (e.g., in a brand logo container and next to the brand name) causes screen readers to read the instruction redundantly, which creates a frustrating user experience. Similarly, having a mix of internal-behaving external links and new-tab external links is jarring for users, particularly screen reader users who need explicit warnings before context switches.
+**Action:** Always ensure accessibility hints like `<span class="sr-only"> (opens in a new tab)</span>` are only included once per interactive element. When dealing with external links, uniformly apply `target="_blank" rel="noopener"` alongside visually hidden screen reader warnings to maintain a consistent and predictable navigation experience.

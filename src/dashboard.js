@@ -547,7 +547,7 @@ margin-top: 2px;
 <!-- TOP BAR -->
 <header class="topbar">
 	<a class="topbar-brand" href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener">
-		<span class="sr-only"> (opens in a new tab)</span>
+
 		<img id="logo-img" src="${prefix}/assets/logo-dark" alt="" aria-hidden="true">
 			<span>VibeNVR Telemetry</span><span class="sr-only"> (opens in a new tab)</span>
 	</a>
@@ -591,22 +591,22 @@ margin-top: 2px;
 	
 	<div class="footer-links">
 		<a href="https://spupuz.github.io/vibe-nvr-site/" target="_blank" rel="noopener" class="footer-link">
-			<span class="sr-only"> (opens in a new tab)</span>
+
 			<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
 				Website<span class="sr-only"> (opens in a new tab)</span>
 		</a>
 		<a href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener" class="footer-link">
-			<span class="sr-only"> (opens in a new tab)</span>
+
 			<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
 				GitHub <span class="github-badge"><span class="sr-only">stars </span><span id="header-github-stars">-</span></span><span class="sr-only"> (opens in a new tab)</span>
 		</a>
 		<a href="https://github.com/spupuz/VibeNVR/releases/latest" target="_blank" rel="noopener" class="footer-link">
-			<span class="sr-only"> (opens in a new tab)</span>
+
 			<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
 				Latest Version<span class="sr-only"> (opens in a new tab)</span>
 		</a>
 		<a href="https://www.buymeacoffee.com/spupuz" target="_blank" rel="noopener" class="footer-link">
-			<span class="sr-only"> (opens in a new tab)</span>
+
 			<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
 				Buy Me A Coffee<span class="sr-only"> (opens in a new tab)</span>
 		</a>
@@ -879,12 +879,12 @@ margin-top: 2px;
 			</div>
 			
 			<div class="footer-links-site">
-				<a href="https://github.com/spupuz/VibeNVR" class="footer-link-site">GitHub</a>
-				<a href="https://github.com/spupuz/VibeNVR/issues" class="footer-link-site">Issues</a>
-				<a href="https://github.com/spupuz/VibeNVR/discussions" class="footer-link-site">Discussions</a>
+				<a href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener" class="footer-link-site">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
+				<a href="https://github.com/spupuz/VibeNVR/issues" target="_blank" rel="noopener" class="footer-link-site">Issues<span class="sr-only"> (opens in a new tab)</span></a>
+				<a href="https://github.com/spupuz/VibeNVR/discussions" target="_blank" rel="noopener" class="footer-link-site">Discussions<span class="sr-only"> (opens in a new tab)</span></a>
 				<span class="footer-divider" aria-hidden="true">|</span>
-				<a href="https://github.com/spupuz/VibeNVR/blob/main/LICENSE" class="footer-link-site">License</a>
-				<a href="https://spupuz.github.io/vibe-nvr-site/docs/Telemetry/" class="footer-link-site">Privacy & Telemetry</a>
+				<a href="https://github.com/spupuz/VibeNVR/blob/main/LICENSE" target="_blank" rel="noopener" class="footer-link-site">License<span class="sr-only"> (opens in a new tab)</span></a>
+				<a href="https://spupuz.github.io/vibe-nvr-site/docs/Telemetry/" target="_blank" rel="noopener" class="footer-link-site">Privacy & Telemetry<span class="sr-only"> (opens in a new tab)</span></a>
 			</div>
 
 			<div class="footer-copy">
