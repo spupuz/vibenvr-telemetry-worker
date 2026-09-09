@@ -942,7 +942,7 @@ margin-top: 2px;
 
 <script nonce="${nonce}">
 	// ─── STATE (declared before IIFE to avoid TDZ) ───────────────────────────
-	let charts = {};
+	let charts = Object.create(null);
 	let lastData = null;
 	// ⚡ Bolt: Cache the Promise itself so fetching/parsing only happens exactly once,
 	// and multiple calls to render() can simply await it without redundant logic.
@@ -1125,7 +1125,7 @@ margin-top: 2px;
 			const numToAlpha2 = {4:'AF',8:'AL',12:'DZ',24:'AO',32:'AR',36:'AU',40:'AT',50:'BD',56:'BE',76:'BR',100:'BG',124:'CA',152:'CL',156:'CN',170:'CO',191:'HR',203:'CZ',208:'DK',818:'EG',246:'FI',250:'FR',276:'DE',300:'GR',344:'HK',356:'IN',360:'ID',364:'IR',376:'IL',380:'IT',392:'JP',410:'KR',458:'MY',484:'MX',528:'NL',554:'NZ',566:'NG',578:'NO',586:'PK',604:'PE',608:'PH',616:'PL',620:'PT',642:'RO',643:'RU',682:'SA',702:'SG',710:'ZA',724:'ES',752:'SE',756:'CH',764:'TH',792:'TR',804:'UA',784:'AE',826:'GB',840:'US',704:'VN',858:'UY',807:'MK'};
 
 			// 1. App Installs Map Data
-				const countryMap = {};
+				const countryMap = Object.create(null);
 				(lastData.countries||[]).forEach(c => { countryMap[c.name] = c.count; });
 				const geoData = countries.map(f => ({
 					feature: f,
@@ -1133,7 +1133,7 @@ margin-top: 2px;
 				}));
 
 				// 2. Site Visitors Map Data
-				const siteCountryMap = {};
+				const siteCountryMap = Object.create(null);
 				(lastData.site_countries||[]).forEach(c => { siteCountryMap[c.name] = c.count; });
 				const siteGeoData = countries.map(f => ({
 					feature: f,
