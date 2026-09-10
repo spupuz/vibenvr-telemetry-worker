@@ -18,7 +18,7 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 
 	if (url.pathname !== '/site-telemetry.png') {
 		if (instance_id === 'unknown' || instance_id.length < 16) {
-			return new Response("Invalid ID format", { status: 400, headers: SECURITY_HEADERS });
+			return new Response("Invalid ID format", { status: 400, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
 		}
 	}
 
