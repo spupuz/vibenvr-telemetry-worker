@@ -76,3 +76,7 @@
 ## 2024-05-18 - Concurrent API Execution TTFB Win
 **Learning:** In Cloudflare Workers, awaiting multiple separate `Promise.all()` blocks sequentially (e.g., waiting for SQL queries to finish before initiating KV store reads) artificially inflates the API response Time To First Byte (TTFB).
 **Action:** Always scan API handler functions for independent asynchronous data fetching operations and ensure their promises are kicked off simultaneously at the beginning of the function scope, awaiting them only exactly when their data is required to construct the response.
+
+## 2024-05-18 - Optimize chaining of String.prototype.replace()
+**Learning:** Chaining multiple `.replace()` calls on a string with different regular expressions (e.g., `str.replace(/a/g, '').replace(/b/g, '')`) causes the engine to allocate intermediate strings and scan the original string multiple times.
+**Action:** Always combine the regular expressions using the OR (`|`) operator and pre-compile them outside of loops to evaluate the string in a single pass, which reduces garbage collection (GC) pressure and execution time (e.g., `const regex = /a|b/g; str.replace(regex, '')`).

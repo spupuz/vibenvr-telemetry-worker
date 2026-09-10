@@ -1052,6 +1052,10 @@ margin-top: 2px;
 		}
 	}
 
+	// ⚡ Bolt: Pre-compile regular expression outside the loop to avoid re-instantiating it
+	// and combine multiple replaces into one to optimize string manipulation performance
+	const CPU_CLEANUP_REGEX = /\\(R\\)|\\(TM\\)| Processor| CPU| @ \\d+\\.\\d+GHz/gi;
+
 	function prepData(list, lk='name', vk='count', limit=8, showFlags=false) {
 		list = [...(list||[])].sort((a,b) => b[vk]-a[vk]);
 		const top = list.slice(0, limit);
@@ -1062,7 +1066,7 @@ margin-top: 2px;
 			let name = i[lk];
 			if (typeof name === 'string') {
 				// Clean up CPU names to fit in mobile charts
-				name = name.replace(/\\(R\\)|\\(TM\\)/g, '').replace(/ Processor/gi, '').replace(/ CPU/gi, '').replace(/ @ \\d+\\.\\d+GHz/gi, '').trim();
+				name = name.replace(CPU_CLEANUP_REGEX, '').trim();
 				if (name.length > 28) name = name.substring(0, 26) + '...';
 			}
 			if (showFlags && name !== 'Other' && name !== 'Unknown') {
