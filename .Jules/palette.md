@@ -55,3 +55,7 @@
 ## 2024-05-28 - Screen Reader Redundancy and Consistent External Links
 **Learning:** Adding screen reader text (like "opens in a new tab") multiple times within the same link (e.g., in a brand logo container and next to the brand name) causes screen readers to read the instruction redundantly, which creates a frustrating user experience. Similarly, having a mix of internal-behaving external links and new-tab external links is jarring for users, particularly screen reader users who need explicit warnings before context switches.
 **Action:** Always ensure accessibility hints like `<span class="sr-only"> (opens in a new tab)</span>` are only included once per interactive element. When dealing with external links, uniformly apply `target="_blank" rel="noopener"` alongside visually hidden screen reader warnings to maintain a consistent and predictable navigation experience.
+
+## 2026-09-10 - Action Buttons and Context
+**Learning:** Action buttons with short or generic visible text (like "Retry") lack context when read out of order by a screen reader or when navigating via a links/buttons list.
+**Action:** Always add an `aria-label` providing full context (e.g. `aria-label="Retry loading telemetry data"`) to such buttons. Crucially, to comply with WCAG 2.5.3 (Label in Name) and avoid breaking voice-control navigation, the `aria-label` MUST begin with the exact visible text of the button.
