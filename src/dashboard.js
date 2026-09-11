@@ -900,7 +900,9 @@ margin-top: 2px;
 <script nonce="${nonce}">
 	(async function fetchVersions() {
 		try {
-			const telRes = await fetch('https://api.github.com/repos/spupuz/vibenvr-telemetry-worker/releases/latest');
+			const telRes = await fetch('https://api.github.com/repos/spupuz/vibenvr-telemetry-worker/releases/latest', {
+				signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
+			});
 			if (telRes.ok) {
 				const telData = await telRes.json();
 				const telEl = document.getElementById('telemetry-version');
@@ -946,7 +948,9 @@ margin-top: 2px;
 	let lastData = null;
 	// ⚡ Bolt: Cache the Promise itself so fetching/parsing only happens exactly once,
 	// and multiple calls to render() can simply await it without redundant logic.
-	const cachedCountriesPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+	const cachedCountriesPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json', {
+		signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
+	})
 		.then(r => r.json())
 		.then(worldData => ChartGeo.topojson.feature(worldData, worldData.objects.countries).features);
 	cachedCountriesPromise.catch(() => {}); // Suppress uncaught promise rejection warning
@@ -956,7 +960,9 @@ margin-top: 2px;
 
 	// ⚡ Bolt: Fetch GitHub stars once on load rather than inside renderChartsIfReady
 	// which fires repeatedly on theme toggles
-	fetch('https://api.github.com/repos/spupuz/VibeNVR')
+	fetch('https://api.github.com/repos/spupuz/VibeNVR', {
+		signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
+	})
 		.then(r => r.json())
 		.then(repo => {
 			const currentStars = repo.stargazers_count || 0;
