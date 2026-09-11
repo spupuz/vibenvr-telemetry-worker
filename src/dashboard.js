@@ -1042,11 +1042,12 @@ margin-top: 2px;
 	function getFlagEmoji(countryCode) {
 		if (!countryCode || countryCode === 'Unknown' || countryCode.length !== 2) return '❓';
 		try {
-			const codePoints = countryCode
-				.toUpperCase()
-				.split('')
-				.map(char => 127397 + char.charCodeAt());
-			return String.fromCodePoint(...codePoints);
+			// ⚡ Bolt: Use direct character indexing instead of .split('').map() to prevent array allocations
+			const upper = countryCode.toUpperCase();
+			return String.fromCodePoint(
+				127397 + upper.charCodeAt(0),
+				127397 + upper.charCodeAt(1)
+			);
 		} catch (e) {
 			return '❓';
 		}
