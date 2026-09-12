@@ -1064,25 +1064,38 @@ margin-top: 2px;
 	const CPU_CLEANUP_REGEX = /\\(R\\)|\\(TM\\)| Processor| CPU| @ \\d+\\.\\d+GHz/gi;
 
 	function prepData(list, lk='name', vk='count', limit=8, showFlags=false) {
-		list = [...(list||[])].sort((a,b) => b[vk]-a[vk]);
-		const top = list.slice(0, limit);
-		const rest = list.slice(limit).reduce((s,r)=>s+r[vk], 0);
-		if (rest > 0) top.push({[lk]:'Other',[vk]:rest});
-		
-		const labels = top.map(i => {
-			let name = i[lk];
-			if (typeof name === 'string') {
-				// Clean up CPU names to fit in mobile charts
-				name = name.replace(CPU_CLEANUP_REGEX, '').trim();
-				if (name.length > 28) name = name.substring(0, 26) + '...';
-			}
-			if (showFlags && name !== 'Other' && name !== 'Unknown') {
-				return getFlagEmoji(name) + ' ' + name;
-			}
-			return name;
-		});
+		// ⚡ Bolt: Removed redundant [...list].sort(), .slice(), .reduce(), and .map() calls.
+		// The API already pre-sorts all the array datasets. A single loop avoids allocating
+		// 5 intermediate arrays per chart dataset on every render.
+		const safeList = list || [];
+		const labels = [];
+		const data = [];
+		let rest = 0;
 
-		return { labels, data: top.map(i=>i[vk]) };
+		for (let i = 0; i < safeList.length; i++) {
+			const item = safeList[i];
+			if (i < limit) {
+				let name = item[lk];
+				if (typeof name === 'string') {
+					name = name.replace(CPU_CLEANUP_REGEX, '').trim();
+					if (name.length > 28) name = name.substring(0, 26) + '...';
+				}
+				if (showFlags && name !== 'Other' && name !== 'Unknown') {
+					name = getFlagEmoji(name) + ' ' + name;
+				}
+				labels.push(name);
+				data.push(item[vk]);
+			} else {
+				rest += item[vk];
+			}
+		}
+
+		if (rest > 0) {
+			labels.push('Other');
+			data.push(rest);
+		}
+
+		return { labels, data };
 	}
 
 
@@ -1418,10 +1431,12 @@ margin-top: 2px;
 				let emoji = '';
 				let textName = name;
 				if (name !== 'Other' && name.length > 2) {
-					const parts = name.split(' ');
-					if (parts.length > 1) {
-						emoji = parts[0];
-						textName = parts.slice(1).join(' ');
+					// ⚡ Bolt: Avoid allocating arrays and string joining via .split() and .slice(1).join(' ')
+					// by explicitly finding the first space character index.
+					const spaceIndex = name.indexOf(' ');
+					if (spaceIndex !== -1) {
+						emoji = name.substring(0, spaceIndex);
+						textName = name.substring(spaceIndex + 1);
 					}
 				}
 
