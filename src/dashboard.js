@@ -50,6 +50,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			--primary: #58a6ff;
 			--primary-light: rgba(88,166,255,.1);
 			--primary-dark: #1f6feb;
+			--accent: #a78bfa;
 			--success: #10b981;
 			--err: #f87171;
 			--shadow: 0 1px 4px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
@@ -130,8 +131,8 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			font-size: .7rem;
 			font-weight: 600;
 			color: var(--success);
-			background: rgba(16,185,129,.1);
-			border: 1px solid rgba(16,185,129,.25);
+			background: color-mix(in srgb, var(--success) 10%, transparent);
+			border: 1px solid color-mix(in srgb, var(--success) 25%, transparent);
 			padding: .25rem .65rem;
 			border-radius: 99px;
 			letter-spacing: .03em;
