@@ -56,7 +56,7 @@
 ## 2025-02-23 - Edge Cache for Proxied Assets
 **Learning:** Proxying static external assets (like GitHub hosted logos/images) on every request without leveraging the Cloudflare Cache API (`caches.default`) results in redundant external network calls, increasing TTFB and Worker CPU time.
 **Action:** Always wrap proxy endpoints for static assets with the Edge Cache API by checking `caches.default.match()` and storing successful responses with `ctx.waitUntil(caches.default.put())`.
-## $(date +%Y-%m-%d) - [Optimize Date Formatting in Render Loops]
+## 2024-05-18 - [Optimize Date Formatting in Render Loops]
 **Learning:** Calling `toLocaleDateString()` with options inside a hot loop (like a `map` over chart dataset items) creates a severe performance bottleneck because V8 implicitly instantiates a new `Intl.DateTimeFormat` object on every iteration (in testing, 1000 calls took ~404ms vs ~2ms for a cached formatter).
 **Action:** Always instantiate `new Intl.DateTimeFormat(...)` once outside the loop and reuse the instance by calling `.format(date)` inside the loop.
 ## 2025-02-23 - Optimize Date Formatting in Render Loops
@@ -80,6 +80,9 @@
 ## 2024-05-18 - Optimize chaining of String.prototype.replace()
 **Learning:** Chaining multiple `.replace()` calls on a string with different regular expressions (e.g., `str.replace(/a/g, '').replace(/b/g, '')`) causes the engine to allocate intermediate strings and scan the original string multiple times.
 **Action:** Always combine the regular expressions using the OR (`|`) operator and pre-compile them outside of loops to evaluate the string in a single pass, which reduces garbage collection (GC) pressure and execution time (e.g., `const regex = /a|b/g; str.replace(regex, '')`).
-## $(date +%Y-%m-%d) - [Optimize fixed-length string indexing]
+## 2024-05-18 - [Optimize fixed-length string indexing]
 **Learning:** Processing small, fixed-length strings (like 2-character country codes) using `.split('').map(...)` inside high-frequency functions creates severe performance bottlenecks. V8 implicitly allocates multiple arrays and functional scopes on every invocation, triggering heavy garbage collection.
 **Action:** When extracting characters or code points from known fixed-length strings (e.g. 2-char codes), use explicit index access methods like `str.charCodeAt(0)` and `str.charCodeAt(1)`. This avoids array allocation and is over 50% faster in hot paths.
+## 2024-05-18 - [Avoid redundant array sorting and allocations in render loops]
+**Learning:** Performing array manipulation operations like `.sort()`, `.slice()`, `.reduce()`, and multiple `.map()` passes on data inside render loops (like charting setup) is a major performance bottleneck due to O(N log N) processing and excessive array allocations triggering garbage collection.
+**Action:** When data is already pre-sorted and grouped by the backend API, avoid sorting it again on the frontend. Use a single `for` loop to aggregate or process the data (e.g., slicing top N items and grouping the rest into 'Other') to minimize array allocations and CPU time on every render cycle.
