@@ -1418,10 +1418,11 @@ margin-top: 2px;
 				let emoji = '';
 				let textName = name;
 				if (name !== 'Other' && name.length > 2) {
-					const parts = name.split(' ');
-					if (parts.length > 1) {
-						emoji = parts[0];
-						textName = parts.slice(1).join(' ');
+					// ⚡ Bolt: Use .indexOf() and .substring() instead of .split() and .join() to prevent array allocation overhead in hot render loops
+					const spaceIdx = name.indexOf(' ');
+					if (spaceIdx !== -1) {
+						emoji = name.substring(0, spaceIdx);
+						textName = name.substring(spaceIdx + 1);
 					}
 				}
 

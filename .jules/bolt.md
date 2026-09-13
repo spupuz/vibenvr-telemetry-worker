@@ -83,3 +83,6 @@
 ## $(date +%Y-%m-%d) - [Optimize fixed-length string indexing]
 **Learning:** Processing small, fixed-length strings (like 2-character country codes) using `.split('').map(...)` inside high-frequency functions creates severe performance bottlenecks. V8 implicitly allocates multiple arrays and functional scopes on every invocation, triggering heavy garbage collection.
 **Action:** When extracting characters or code points from known fixed-length strings (e.g. 2-char codes), use explicit index access methods like `str.charCodeAt(0)` and `str.charCodeAt(1)`. This avoids array allocation and is over 50% faster in hot paths.
+## 2025-05-18 - Avoid array allocations in hot render loops string parsing
+**Learning:** Using `String.prototype.split()` and `Array.prototype.slice().join()` inside a hot render loop (like formatting leaderboard labels) creates unnecessary intermediate arrays, leading to increased garbage collection pressure and decreased performance.
+**Action:** When extracting parts of a string based on a delimiter in high-frequency functions, use `String.prototype.indexOf()` and `String.prototype.substring()` instead. This avoids allocating any intermediary arrays and is significantly faster.
