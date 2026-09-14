@@ -63,3 +63,6 @@
 ## 2026-11-20 - Adding tabindex to Tooltip Containers
 **Learning:** Adding `tabindex="0"` to containers with `title` attributes allows keyboard and screen reader users to focus on the elements, making the informative tooltips accessible to those who cannot hover with a mouse.
 **Action:** Ensure all non-interactive elements that rely on `title` attributes for tooltips also include `tabindex="0"`.
+## 2026-11-20 - Prevent Screen Readers from Announcing Decorative Dividers
+**Learning:** Decorative inline text nodes used as visual dividers (e.g., `·`, `•`, `—`) are read aloud by screen readers, creating a noisy, confusing experience.
+**Action:** Wrap decorative text characters in elements with `aria-hidden="true"` to hide them from assistive technology.
