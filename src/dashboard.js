@@ -1065,25 +1065,41 @@ margin-top: 2px;
 	const CPU_CLEANUP_REGEX = /\\(R\\)|\\(TM\\)| Processor| CPU| @ \\d+\\.\\d+GHz/gi;
 
 	function prepData(list, lk='name', vk='count', limit=8, showFlags=false) {
-		list = [...(list||[])].sort((a,b) => b[vk]-a[vk]);
-		const top = list.slice(0, limit);
-		const rest = list.slice(limit).reduce((s,r)=>s+r[vk], 0);
-		if (rest > 0) top.push({[lk]:'Other',[vk]:rest});
+		if (!list) return { labels: [], data: [] };
 		
-		const labels = top.map(i => {
-			let name = i[lk];
-			if (typeof name === 'string') {
-				// Clean up CPU names to fit in mobile charts
-				name = name.replace(CPU_CLEANUP_REGEX, '').trim();
-				if (name.length > 28) name = name.substring(0, 26) + '...';
-			}
-			if (showFlags && name !== 'Other' && name !== 'Unknown') {
-				return getFlagEmoji(name) + ' ' + name;
-			}
-			return name;
-		});
+		// ⚡ Bolt: Use a single-pass loop instead of chaining .slice(), .reduce(), and .map()
+		// to prevent redundant array allocations and multiple iterations.
+		// We still sort once to guarantee ordering.
+		const sortedList = [...list].sort((a,b) => b[vk]-a[vk]);
+		const labels = [];
+		const data = [];
+		let rest = 0;
 
-		return { labels, data: top.map(i=>i[vk]) };
+		for (let i = 0; i < sortedList.length; i++) {
+			const item = sortedList[i];
+			if (i < limit) {
+				let name = item[lk];
+				if (typeof name === 'string') {
+					// Clean up CPU names to fit in mobile charts
+					name = name.replace(CPU_CLEANUP_REGEX, '').trim();
+					if (name.length > 28) name = name.substring(0, 26) + '...';
+				}
+				if (showFlags && name !== 'Unknown') {
+					name = getFlagEmoji(name) + ' ' + name;
+				}
+				labels.push(name);
+				data.push(item[vk]);
+			} else {
+				rest += item[vk] || 0;
+			}
+		}
+
+		if (rest > 0) {
+			labels.push('Other');
+			data.push(rest);
+		}
+
+		return { labels, data };
 	}
 
 

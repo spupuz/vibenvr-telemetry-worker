@@ -86,3 +86,6 @@
 ## 2025-05-18 - Avoid array allocations in hot render loops string parsing
 **Learning:** Using `String.prototype.split()` and `Array.prototype.slice().join()` inside a hot render loop (like formatting leaderboard labels) creates unnecessary intermediate arrays, leading to increased garbage collection pressure and decreased performance.
 **Action:** When extracting parts of a string based on a delimiter in high-frequency functions, use `String.prototype.indexOf()` and `String.prototype.substring()` instead. This avoids allocating any intermediary arrays and is significantly faster.
+## 2025-03-09 - Avoid chaining array methods on sorted data
+**Learning:** Chaining `.slice()`, `.reduce()`, and `.map()` on an array creates intermediate arrays and forces multiple iterations over the same data. While removing a redundant `.sort()` operation is generally a good idea if the backend pre-sorts, it is unsafe if there is no hard guarantee that the data is perfectly ordered, as it can cause a functional regression where "Top K" metrics become "First K" metrics.
+**Action:** When refactoring array manipulations into single-pass loops for performance (to prevent excessive intermediate allocations and garbage collection), always verify whether a `.sort()` operation is fundamentally required for data integrity. If so, apply it once before the single-pass loop.
