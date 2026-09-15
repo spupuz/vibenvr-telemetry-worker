@@ -19,7 +19,8 @@ export default {
 		}
 
 		// 0. Security Setup
-		const { nonce, SECURITY_HEADERS } = getSecurityContext();
+		const isHtml = (url.pathname === '/dashboard' || url.pathname === '/');
+		const { nonce, SECURITY_HEADERS } = getSecurityContext(isHtml);
 
 		try {
 			// Handle CORS preflight

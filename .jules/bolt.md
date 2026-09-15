@@ -89,3 +89,7 @@
 ## 2025-03-09 - Avoid chaining array methods on sorted data
 **Learning:** Chaining `.slice()`, `.reduce()`, and `.map()` on an array creates intermediate arrays and forces multiple iterations over the same data. While removing a redundant `.sort()` operation is generally a good idea if the backend pre-sorts, it is unsafe if there is no hard guarantee that the data is perfectly ordered, as it can cause a functional regression where "Top K" metrics become "First K" metrics.
 **Action:** When refactoring array manipulations into single-pass loops for performance (to prevent excessive intermediate allocations and garbage collection), always verify whether a `.sort()` operation is fundamentally required for data integrity. If so, apply it once before the single-pass loop.
+
+## 2026-09-15 - [Conditionally Generate CSP Nonce]
+**Learning:** Generating a high-entropy string using `btoa(crypto.randomUUID())` and creating new object references for security headers on every request adds measurable overhead to Cloudflare Workers, especially for high-frequency API or ingest endpoints that don't need a `nonce`.
+**Action:** When injecting Content Security Policy (CSP) headers across an entire application, conditionally evaluate if the current route actually serves HTML. For non-HTML routes (like API endpoints or static assets), bypass `nonce` generation and return a pre-allocated, statically cached headers object to reduce CPU usage and garbage collection pressure.
