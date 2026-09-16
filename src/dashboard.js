@@ -1158,18 +1158,25 @@ margin-top: 2px;
 			// 1. App Installs Map Data
 				const countryMap = Object.create(null);
 				(lastData.countries||[]).forEach(c => { countryMap[c.name] = c.count; });
-				const geoData = countries.map(f => ({
-					feature: f,
-					value: countryMap[numToAlpha2[+f.id]] || 0
-				}));
 
 				// 2. Site Visitors Map Data
 				const siteCountryMap = Object.create(null);
 				(lastData.site_countries||[]).forEach(c => { siteCountryMap[c.name] = c.count; });
-				const siteGeoData = countries.map(f => ({
-					feature: f,
-					value: siteCountryMap[numToAlpha2[+f.id]] || 0
-				}));
+
+				// ⚡ Bolt: Optimize map data allocations by using a single-pass loop over the countries list
+				// to pre-allocate memory and calculate labels and geographic data simultaneously
+				const countriesLen = countries.length;
+				const geoData = new Array(countriesLen);
+				const siteGeoData = new Array(countriesLen);
+				const mapLabels = new Array(countriesLen);
+
+				for (let i = 0; i < countriesLen; i++) {
+					const f = countries[i];
+					const alpha2 = numToAlpha2[+f.id];
+					geoData[i] = { feature: f, value: countryMap[alpha2] || 0 };
+					siteGeoData[i] = { feature: f, value: siteCountryMap[alpha2] || 0 };
+					mapLabels[i] = f.properties.name;
+				}
 
 				const isDark = document.documentElement.classList.contains('dark');
 
@@ -1179,7 +1186,7 @@ margin-top: 2px;
 					if (charts['chart-worldmap']) charts['chart-worldmap'].destroy();
 					charts['chart-worldmap'] = new Chart(ctx, {
 						type: 'choropleth',
-						data: { labels: countries.map(f=>f.properties.name), datasets: [{
+						data: { labels: mapLabels, datasets: [{
 							label: 'Installs',
 							data: geoData,
 							backgroundColor(ctx) {
@@ -1212,7 +1219,7 @@ margin-top: 2px;
 					if (charts['chart-site-worldmap']) charts['chart-site-worldmap'].destroy();
 					charts['chart-site-worldmap'] = new Chart(siteCtx, {
 						type: 'choropleth',
-						data: { labels: countries.map(f=>f.properties.name), datasets: [{
+						data: { labels: mapLabels, datasets: [{
 							label: 'Visitors',
 							data: siteGeoData,
 							backgroundColor(ctx) {
@@ -1256,12 +1263,22 @@ margin-top: 2px;
 		const activityCtx = document.getElementById('chart-activity')?.getContext('2d');
 		if (activityCtx) {
 			if (charts['chart-activity']) charts['chart-activity'].destroy();
-			const activityLabels = lastData.activity.map(d => {
+
+			// ⚡ Bolt: Optimize array allocations by parsing and mapping arrays in a single-pass loop
+			const actLen = lastData.activity.length;
+			const activityLabels = new Array(actLen);
+			const uniquesData = new Array(actLen);
+			const pingsData = new Array(actLen);
+
+			for (let i = 0; i < actLen; i++) {
+				const d = lastData.activity[i];
 				// ⚡ Bolt: Optimize date parsing. Date.parse is faster than new Date()
 				// and dateFormatter.format() natively accepts timestamps.
-				const date = Date.parse(d.date);
-				return dateFormatter.format(date);
-			});
+				activityLabels[i] = dateFormatter.format(Date.parse(d.date));
+				uniquesData[i] = d.uniques;
+				pingsData[i] = d.pings;
+			}
+
 			charts['chart-activity'] = new Chart(activityCtx, {
 				type: 'line',
 				data: {
@@ -1269,7 +1286,7 @@ margin-top: 2px;
 					datasets: [
 						{
 							label: 'Unique IDs',
-							data: lastData.activity.map(d => d.uniques),
+							data: uniquesData,
 							borderColor: tok('primary'),
 							backgroundColor: 'transparent',
 							tension: 0.3,
@@ -1278,7 +1295,7 @@ margin-top: 2px;
 						},
 						{
 							label: 'Total Pings',
-							data: lastData.activity.map(d => d.pings),
+							data: pingsData,
 							borderColor: tok('accent'),
 							backgroundColor: 'transparent',
 							tension: 0.3,
@@ -1309,12 +1326,20 @@ margin-top: 2px;
 		const eventsCtx = document.getElementById('chart-events')?.getContext('2d');
 		if (eventsCtx && lastData.events_trend && lastData.events_trend.length > 0) {
 			if (charts['chart-events']) charts['chart-events'].destroy();
-			const eventsLabels = lastData.events_trend.map(d => {
+
+			// ⚡ Bolt: Optimize array allocations by parsing and mapping arrays in a single-pass loop
+			const evtLen = lastData.events_trend.length;
+			const eventsLabels = new Array(evtLen);
+			const eventsData = new Array(evtLen);
+
+			for (let i = 0; i < evtLen; i++) {
+				const d = lastData.events_trend[i];
 				// ⚡ Bolt: Optimize date parsing. Date.parse is faster than new Date()
 				// and dateFormatter.format() natively accepts timestamps.
-				const date = Date.parse(d.date);
-				return dateFormatter.format(date);
-			});
+				eventsLabels[i] = dateFormatter.format(Date.parse(d.date));
+				eventsData[i] = d.events;
+			}
+
 			charts['chart-events'] = new Chart(eventsCtx, {
 				type: 'line',
 				data: {
@@ -1322,7 +1347,7 @@ margin-top: 2px;
 					datasets: [
 						{
 							label: 'Total Events',
-							data: lastData.events_trend.map(d => d.events),
+							data: eventsData,
 							borderColor: tok('accent'),
 							backgroundColor: 'rgba(139, 92, 246, 0.1)',
 							tension: 0.3,
@@ -1356,20 +1381,30 @@ margin-top: 2px;
 		const siteActivityCtx = document.getElementById('chart-site-activity')?.getContext('2d');
 		if (siteActivityCtx && lastData.site_activity && lastData.site_activity.length > 0) {
 			if (charts['chart-site-activity']) charts['chart-site-activity'].destroy();
-			const activityLabels = lastData.site_activity.map(d => {
+
+			// ⚡ Bolt: Optimize array allocations by parsing and mapping arrays in a single-pass loop
+			const siteActLen = lastData.site_activity.length;
+			const siteActivityLabels = new Array(siteActLen);
+			const siteUniquesData = new Array(siteActLen);
+			const sitePageviewsData = new Array(siteActLen);
+
+			for (let i = 0; i < siteActLen; i++) {
+				const d = lastData.site_activity[i];
 				// ⚡ Bolt: Optimize date parsing. Date.parse is faster than new Date()
 				// and dateFormatter.format() natively accepts timestamps.
-				const date = Date.parse(d.date);
-				return dateFormatter.format(date);
-			});
+				siteActivityLabels[i] = dateFormatter.format(Date.parse(d.date));
+				siteUniquesData[i] = d.uniques;
+				sitePageviewsData[i] = d.pageviews;
+			}
+
 			charts['chart-site-activity'] = new Chart(siteActivityCtx, {
 				type: 'line',
 				data: {
-					labels: activityLabels,
+					labels: siteActivityLabels,
 					datasets: [
 						{
 							label: 'Unique Visitors',
-							data: lastData.site_activity.map(d => d.uniques),
+							data: siteUniquesData,
 							borderColor: tok('accent'),
 							backgroundColor: 'transparent',
 							tension: 0.3,
@@ -1378,7 +1413,7 @@ margin-top: 2px;
 						},
 						{
 							label: 'Total Pageviews',
-							data: lastData.site_activity.map(d => d.pageviews),
+							data: sitePageviewsData,
 							borderColor: tok('primary'),
 							backgroundColor: 'transparent',
 							tension: 0.3,
