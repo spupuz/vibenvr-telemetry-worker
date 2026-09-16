@@ -6,23 +6,23 @@ import { handleAssets } from './assets.js';
 
 export default {
 	async fetch(request, env, ctx) {
-		const url = new URL(request.url);
-
-		// Handle proxying under /telemetry prefix (e.g. vibenvr.org/telemetry)
-		let prefix = '';
-		if (url.pathname === '/telemetry' || url.pathname === '/telemetry/') {
-			prefix = '/telemetry';
-			url.pathname = '/';
-		} else if (url.pathname.startsWith('/telemetry/')) {
-			prefix = '/telemetry';
-			url.pathname = url.pathname.replace(/^\/telemetry/, '');
-		}
-
-		// 0. Security Setup
-		const isHtml = (url.pathname === '/dashboard' || url.pathname === '/');
-		const { nonce, SECURITY_HEADERS } = getSecurityContext(isHtml);
-
 		try {
+			const url = new URL(request.url);
+
+			// Handle proxying under /telemetry prefix (e.g. vibenvr.org/telemetry)
+			let prefix = '';
+			if (url.pathname === '/telemetry' || url.pathname === '/telemetry/') {
+				prefix = '/telemetry';
+				url.pathname = '/';
+			} else if (url.pathname.startsWith('/telemetry/')) {
+				prefix = '/telemetry';
+				url.pathname = url.pathname.replace(/^\/telemetry/, '');
+			}
+
+			// 0. Security Setup
+			const isHtml = (url.pathname === '/dashboard' || url.pathname === '/');
+			const { nonce, SECURITY_HEADERS } = getSecurityContext(isHtml);
+
 			// Handle CORS preflight
 			if (request.method === 'OPTIONS') {
 				return new Response(null, {
@@ -112,9 +112,11 @@ export default {
 		} catch (error) {
 			console.error("Unhandled Error:", error);
 			// 🛡️ Sentinel: Global error handler to prevent stack trace leaks
+			// If URL parsing fails, SECURITY_HEADERS might not be defined in this scope, so we retrieve the fallback
+			const safeHeaders = getSecurityContext(false).SECURITY_HEADERS;
 			return new Response("Internal Server Error", {
 				status: 500,
-				headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' }
+				headers: { ...safeHeaders, 'Content-Type': 'text/plain;charset=UTF-8' }
 			});
 		}
 	},
