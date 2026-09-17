@@ -93,3 +93,6 @@
 ## 2026-09-15 - [Conditionally Generate CSP Nonce]
 **Learning:** Generating a high-entropy string using `btoa(crypto.randomUUID())` and creating new object references for security headers on every request adds measurable overhead to Cloudflare Workers, especially for high-frequency API or ingest endpoints that don't need a `nonce`.
 **Action:** When injecting Content Security Policy (CSP) headers across an entire application, conditionally evaluate if the current route actually serves HTML. For non-HTML routes (like API endpoints or static assets), bypass `nonce` generation and return a pre-allocated, statically cached headers object to reduce CPU usage and garbage collection pressure.
+## $(date +%Y-%m-%d) - [Optimize array manipulations in Chart datasets]
+**Learning:** Chaining multiple `.map()` calls on the same array to extract different properties for Chart.js datasets creates severe performance bottlenecks. V8 implicitly allocates multiple closures and intermediate arrays on every pass, triggering heavy garbage collection pauses in hot render loops.
+**Action:** When extracting multiple series of data from a single array of objects, use a single-pass `for` loop with pre-allocated arrays (`new Array(len)`) to minimize array allocations and significantly reduce execution time.
