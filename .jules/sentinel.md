@@ -71,3 +71,7 @@
 **Vulnerability:** URL parsing (`new URL(request.url)`) was occurring before the global `try...catch` block. Malformed URLs could cause a `TypeError`, skipping our security headers and custom error handlers.
 **Learning:** Always validate and parse inputs inside a safe block. Fallback headers must not depend on scope inside the `try` block.
 **Prevention:** Wrap all request parsing logic in a global `try...catch` and initialize independent fallback variables in the error handler.
+## 2024-11-04 - Client-side Resource Exhaustion DoS via Unbounded Fetches
+**Vulnerability:** Client-side fetch calls in `src/dashboard.js` did not configure a timeout constraint.
+**Learning:** If an external API or upstream CDN responds slowly or hangs indefinitely without closing the socket, the browser will keep the connection open indefinitely, which can lead to hanging the frontend completely or causing a Denial of Service (DoS) for the client.
+**Prevention:** Always enforce strict timeouts on outbound client-side `fetch` calls, specifically using the pattern `signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(ms) : undefined` for backwards compatibility in older browsers to prevent unhandled exceptions and crashes while avoiding resource exhaustion.

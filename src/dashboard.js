@@ -538,7 +538,9 @@ margin-top: 2px;
 
 	<script nonce="${nonce}">
 		// ⚡ Bolt: Eagerly fetch API stats to parallelize with Chart.js library downloads
-		window.__apiStatsPromise = fetch('${prefix}/api/stats');
+		window.__apiStatsPromise = fetch('${prefix}/api/stats', {
+			signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
+		});
 		window.__apiStatsPromise.catch(() => {}); // Suppress unhandled rejection warning
 	</script>
 </head>
@@ -1572,7 +1574,9 @@ margin-top: 2px;
 		document.getElementById('dashboard').style.display = 'none';
 		document.getElementById('error-msg').style.display = 'none';
 		try {
-			const statsPromise = window.__apiStatsPromise || fetch('${prefix}/api/stats');
+			const statsPromise = window.__apiStatsPromise || fetch('${prefix}/api/stats', {
+				signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
+			});
 			window.__apiStatsPromise = null;
 			const res = await statsPromise;
 			if (!res.ok) throw new Error('HTTP ' + res.status);
