@@ -96,3 +96,6 @@
 ## $(date +%Y-%m-%d) - [Optimize array manipulations in Chart datasets]
 **Learning:** Chaining multiple `.map()` calls on the same array to extract different properties for Chart.js datasets creates severe performance bottlenecks. V8 implicitly allocates multiple closures and intermediate arrays on every pass, triggering heavy garbage collection pauses in hot render loops.
 **Action:** When extracting multiple series of data from a single array of objects, use a single-pass `for` loop with pre-allocated arrays (`new Array(len)`) to minimize array allocations and significantly reduce execution time.
+## 2026-09-19 - [Optimize Multiple map() calls with Pre-allocated single loop]
+**Learning:** Chaining or executing multiple `.map()` iterations over the same large array in hot render paths (like generating multiple datasets for Chart.js) creates unnecessary allocations, garbage collection pressure, and CPU overhead.
+**Action:** When extracting multiple series of data from a single array of objects, use a single-pass `for` loop with pre-allocated arrays (`new Array(len)`) to minimize array allocations and significantly reduce execution time.
