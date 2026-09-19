@@ -1160,18 +1160,30 @@ margin-top: 2px;
 			// 1. App Installs Map Data
 				const countryMap = Object.create(null);
 				(lastData.countries||[]).forEach(c => { countryMap[c.name] = c.count; });
-				const geoData = countries.map(f => ({
-					feature: f,
-					value: countryMap[numToAlpha2[+f.id]] || 0
-				}));
 
 				// 2. Site Visitors Map Data
 				const siteCountryMap = Object.create(null);
 				(lastData.site_countries||[]).forEach(c => { siteCountryMap[c.name] = c.count; });
-				const siteGeoData = countries.map(f => ({
-					feature: f,
-					value: siteCountryMap[numToAlpha2[+f.id]] || 0
-				}));
+
+				// ⚡ Bolt: Use a single-pass loop with pre-allocated arrays to avoid multiple .map()
+				// allocations for datasets and labels in hot render paths.
+				const countriesLen = countries.length;
+				const geoData = new Array(countriesLen);
+				const siteGeoData = new Array(countriesLen);
+				const countryLabels = new Array(countriesLen);
+
+				for (let i = 0; i < countriesLen; i++) {
+					const f = countries[i];
+					geoData[i] = {
+						feature: f,
+						value: countryMap[numToAlpha2[+f.id]] || 0
+					};
+					siteGeoData[i] = {
+						feature: f,
+						value: siteCountryMap[numToAlpha2[+f.id]] || 0
+					};
+					countryLabels[i] = f.properties.name;
+				}
 
 				const isDark = document.documentElement.classList.contains('dark');
 
@@ -1181,7 +1193,7 @@ margin-top: 2px;
 					if (charts['chart-worldmap']) charts['chart-worldmap'].destroy();
 					charts['chart-worldmap'] = new Chart(ctx, {
 						type: 'choropleth',
-						data: { labels: countries.map(f=>f.properties.name), datasets: [{
+						data: { labels: countryLabels, datasets: [{
 							label: 'Installs',
 							data: geoData,
 							backgroundColor(ctx) {
@@ -1214,7 +1226,7 @@ margin-top: 2px;
 					if (charts['chart-site-worldmap']) charts['chart-site-worldmap'].destroy();
 					charts['chart-site-worldmap'] = new Chart(siteCtx, {
 						type: 'choropleth',
-						data: { labels: countries.map(f=>f.properties.name), datasets: [{
+						data: { labels: countryLabels, datasets: [{
 							label: 'Visitors',
 							data: siteGeoData,
 							backgroundColor(ctx) {
