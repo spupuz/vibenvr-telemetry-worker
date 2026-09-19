@@ -66,3 +66,4 @@
 ## 2026-11-20 - Prevent Screen Readers from Announcing Decorative Dividers
 **Learning:** Decorative inline text nodes used as visual dividers (e.g., `·`, `•`, `—`) are read aloud by screen readers, creating a noisy, confusing experience.
 **Action:** Wrap decorative text characters in elements with `aria-hidden="true"` to hide them from assistive technology.
+\n## 2026-09-19 - Focus-Visible Mapping\n**Learning:** Keyboard-only users miss visual feedback from hover effects (like border color changes and box shadows) when navigating interactive elements unless explicitly supported.\n**Action:** For improved keyboard accessibility and visual polish, ensure interactive elements map their rich `:hover` styles to `:focus-visible` states so keyboard users receive the same visual feedback as mouse users.
