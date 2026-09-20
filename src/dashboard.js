@@ -166,7 +166,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			transition: all .2s;
 			white-space: nowrap;
 		}
-		.theme-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
+		.theme-btn:hover, .theme-btn:focus-visible { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
 
 		.shortcut-key {
 			display: none;
@@ -209,7 +209,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			box-shadow: var(--shadow);
 			transition: border-color .2s, box-shadow .2s;
 		}
-		.card:hover { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-4px); }
+		.card:hover, .card:focus-visible { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-4px); }
 		.card[title] { cursor: help; }
 
 		/* === KPI GRID === */
@@ -240,8 +240,8 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			opacity: 0;
 			transition: opacity .2s;
 		}
-		.kpi-card:hover::before { opacity: 1; }
-		.kpi-card:hover { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-4px); }
+		.kpi-card:hover::before, .kpi-card:focus-visible::before { opacity: 1; }
+		.kpi-card:hover, .kpi-card:focus-visible { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-4px); }
 		.kpi-card[title] { cursor: help; }
 		.kpi-label { 
 font-size: .75rem; 
@@ -357,7 +357,7 @@ margin-top: 2px;
 			align-items: center;
 			gap: 0.35rem;
 		}
-		.retry-btn:hover { background: color-mix(in srgb, var(--err) 10%, transparent); }
+		.retry-btn:hover, .retry-btn:focus-visible { background: color-mix(in srgb, var(--err) 10%, transparent); }
 
 		/* Smart Footer CSS (Identical to Site) */
 		.smart-footer {
@@ -416,7 +416,7 @@ margin-top: 2px;
 			-webkit-tap-highlight-color: transparent;
 		}
 
-		.footer-link-site:hover, .footer-link-site:focus {
+		.footer-link-site:hover, .footer-link-site:focus, .footer-link-site:focus-visible {
 			color: var(--primary);
 		}
 
@@ -490,13 +490,13 @@ margin-top: 2px;
 			align-items: center;
 			justify-content: center;
 		}
-		.footer-link:hover {
+		.footer-link:hover, .footer-link:focus-visible {
 			border-color: var(--primary);
 			color: var(--primary);
 			background: var(--primary-light);
 			box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 		}
-		.dark .footer-link:hover {
+		.dark .footer-link:hover, .dark .footer-link:focus-visible {
 			box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 		}
 
