@@ -205,20 +205,53 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				// ⚡ Bolt: Iterate directly over Map values to avoid allocating a large intermediate array
 				activeCount = uniqueInstances.size;
 
+				// ⚡ Bolt: Combine multiple .map() calls into a single-pass for loop with pre-allocated arrays
+				const actLen = activityAndEventsData.length;
+				const activityArr = new Array(actLen);
+				const eventsTrendArr = new Array(actLen);
+				for (let i = 0; i < actLen; i++) {
+					const row = activityAndEventsData[i];
+					activityArr[i] = {
+						date: row.day,
+						pings: Number(row.pings) || 0,
+						uniques: Number(row.uniques) || 0
+					};
+					eventsTrendArr[i] = {
+						date: row.day,
+						events: Number(row.events) || 0
+					};
+				}
+
+				// ⚡ Bolt: Optimize independent .map() arrays with pre-allocated loops to prevent GC pressure
+				const siteActLen = siteActivityData.length;
+				const siteActivityArr = new Array(siteActLen);
+				for (let i = 0; i < siteActLen; i++) {
+					const row = siteActivityData[i];
+					siteActivityArr[i] = {
+						date: row.day,
+						pageviews: Number(row.pageviews) || 0,
+						uniques: Number(row.uniques) || 0
+					};
+				}
+
+				const siteCtryLen = siteCountriesData.length;
+				const siteCountriesArr = new Array(siteCtryLen);
+				for (let i = 0; i < siteCtryLen; i++) {
+					const row = siteCountriesData[i];
+					siteCountriesArr[i] = {
+						name: row.country || 'Unknown',
+						count: Number(row.uniques) || 0
+					};
+				}
+				siteCountriesArr.sort((a, b) => b.count - a.count);
+
 				const stats = {
 					active_installs: activeCount,
 					active_installs_24h: 0,
 					active_installs_prev24h: 0,
 					total_installs: Math.max(activeCount, totalCount),
-					activity: activityAndEventsData.map(row => ({
-						date: row.day,
-						pings: Number(row.pings) || 0,
-						uniques: Number(row.uniques) || 0
-					})),
-					events_trend: activityAndEventsData.map(row => ({
-						date: row.day,
-						events: Number(row.events) || 0
-					})),
+					activity: activityArr,
+					events_trend: eventsTrendArr,
 					versions: [],
 					countries: [],
 					cpus: [],
@@ -238,15 +271,8 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					total_onvif_cameras: 0,
 					total_substream_cameras: 0,
 					motion_engines: [],
-					site_activity: siteActivityData.map(row => ({
-						date: row.day,
-						pageviews: Number(row.pageviews) || 0,
-						uniques: Number(row.uniques) || 0
-					})),
-					site_countries: siteCountriesData.map(row => ({
-						name: row.country || 'Unknown',
-						count: Number(row.uniques) || 0
-					})).sort((a, b) => b.count - a.count),
+					site_activity: siteActivityArr,
+					site_countries: siteCountriesArr,
 					site_total_visitors_30d: Number(siteTotalsData[0]?.total_visitors) || 0,
 					site_total_visitors_all_time: Math.max(Number(siteTotalsData[0]?.total_visitors) || 0, siteTotalCountAllTime),
 					site_total_pageviews_30d: Number(siteTotalsData[0]?.total_pageviews) || 0,
