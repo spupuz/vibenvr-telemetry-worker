@@ -75,3 +75,7 @@
 **Vulnerability:** Client-side fetch calls in `src/dashboard.js` did not configure a timeout constraint.
 **Learning:** If an external API or upstream CDN responds slowly or hangs indefinitely without closing the socket, the browser will keep the connection open indefinitely, which can lead to hanging the frontend completely or causing a Denial of Service (DoS) for the client.
 **Prevention:** Always enforce strict timeouts on outbound client-side `fetch` calls, specifically using the pattern `signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(ms) : undefined` for backwards compatibility in older browsers to prevent unhandled exceptions and crashes while avoiding resource exhaustion.
+## 2026-09-19 - Removed temporary test scripts
+**Vulnerability:** Leftover test and benchmark scripts (`perf_test*.js`, `test_sql*.js`, etc) tracked in repository.
+**Learning:** These scripts contained simulated database table schemas, mock tokens, and logic that could leak implementation details or be unintentionally deployed, increasing attack surface and risking information disclosure.
+**Prevention:** Ensure temporary `.js` or `.html` benchmark/SQL scratchpads are added to `.gitignore` and removed from the active branch before submission.
