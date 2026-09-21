@@ -47,8 +47,9 @@ Thumbs.db
 
 # Scripts & Temp
 *.sh
-*.json
 !package.json
 !package-lock.json
 !tsconfig.json
 0
+open_prs.json
+prs.json
