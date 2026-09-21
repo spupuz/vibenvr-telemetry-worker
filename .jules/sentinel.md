@@ -79,3 +79,8 @@
 **Vulnerability:** Leftover test and benchmark scripts (`perf_test*.js`, `test_sql*.js`, etc) tracked in repository.
 **Learning:** These scripts contained simulated database table schemas, mock tokens, and logic that could leak implementation details or be unintentionally deployed, increasing attack surface and risking information disclosure.
 **Prevention:** Ensure temporary `.js` or `.html` benchmark/SQL scratchpads are added to `.gitignore` and removed from the active branch before submission.
+
+## 2024-11-05 - Information Leakage via Raw API Error Logging
+**Vulnerability:** Leaking sensitive internal system details or third-party infrastructure configurations by logging raw, unsanitized HTTP response bodies (`await res.text()`) to the server console.
+**Learning:** When external APIs (like Cloudflare Analytics Engine SQL) return errors, their raw text responses might contain sensitive schema information, internal query structures, or infrastructure details. Logging these raw responses to `console.error` exposes this sensitive data in server logs, which violates the principle of least privilege if logs are ingested by shared monitoring tools.
+**Prevention:** Fail securely by catching API errors and throwing or logging generic, sanitized error messages (e.g., logging only the HTTP status code like `res.status`) rather than the complete, unfiltered response body.

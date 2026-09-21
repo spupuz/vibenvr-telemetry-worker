@@ -106,7 +106,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 						body: sqlActive,
 						signal: AbortSignal.timeout(15000)
 					}).then(async res => {
-						if (!res.ok) throw new Error("SQL API Error: " + await res.text());
+						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
 						return res.json();
 					}),
 					env.VIBENVR_IDS ? Promise.resolve({ data: [] }) : fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
