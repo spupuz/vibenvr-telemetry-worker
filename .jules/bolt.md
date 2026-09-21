@@ -99,3 +99,6 @@
 ## $(date +%Y-%m-%d) - Optimize array manipulations in Chart datasets
 **Learning:** Chaining multiple `.map()` calls on the same array to extract different properties for Chart.js datasets creates severe performance bottlenecks. V8 implicitly allocates multiple closures and intermediate arrays on every pass, triggering heavy garbage collection pauses in hot render loops.
 **Action:** When extracting multiple series of data from a single array of objects, use a single-pass `for` loop with pre-allocated arrays (`new Array(len)`) to minimize array allocations and significantly reduce execution time.
+## $(date +%Y-%m-%d) - Optimize array manipulations in API data mapping
+**Learning:** Performing multiple independent `.map()` calls on the same array (like `activityAndEventsData`) to extract different properties creates severe performance bottlenecks. V8 implicitly allocates multiple closures and intermediate arrays on every pass, triggering heavy garbage collection pauses in hot data processing loops.
+**Action:** When extracting multiple series of data from a single array of objects, use a single-pass `for` loop with pre-allocated arrays (`new Array(len)`) to minimize array allocations and significantly reduce execution time.
