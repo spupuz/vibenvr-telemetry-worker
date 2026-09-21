@@ -44,3 +44,11 @@ Thumbs.db
 .agents/
 .gemini/
 
+
+# Scripts & Temp
+*.sh
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+0
