@@ -1160,18 +1160,29 @@ margin-top: 2px;
 			// 1. App Installs Map Data
 				const countryMap = Object.create(null);
 				(lastData.countries||[]).forEach(c => { countryMap[c.name] = c.count; });
-				const geoData = countries.map(f => ({
-					feature: f,
-					value: countryMap[numToAlpha2[+f.id]] || 0
-				}));
 
 				// 2. Site Visitors Map Data
 				const siteCountryMap = Object.create(null);
 				(lastData.site_countries||[]).forEach(c => { siteCountryMap[c.name] = c.count; });
-				const siteGeoData = countries.map(f => ({
-					feature: f,
-					value: siteCountryMap[numToAlpha2[+f.id]] || 0
-				}));
+
+				// ⚡ Bolt: Use a single-pass loop with pre-allocated arrays instead of multiple .map() calls to prevent severe performance bottlenecks in hot render loops
+				const countriesLen = countries.length;
+				const geoData = new Array(countriesLen);
+				const siteGeoData = new Array(countriesLen);
+				const mapLabels = new Array(countriesLen);
+
+				for (let i = 0; i < countriesLen; i++) {
+					const f = countries[i];
+					geoData[i] = {
+						feature: f,
+						value: countryMap[numToAlpha2[+f.id]] || 0
+					};
+					siteGeoData[i] = {
+						feature: f,
+						value: siteCountryMap[numToAlpha2[+f.id]] || 0
+					};
+					mapLabels[i] = f.properties.name;
+				}
 
 				const isDark = document.documentElement.classList.contains('dark');
 
@@ -1181,7 +1192,7 @@ margin-top: 2px;
 					if (charts['chart-worldmap']) charts['chart-worldmap'].destroy();
 					charts['chart-worldmap'] = new Chart(ctx, {
 						type: 'choropleth',
-						data: { labels: countries.map(f=>f.properties.name), datasets: [{
+						data: { labels: mapLabels, datasets: [{
 							label: 'Installs',
 							data: geoData,
 							backgroundColor(ctx) {
@@ -1214,7 +1225,7 @@ margin-top: 2px;
 					if (charts['chart-site-worldmap']) charts['chart-site-worldmap'].destroy();
 					charts['chart-site-worldmap'] = new Chart(siteCtx, {
 						type: 'choropleth',
-						data: { labels: countries.map(f=>f.properties.name), datasets: [{
+						data: { labels: mapLabels, datasets: [{
 							label: 'Visitors',
 							data: siteGeoData,
 							backgroundColor(ctx) {
@@ -1440,9 +1451,26 @@ margin-top: 2px;
 		}
 
 		const distRaw = lastData.cameras_dist || [];
-		mkChart('chart-cameras-dist', 'bar', { labels: distRaw.map(x=>x.name+' cam'), data: distRaw.map(x=>x.count) }, BAR_PALETTE());
+		// ⚡ Bolt: Use a single-pass loop with pre-allocated arrays instead of multiple .map() calls to prevent severe performance bottlenecks in hot render loops
+		const distLen = distRaw.length;
+		const distLabels = new Array(distLen);
+		const distData = new Array(distLen);
+		for (let i = 0; i < distLen; i++) {
+			distLabels[i] = distRaw[i].name + ' cam';
+			distData[i] = distRaw[i].count;
+		}
+		mkChart('chart-cameras-dist', 'bar', { labels: distLabels, data: distData }, BAR_PALETTE());
+
 		const gdistRaw = lastData.groups_dist || [];
-		mkChart('chart-groups-dist', 'bar', { labels: gdistRaw.map(x=>x.name+' grp'), data: gdistRaw.map(x=>x.count) }, BAR_PALETTE());
+		// ⚡ Bolt: Use a single-pass loop with pre-allocated arrays instead of multiple .map() calls to prevent severe performance bottlenecks in hot render loops
+		const gdistLen = gdistRaw.length;
+		const gdistLabels = new Array(gdistLen);
+		const gdistData = new Array(gdistLen);
+		for (let i = 0; i < gdistLen; i++) {
+			gdistLabels[i] = gdistRaw[i].name + ' grp';
+			gdistData[i] = gdistRaw[i].count;
+		}
+		mkChart('chart-groups-dist', 'bar', { labels: gdistLabels, data: gdistData }, BAR_PALETTE());
 		mkChart('chart-versions',     'bar',      prepData(lastData.versions), BAR_PALETTE());
 		mkChart('chart-versions-pie', 'doughnut', prepData(lastData.versions_24h), PIE_PALETTE());
 		mkChart('chart-ram',          'bar',      prepData(lastData.ram,'name','count',8), BAR_PALETTE());
