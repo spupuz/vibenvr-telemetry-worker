@@ -1,8 +1,8 @@
 export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			if (!env.ACCOUNT_ID || !env.API_TOKEN) {
-				return new Response(JSON.stringify({ error: "Cloudflare API credentials not configured." }), {
+				return new Response(JSON.stringify({ error: "Internal Server Error" }), {
 					status: 500,
-					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json;charset=UTF-8' }
+					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json' }
 				});
 			}
 
@@ -114,31 +114,46 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlTotal,
 						signal: AbortSignal.timeout(15000)
-					}).then(res => res.json()),
+					}).then(async res => {
+						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+						return res.json();
+					}),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlActivityAndEvents,
 						signal: AbortSignal.timeout(15000)
-					}).then(res => res.json()),
+					}).then(async res => {
+						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+						return res.json();
+					}),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteActivity,
 						signal: AbortSignal.timeout(15000)
-					}).then(res => res.json()).catch(() => ({ data: [] })), // Don't fail the whole API if the site dataset doesn't exist yet
+					}).then(async res => {
+						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+						return res.json();
+					}).catch(() => ({ data: [] })), // Don't fail the whole API if the site dataset doesn't exist yet
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteCountries,
 						signal: AbortSignal.timeout(15000)
-					}).then(res => res.json()).catch(() => ({ data: [] })),
+					}).then(async res => {
+						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+						return res.json();
+					}).catch(() => ({ data: [] })),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
 						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
 						body: sqlSiteTotals,
 						signal: AbortSignal.timeout(15000)
-					}).then(res => res.json()).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] }))
+					}).then(async res => {
+						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+						return res.json();
+					}).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] }))
 				]);
 
 				const activeData = activeJson.data || [];
@@ -400,7 +415,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				console.error("Dashboard API Error:", err);
 				return new Response(JSON.stringify({ error: "Internal Server Error" }), {
 					status: 500,
-					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json;charset=UTF-8' }
+					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json' }
 				});
 			}
 };
