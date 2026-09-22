@@ -70,3 +70,6 @@
 ## 2026-11-20 - Map Hover Styles to Focus-Visible
 **Learning:** Interactive elements that only define `:hover` styles leave keyboard navigators without the rich visual feedback mouse users receive, creating an inconsistent and less polished experience.
 **Action:** Always map rich `:hover` styles to the `:focus-visible` state (e.g., `element:hover, element:focus-visible { ... }`) to ensure parity between mouse and keyboard navigation.
+## 2026-11-21 - Ensuring Correct Token Usage in Charts
+**Learning:** Hardcoded calls to `tok('muted')` in Chart.js configurations silently fell back to an empty string because the exact variable defined in CSS was `--text-muted`. This caused chart tooltips and text to be invisible or illegible due to poor contrast.
+**Action:** Always verify that mapped CSS variables (`tok`) actually exist in the `:root` definitions to prevent silent accessibility issues in data visualizations.

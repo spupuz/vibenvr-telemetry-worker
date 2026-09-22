@@ -1136,14 +1136,14 @@ margin-top: 2px;
 					},
 					tooltip: {
 						backgroundColor: tok('bg'),
-						titleColor: tok('text'), bodyColor: tok('muted'),
+						titleColor: tok('text'), bodyColor: tok('text-muted'),
 						borderColor: tok('border'), borderWidth: 1,
 						padding: 10, cornerRadius: 8,
 					}
 				},
 				scales: isBar ? {
-					x: { grid: { color: tok('border') }, ticks: { color: tok('muted'), font: { family: 'Inter, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } }, beginAtZero: true },
-					y: { grid: { display: false }, ticks: { color: tok('muted'), font: { family: 'Inter, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } } }
+					x: { grid: { color: tok('border') }, ticks: { color: tok('text-muted'), font: { family: 'Inter, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } }, beginAtZero: true },
+					y: { grid: { display: false }, ticks: { color: tok('text-muted'), font: { family: 'Inter, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } } }
 				} : { x: { display:false }, y: { display:false } }
 			}
 		});
@@ -1209,7 +1209,7 @@ margin-top: 2px;
 							plugins: {
 								legend: { display: false },
 								tooltip: {
-									backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('muted'),
+									backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('text-muted'),
 									borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8,
 									callbacks: { label: function(ctx){ return ctx.raw.feature.properties.name + ': ' + (ctx.raw.value||0) + ' install(s)'; } }
 								}
@@ -1242,7 +1242,7 @@ margin-top: 2px;
 							plugins: {
 								legend: { display: false },
 								tooltip: {
-									backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('muted'),
+									backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('text-muted'),
 									borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8,
 									callbacks: { label: function(ctx){ return ctx.raw.feature.properties.name + ': ' + (ctx.raw.value||0) + ' unique(s)'; } }
 								}
@@ -1316,13 +1316,13 @@ margin-top: 2px;
 					plugins: {
 						legend: { position: 'top', labels: { color: tok('text') } },
 						tooltip: {
-							backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('muted'),
+							backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('text-muted'),
 							borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8
 						}
 					},
 					scales: {
-						x: { grid: { display: false }, ticks: { color: tok('muted'), maxRotation: 0 } },
-						y: { grid: { color: tok('border') }, ticks: { color: tok('muted') }, beginAtZero: true }
+						x: { grid: { display: false }, ticks: { color: tok('text-muted'), maxRotation: 0 } },
+						y: { grid: { color: tok('border') }, ticks: { color: tok('text-muted') }, beginAtZero: true }
 					}
 				}
 			});
@@ -1368,13 +1368,13 @@ margin-top: 2px;
 					plugins: {
 						legend: { position: 'top', labels: { color: tok('text') } },
 						tooltip: {
-							backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('muted'),
+							backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('text-muted'),
 							borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8
 						}
 					},
 					scales: {
-						x: { grid: { display: false }, ticks: { color: tok('muted'), maxRotation: 0 } },
-						y: { grid: { color: tok('border') }, ticks: { color: tok('muted') }, beginAtZero: true }
+						x: { grid: { display: false }, ticks: { color: tok('text-muted'), maxRotation: 0 } },
+						y: { grid: { color: tok('border') }, ticks: { color: tok('text-muted') }, beginAtZero: true }
 					}
 				}
 			});
@@ -1434,13 +1434,13 @@ margin-top: 2px;
 					plugins: {
 						legend: { position: 'top', labels: { color: tok('text') } },
 						tooltip: {
-							backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('muted'),
+							backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('text-muted'),
 							borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8
 						}
 					},
 					scales: {
-						x: { grid: { display: false }, ticks: { color: tok('muted'), maxRotation: 0 } },
-						y: { grid: { color: tok('border') }, ticks: { color: tok('muted') }, beginAtZero: true }
+						x: { grid: { display: false }, ticks: { color: tok('text-muted'), maxRotation: 0 } },
+						y: { grid: { color: tok('border') }, ticks: { color: tok('text-muted') }, beginAtZero: true }
 					}
 				}
 			});
