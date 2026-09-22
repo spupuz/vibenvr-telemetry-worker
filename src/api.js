@@ -1,3 +1,16 @@
+// ⚡ Bolt: Helper function to convert objects to sorted arrays efficiently
+// Using a for-in loop prevents intermediate array allocations from Object.entries() and .map()
+// Declared outside handler to avoid reallocation on every request
+const objectToSortedArray = (obj) => {
+	const arr = [];
+	for (const name in obj) {
+		if (Object.hasOwn(obj, name)) {
+			arr.push({ name, count: obj[name] });
+		}
+	}
+	return arr.sort((a, b) => b.count - a.count);
+};
+
 export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			if (!env.ACCOUNT_ID || !env.API_TOKEN) {
 				return new Response(JSON.stringify({ error: "Cloudflare API credentials not configured." }), {
@@ -356,13 +369,13 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					stats.groups_dist[gbk] = (stats.groups_dist[gbk] || 0) + 1;
 				}
 
-				stats.versions = Object.entries(versionCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.countries = Object.entries(countryCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.cpu_models = Object.entries(cpuModelCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.cpu_cores = Object.entries(cpuCoresCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.os = Object.entries(osCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.arch = Object.entries(archCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.ram = Object.entries(ramCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+				stats.versions = objectToSortedArray(versionCounts);
+				stats.countries = objectToSortedArray(countryCounts);
+				stats.cpu_models = objectToSortedArray(cpuModelCounts);
+				stats.cpu_cores = objectToSortedArray(cpuCoresCounts);
+				stats.os = objectToSortedArray(osCounts);
+				stats.arch = objectToSortedArray(archCounts);
+				stats.ram = objectToSortedArray(ramCounts);
 				
 				stats.motion_engines = [
 					{ name: 'AI Native', count: stats.total_motion_ai_engine },
@@ -374,11 +387,11 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				stats.cameras_dist = bkOrder
 					.filter(k => stats.cameras_dist && stats.cameras_dist[k])
 					.map(k => ({ name: k, count: stats.cameras_dist[k] }));
-				stats.countries_24h = Object.entries(countryCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.countries_prev24h = Object.entries(countryCounts48_24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.versions_24h = Object.entries(versionCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.os_24h = Object.entries(osCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-				stats.arch_24h = Object.entries(archCounts24h).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+				stats.countries_24h = objectToSortedArray(countryCounts24h);
+				stats.countries_prev24h = objectToSortedArray(countryCounts48_24h);
+				stats.versions_24h = objectToSortedArray(versionCounts24h);
+				stats.os_24h = objectToSortedArray(osCounts24h);
+				stats.arch_24h = objectToSortedArray(archCounts24h);
 				stats.active_installs_24h = activeCount24h;
 				stats.active_installs_prev24h = activeCountPrev24h;
 
