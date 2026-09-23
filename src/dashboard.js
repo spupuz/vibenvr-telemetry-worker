@@ -954,6 +954,7 @@ margin-top: 2px;
 	const cachedCountriesPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json', {
 		signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
 	})
+		.then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r; })
 		.then(r => r.json())
 		.then(worldData => ChartGeo.topojson.feature(worldData, worldData.objects.countries).features);
 	cachedCountriesPromise.catch(() => {}); // Suppress uncaught promise rejection warning
@@ -966,6 +967,7 @@ margin-top: 2px;
 	fetch('https://api.github.com/repos/spupuz/VibeNVR', {
 		signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
 	})
+		.then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r; })
 		.then(r => r.json())
 		.then(repo => {
 			const currentStars = repo.stargazers_count || 0;
