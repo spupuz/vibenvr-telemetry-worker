@@ -70,3 +70,6 @@
 ## 2026-11-20 - Map Hover Styles to Focus-Visible
 **Learning:** Interactive elements that only define `:hover` styles leave keyboard navigators without the rich visual feedback mouse users receive, creating an inconsistent and less polished experience.
 **Action:** Always map rich `:hover` styles to the `:focus-visible` state (e.g., `element:hover, element:focus-visible { ... }`) to ensure parity between mouse and keyboard navigation.
+## 2024-05-14 - Improve chart text color contrast for accessibility
+**Learning:** Using `tok('muted')` in Chart.js configurations resulted in insufficient color contrast for chart text elements (like ticks and tooltips), leading to legibility issues and failing accessibility guidelines. The CSS variable `--text-muted` provides a more accessible contrast ratio against the background.
+**Action:** Use `tok('text-muted')` instead of `tok('muted')` for text elements within Chart.js configurations to ensure proper legibility and accessibility.
