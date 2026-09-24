@@ -25,8 +25,9 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 	const country = request.cf?.country || 'Unknown';
 
 	const parseNum = (val) => {
-		const n = parseInt(val || '0', 10);
-		return isFinite(n) ? Math.max(0, n) : 0;
+		const str = (val || '0').toString().trim().slice(0, 20);
+		const n = parseInt(str, 10);
+		return isFinite(n) ? Math.min(Math.max(0, n), 999999) : 0;
 	};
 
 	const cpu = parseNum(url.searchParams.get('cpu'));
