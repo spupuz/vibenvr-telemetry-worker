@@ -105,3 +105,6 @@
 ## $(date +%Y-%m-%d) - [Optimize Object to Array Conversions]
 **Learning:** `Object.entries(obj).map().sort()` creates multiple intermediate arrays, causing unnecessary garbage collection pressure in hot paths. Replacing it with a single `for...in` loop and array `push` reduces allocation overhead significantly. However, a `for...in` loop behaves differently than `Object.entries()` as it iterates over inherited enumerable properties.
 **Action:** When manually replacing `Object.entries()` with a `for...in` loop to avoid intermediate array allocations, always include an `Object.hasOwn(obj, key)` check inside the loop to safely replicate the behavior of `Object.entries()` and prevent iterating over inherited enumerable properties from the prototype chain.
+## 2026-10-25 - [Cache window.matchMedia outside of hot paths]
+**Learning:** Evaluating `window.matchMedia` inside a frequently called function (like `animateValue` which is triggered for every KPI card) incurs repeated CSSOM evaluation overhead and unnecessary object allocations.
+**Action:** Always cache the result of `window.matchMedia` (and its properties like `.matches` if static, or the whole MediaQueryList if listening for changes) outside of hot paths and render/animation loops to improve performance and reduce GC pressure.

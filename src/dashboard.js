@@ -976,8 +976,11 @@ margin-top: 2px;
 			if (el) animateValue(el, 0, currentStars, 1500);
 		}).catch(e => console.error("Error fetching GitHub stars:", e));
 
+	// ⚡ Bolt: Cache matchMedia evaluation outside the hot animation loop to prevent redundant CSSOM querying and object allocation
+	const prefersReducedMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+
 	function animateValue(obj, start, end, duration) {
-		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+		if (prefersReducedMotion && prefersReducedMotion.matches) {
 			obj.textContent = numberFormatter.format(end);
 			return;
 		}

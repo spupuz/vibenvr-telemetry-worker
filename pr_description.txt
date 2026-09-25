@@ -1,0 +1,13 @@
+💡 What:
+Cached the evaluation of `window.matchMedia('(prefers-reduced-motion: reduce)')` outside of the `animateValue` loop.
+
+🎯 Why:
+Inside `animateValue` (which is triggered for every KPI on load/update), repeatedly invoking `window.matchMedia` causes the browser to redundantly query the CSSOM to evaluate the media query. This incurs unnecessary CPU overhead and allocates new `MediaQueryList` object instances continuously within hot render/animation paths.
+
+📊 Impact:
+Significantly reduces garbage collection pressure and minimizes main-thread layout thrashing during KPI metric updates and initial dashboard loading by reusing a single static boolean evaluation for the reduced-motion preference.
+
+🔬 Measurement:
+1. Open the dashboard page in Chrome DevTools Performance tab.
+2. Record a performance trace while toggling the theme or reloading the page.
+3. Observe the reduced time spent in "Recalculate Style" and "Minor GC" during the initial paint frames compared to the unoptimized version.
