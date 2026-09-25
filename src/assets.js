@@ -11,6 +11,11 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 			const response = await fetch(target, {
 				signal: AbortSignal.timeout(10000)
 			});
+
+			if (!response.ok) {
+				throw new Error("Asset upstream fetch failed with status " + response.status);
+			}
+
 			const headers = new Headers(response.headers);
 			headers.set('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
 			// Remove GitHub cookies/identity headers
