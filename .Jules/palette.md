@@ -73,3 +73,6 @@
 ## 2024-05-14 - Improve chart text color contrast for accessibility
 **Learning:** Using `tok('muted')` in Chart.js configurations resulted in insufficient color contrast for chart text elements (like ticks and tooltips), leading to legibility issues and failing accessibility guidelines. The CSS variable `--text-muted` provides a more accessible contrast ratio against the background.
 **Action:** Use `tok('text-muted')` instead of `tok('muted')` for text elements within Chart.js configurations to ensure proper legibility and accessibility.
+## 2026-11-20 - Semantic Table Headers for Screen Readers
+**Learning:** Tables that lack a `<thead>` element (or rely on column headers inferred from surrounding context) are extremely difficult for screen reader users to understand. For instance, when data like a leaderboard is dynamically injected into a simple `<table>`, screen readers will not announce what each column represents as the user navigates through rows.
+**Action:** Always provide a `<thead>` with `<th>` elements including `scope="col"` for data tables. If the column headers are visually obvious through surrounding UI and need to be hidden from sighted users to preserve the design, use the `.sr-only` class to visually hide them while keeping them accessible to screen readers.

@@ -702,8 +702,16 @@ margin-top: 2px;
 					<span style="font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 4px;">(Top 10 leaderboard <span aria-hidden="true">•</span> <strong>Last 30 Days</strong>)</span>
 				</div>
 				<div class="chart-wrap" style="height:340px; overflow-y: auto; margin-top: 1rem;" tabindex="0" role="region" aria-labelledby="consistent-countries-title">
-					<table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" id="leaderboard-countries">
-						<!-- Injected via JS -->
+					<table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+						<thead class="sr-only">
+							<tr>
+								<th scope="col">Country</th>
+								<th scope="col">Installs</th>
+							</tr>
+						</thead>
+						<tbody id="leaderboard-countries">
+							<!-- Injected via JS -->
+						</tbody>
 					</table>
 				</div>
 			</div>
@@ -1218,7 +1226,7 @@ margin-top: 2px;
 								tooltip: {
 									backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('text-muted'),
 									borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8,
-									callbacks: { label: function(ctx){ return ctx.raw.feature.properties.name + ': ' + (ctx.raw.value||0) + ' install(s)'; } }
+									callbacks: { label: function(ctx){ return ctx.raw.feature.properties.name + ': ' + numberFormatter.format(ctx.raw.value||0) + ' install(s)'; } }
 								}
 							},
 							scales: { projection: { axis: 'x', projection: 'naturalEarth1' } }
@@ -1251,7 +1259,7 @@ margin-top: 2px;
 								tooltip: {
 									backgroundColor: tok('bg'), titleColor: tok('text'), bodyColor: tok('text-muted'),
 									borderColor: tok('border'), borderWidth: 1, padding: 10, cornerRadius: 8,
-									callbacks: { label: function(ctx){ return ctx.raw.feature.properties.name + ': ' + (ctx.raw.value||0) + ' unique(s)'; } }
+									callbacks: { label: function(ctx){ return ctx.raw.feature.properties.name + ': ' + numberFormatter.format(ctx.raw.value||0) + ' unique(s)'; } }
 								}
 							},
 							scales: { projection: { axis: 'x', projection: 'naturalEarth1' } }
