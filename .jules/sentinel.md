@@ -96,3 +96,7 @@
 **Vulnerability:** Numerical query parameters (`cpu`, `ram`, etc.) were passed to `parseInt()` without length constraints. Attackers could submit extremely long strings, causing high CPU allocation, or extremely large integers leading to logic errors/overflows downstream.
 **Learning:** Functions designed to parse integers from HTTP query parameters must be protected from arbitrarily large inputs, as this can lead to Resource Exhaustion (DoS).
 **Prevention:** To prevent DoS (Resource Exhaustion) vulnerabilities via extremely large numerical inputs during data ingestion (e.g., CPU or RAM parameters), always enforce string length limits before parsing (e.g., `val.toString().trim().slice(0, 20)`) and apply sensible bounds checking to the resulting integer.
+## 2024-11-06 - Defensive HTTP Security Headers
+**Vulnerability:** The application was missing defense-in-depth HTTP security headers, specifically `form-action 'none'` in the Content Security Policy and `Cross-Origin-Opener-Policy: same-origin` (COOP).
+**Learning:** `form-action 'none'` prevents the execution of malicious forms even if a page is vulnerable to HTML injection. COOP isolates the browsing context, providing a critical mitigation against cross-origin information leaks (like Spectre).
+**Prevention:** Always include `form-action 'none'` in CSP policies for applications that do not require form submissions, and configure `Cross-Origin-Opener-Policy: same-origin` by default to ensure safe browsing context isolation.
