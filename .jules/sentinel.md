@@ -100,3 +100,7 @@
 **Vulnerability:** The application was missing defense-in-depth HTTP security headers, specifically `form-action 'none'` in the Content Security Policy and `Cross-Origin-Opener-Policy: same-origin` (COOP).
 **Learning:** `form-action 'none'` prevents the execution of malicious forms even if a page is vulnerable to HTML injection. COOP isolates the browsing context, providing a critical mitigation against cross-origin information leaks (like Spectre).
 **Prevention:** Always include `form-action 'none'` in CSP policies for applications that do not require form submissions, and configure `Cross-Origin-Opener-Policy: same-origin` by default to ensure safe browsing context isolation.
+## 2024-11-06 - Improper Handling of Transparent Asset Proxies
+**Vulnerability:** Upstream HTTP responses with non-2xx status codes (like 404 or 500) were throwing generic exceptions in `src/assets.js` rather than being passed back to the client natively.
+**Learning:** When proxying transparent requests (e.g., asset fetching), throwing generic exceptions on `!response.ok` alters the original HTTP semantics. This masks the real upstream failure and disrupts caching behavior or client-side handling.
+**Prevention:** Pass non-2xx HTTP responses directly back to the client to preserve functional correctness and standard HTTP semantics when acting as a transparent asset proxy.
