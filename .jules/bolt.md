@@ -108,3 +108,6 @@
 ## 2026-10-25 - [Cache window.matchMedia outside of hot paths]
 **Learning:** Evaluating `window.matchMedia` inside a frequently called function (like `animateValue` which is triggered for every KPI card) incurs repeated CSSOM evaluation overhead and unnecessary object allocations.
 **Action:** Always cache the result of `window.matchMedia` (and its properties like `.matches` if static, or the whole MediaQueryList if listening for changes) outside of hot paths and render/animation loops to improve performance and reduce GC pressure.
+## 2025-05-18 - [Optimize Object Allocations in Hot Paths]
+**Learning:** Instantiating static lookup objects (like dictionaries, static config maps, and color palettes) inside high-frequency functions or hot render loops creates significant and redundant garbage collection overhead as these structures are allocated and discarded on every invocation.
+**Action:** Extract all static dictionaries and lookup objects into outer scopes or global scope where they are instantiated only once, and cache function outputs (like generated color palettes) locally within render functions to avoid unnecessary memory allocations.
