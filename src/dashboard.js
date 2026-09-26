@@ -380,6 +380,10 @@ margin-top: 2px;
 			transform: translateY(100%);
 		}
 
+		.smart-footer:focus-within {
+			transform: translateY(0) !important;
+		}
+
 		.footer-content {
 			display: flex;
 			justify-content: space-between;

@@ -76,3 +76,7 @@
 ## 2026-11-20 - Semantic Table Headers for Screen Readers
 **Learning:** Tables that lack a `<thead>` element (or rely on column headers inferred from surrounding context) are extremely difficult for screen reader users to understand. For instance, when data like a leaderboard is dynamically injected into a simple `<table>`, screen readers will not announce what each column represents as the user navigates through rows.
 **Action:** Always provide a `<thead>` with `<th>` elements including `scope="col"` for data tables. If the column headers are visually obvious through surrounding UI and need to be hidden from sighted users to preserve the design, use the `.sr-only` class to visually hide them while keeping them accessible to screen readers.
+
+## 2026-11-20 - Keyboard Accessibility for Scroll-Hidden Elements
+**Learning:** Elements that are hidden dynamically on scroll (like fixed footers that translate off-screen) become inaccessible to keyboard users navigating via Tab, as the focused elements remain visually hidden off-screen.
+**Action:** Always include a `:focus-within` CSS rule (e.g., `.smart-footer:focus-within { transform: translateY(0); }`) to ensure the container forces itself back into view whenever any of its child interactive elements receive keyboard focus.
