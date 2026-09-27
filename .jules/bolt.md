@@ -108,3 +108,7 @@
 ## 2026-10-25 - [Cache window.matchMedia outside of hot paths]
 **Learning:** Evaluating `window.matchMedia` inside a frequently called function (like `animateValue` which is triggered for every KPI card) incurs repeated CSSOM evaluation overhead and unnecessary object allocations.
 **Action:** Always cache the result of `window.matchMedia` (and its properties like `.matches` if static, or the whole MediaQueryList if listening for changes) outside of hot paths and render/animation loops to improve performance and reduce GC pressure.
+
+## 2026-09-27 - Extract static configurations out of chart render loop
+**Learning:** In a single-page HTML dashboard with dynamic charting and theme toggling (like `src/dashboard.js`), retaining static color maps and ISO lookup tables inside the main render function causes them to be re-allocated on every data refresh or theme toggle. This increases memory pressure and triggers unnecessary garbage collection in the browser.
+**Action:** Always extract static dictionaries, arrays, and color palettes into the outermost possible scope. If they depend on dynamic state (like a theme), create static versions for each state in the outer scope and conditionally return references to them from the getter function.

@@ -1041,22 +1041,38 @@ margin-top: 2px;
 	})();
 
 	// ─── CHART HELPERS ───────────────────────────────────────────────────────
+	// ⚡ Bolt: Extract static color maps to outer scope to prevent reallocation during every chart render
+	const TOK_DARK = {
+		bg: '#161b22',
+		border: '#21262d',
+		text: '#e6edf3',
+		muted: '#7d8590',
+		'text-muted': '#9ca3af',
+		primary: '#58a6ff',
+		accent: '#a78bfa',
+	};
+	const TOK_LIGHT = {
+		bg: '#ffffff',
+		border: '#e2e6f0',
+		text: '#111827',
+		muted: '#6b7280',
+		'text-muted': '#4b5563',
+		primary: '#3b82f6',
+		accent: '#8b5cf6',
+	};
+
 	function tok(name) {
-		const dark = document.documentElement.classList.contains('dark');
-		const map = {
-			bg:      dark ? '#161b22' : '#ffffff',
-			border:  dark ? '#21262d' : '#e2e6f0',
-			text:    dark ? '#e6edf3' : '#111827',
-			muted:   dark ? '#7d8590' : '#6b7280',
-			'text-muted': dark ? '#9ca3af' : '#4b5563',
-			primary: dark ? '#58a6ff' : '#3b82f6',
-			accent:  dark ? '#a78bfa' : '#8b5cf6',
-		};
+		const isDark = document.documentElement.classList.contains('dark');
+		const map = isDark ? TOK_DARK : TOK_LIGHT;
 		return map[name] || '#888';
 	}
 
-	const PIE_PALETTE  = () => [tok('primary'), tok('accent'), '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#84cc16'];
-	const BAR_PALETTE  = () => [
+	// ⚡ Bolt: Cache array outputs to prevent unnecessary garbage collection from inline allocations
+	const PIE_PALETTE_LIGHT = [TOK_LIGHT.primary, TOK_LIGHT.accent, '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#84cc16'];
+	const PIE_PALETTE_DARK = [TOK_DARK.primary, TOK_DARK.accent, '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#84cc16'];
+	const PIE_PALETTE  = () => document.documentElement.classList.contains('dark') ? PIE_PALETTE_DARK : PIE_PALETTE_LIGHT;
+
+	const STATIC_BAR_PALETTE = [
 		'#1d4ed8', // Blue 700
 		'#2563eb', // Blue 600
 		'#3b82f6', // Blue 500
@@ -1065,6 +1081,7 @@ margin-top: 2px;
 		'#bfdbfe', // Blue 200
 		'#dbeafe'  // Blue 100
 	];
+	const BAR_PALETTE  = () => STATIC_BAR_PALETTE;
 
 	function getFlagEmoji(countryCode) {
 		if (!countryCode || countryCode === 'Unknown' || countryCode.length !== 2) return '❓';
@@ -1164,14 +1181,14 @@ margin-top: 2px;
 		});
 	}
 
+	// ⚡ Bolt: Extract static ISO numeric-to-alpha2 lookup map to the outer scope to avoid re-instantiating on every map render
+	const NUM_TO_ALPHA2 = {4:'AF',8:'AL',12:'DZ',24:'AO',32:'AR',36:'AU',40:'AT',50:'BD',56:'BE',76:'BR',100:'BG',124:'CA',152:'CL',156:'CN',170:'CO',191:'HR',203:'CZ',208:'DK',818:'EG',246:'FI',250:'FR',276:'DE',300:'GR',344:'HK',356:'IN',360:'ID',364:'IR',376:'IL',380:'IT',392:'JP',410:'KR',458:'MY',484:'MX',528:'NL',554:'NZ',566:'NG',578:'NO',586:'PK',604:'PE',608:'PH',616:'PL',620:'PT',642:'RO',643:'RU',682:'SA',702:'SG',710:'ZA',724:'ES',752:'SE',756:'CH',764:'TH',792:'TR',804:'UA',784:'AE',826:'GB',840:'US',704:'VN',858:'UY',807:'MK'};
+
 	function renderChartsIfReady() {
 		if (!lastData) return;
 		const pp = PIE_PALETTE();
 
 		const renderMaps = (countries) => {
-			// Build lookup: ISO-numeric -> ISO-alpha2
-			const numToAlpha2 = {4:'AF',8:'AL',12:'DZ',24:'AO',32:'AR',36:'AU',40:'AT',50:'BD',56:'BE',76:'BR',100:'BG',124:'CA',152:'CL',156:'CN',170:'CO',191:'HR',203:'CZ',208:'DK',818:'EG',246:'FI',250:'FR',276:'DE',300:'GR',344:'HK',356:'IN',360:'ID',364:'IR',376:'IL',380:'IT',392:'JP',410:'KR',458:'MY',484:'MX',528:'NL',554:'NZ',566:'NG',578:'NO',586:'PK',604:'PE',608:'PH',616:'PL',620:'PT',642:'RO',643:'RU',682:'SA',702:'SG',710:'ZA',724:'ES',752:'SE',756:'CH',764:'TH',792:'TR',804:'UA',784:'AE',826:'GB',840:'US',704:'VN',858:'UY',807:'MK'};
-
 			// 1. App Installs Map Data
 				const countryMap = Object.create(null);
 				(lastData.countries||[]).forEach(c => { countryMap[c.name] = c.count; });
@@ -1190,11 +1207,11 @@ margin-top: 2px;
 					const f = countries[i];
 					geoData[i] = {
 						feature: f,
-						value: countryMap[numToAlpha2[+f.id]] || 0
+						value: countryMap[NUM_TO_ALPHA2[+f.id]] || 0
 					};
 					siteGeoData[i] = {
 						feature: f,
-						value: siteCountryMap[numToAlpha2[+f.id]] || 0
+						value: siteCountryMap[NUM_TO_ALPHA2[+f.id]] || 0
 					};
 					mapLabels[i] = f.properties.name;
 				}
