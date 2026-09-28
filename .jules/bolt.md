@@ -108,3 +108,6 @@
 ## 2026-10-25 - [Cache window.matchMedia outside of hot paths]
 **Learning:** Evaluating `window.matchMedia` inside a frequently called function (like `animateValue` which is triggered for every KPI card) incurs repeated CSSOM evaluation overhead and unnecessary object allocations.
 **Action:** Always cache the result of `window.matchMedia` (and its properties like `.matches` if static, or the whole MediaQueryList if listening for changes) outside of hot paths and render/animation loops to improve performance and reduce GC pressure.
+## 2026-09-28 - Truncated read_file outputs can lead to hallucinated variables
+**Learning:** When generating a plan to refactor or extract code structures based on `read_file`, large files may have their output truncated, which can lead to hallucinating exact variable names or scopes in the plan.
+**Action:** Use `grep` to confirm exact names and structures for large files before writing a plan for refactoring or extracting code.
