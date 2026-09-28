@@ -100,3 +100,7 @@
 **Vulnerability:** The application was missing defense-in-depth HTTP security headers, specifically `form-action 'none'` in the Content Security Policy and `Cross-Origin-Opener-Policy: same-origin` (COOP).
 **Learning:** `form-action 'none'` prevents the execution of malicious forms even if a page is vulnerable to HTML injection. COOP isolates the browsing context, providing a critical mitigation against cross-origin information leaks (like Spectre).
 **Prevention:** Always include `form-action 'none'` in CSP policies for applications that do not require form submissions, and configure `Cross-Origin-Opener-Policy: same-origin` by default to ensure safe browsing context isolation.
+## 2024-11-06 - Unhandled Upstream Errors Bypassing Security Configurations
+**Vulnerability:** When proxying asset requests (`src/assets.js`), checking `!response.ok` and immediately throwing an exception resulted in bypassing the application of `SECURITY_HEADERS`. Error states were unhandled internally, resulting in generic 500 error pages and potential caching of upstream failures.
+**Learning:** Proxy logic must safely handle non-2xx HTTP responses directly instead of assuming they are fatal exceptions.
+**Prevention:** Rather than throwing, return the failed upstream response body and status directly to the client after explicitly applying security headers and ensuring they aren't aggressively cached.
