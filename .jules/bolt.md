@@ -108,3 +108,6 @@
 ## 2026-10-25 - [Cache window.matchMedia outside of hot paths]
 **Learning:** Evaluating `window.matchMedia` inside a frequently called function (like `animateValue` which is triggered for every KPI card) incurs repeated CSSOM evaluation overhead and unnecessary object allocations.
 **Action:** Always cache the result of `window.matchMedia` (and its properties like `.matches` if static, or the whole MediaQueryList if listening for changes) outside of hot paths and render/animation loops to improve performance and reduce GC pressure.
+## 2026-09-29 - Extract Static Maps to Reduce Render Cycle Allocations
+**Learning:** Returning fresh objects or arrays (like color palettes or lookup dictionaries) from functions inside render cycles, or redefining them inside render scopes, causes unnecessary memory allocations and garbage collection overhead on every redraw (e.g. when toggling themes).
+**Action:** Extract large or frequently used static objects and constant arrays out of render loops and into the module/global scope.

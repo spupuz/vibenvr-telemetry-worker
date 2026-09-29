@@ -1056,7 +1056,9 @@ margin-top: 2px;
 	}
 
 	const PIE_PALETTE  = () => [tok('primary'), tok('accent'), '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#84cc16'];
-	const BAR_PALETTE  = () => [
+
+	// ⚡ Bolt: Cache static bar palette to prevent array reallocation on every render loop
+	const STATIC_BAR_PALETTE = [
 		'#1d4ed8', // Blue 700
 		'#2563eb', // Blue 600
 		'#3b82f6', // Blue 500
@@ -1164,13 +1166,14 @@ margin-top: 2px;
 		});
 	}
 
+	// ⚡ Bolt: Extract static map to avoid recreation on every render cycle (e.g. theme toggle)
+	const NUM_TO_ALPHA2 = {4:'AF',8:'AL',12:'DZ',24:'AO',32:'AR',36:'AU',40:'AT',50:'BD',56:'BE',76:'BR',100:'BG',124:'CA',152:'CL',156:'CN',170:'CO',191:'HR',203:'CZ',208:'DK',818:'EG',246:'FI',250:'FR',276:'DE',300:'GR',344:'HK',356:'IN',360:'ID',364:'IR',376:'IL',380:'IT',392:'JP',410:'KR',458:'MY',484:'MX',528:'NL',554:'NZ',566:'NG',578:'NO',586:'PK',604:'PE',608:'PH',616:'PL',620:'PT',642:'RO',643:'RU',682:'SA',702:'SG',710:'ZA',724:'ES',752:'SE',756:'CH',764:'TH',792:'TR',804:'UA',784:'AE',826:'GB',840:'US',704:'VN',858:'UY',807:'MK'};
+
 	function renderChartsIfReady() {
 		if (!lastData) return;
 		const pp = PIE_PALETTE();
 
 		const renderMaps = (countries) => {
-			// Build lookup: ISO-numeric -> ISO-alpha2
-			const numToAlpha2 = {4:'AF',8:'AL',12:'DZ',24:'AO',32:'AR',36:'AU',40:'AT',50:'BD',56:'BE',76:'BR',100:'BG',124:'CA',152:'CL',156:'CN',170:'CO',191:'HR',203:'CZ',208:'DK',818:'EG',246:'FI',250:'FR',276:'DE',300:'GR',344:'HK',356:'IN',360:'ID',364:'IR',376:'IL',380:'IT',392:'JP',410:'KR',458:'MY',484:'MX',528:'NL',554:'NZ',566:'NG',578:'NO',586:'PK',604:'PE',608:'PH',616:'PL',620:'PT',642:'RO',643:'RU',682:'SA',702:'SG',710:'ZA',724:'ES',752:'SE',756:'CH',764:'TH',792:'TR',804:'UA',784:'AE',826:'GB',840:'US',704:'VN',858:'UY',807:'MK'};
 
 			// 1. App Installs Map Data
 				const countryMap = Object.create(null);
@@ -1190,11 +1193,11 @@ margin-top: 2px;
 					const f = countries[i];
 					geoData[i] = {
 						feature: f,
-						value: countryMap[numToAlpha2[+f.id]] || 0
+						value: countryMap[NUM_TO_ALPHA2[+f.id]] || 0
 					};
 					siteGeoData[i] = {
 						feature: f,
-						value: siteCountryMap[numToAlpha2[+f.id]] || 0
+						value: siteCountryMap[NUM_TO_ALPHA2[+f.id]] || 0
 					};
 					mapLabels[i] = f.properties.name;
 				}
@@ -1274,11 +1277,11 @@ margin-top: 2px;
 		// World map choropleth & Site map choropleth
 		cachedCountriesPromise.then(renderMaps).catch(() => {
 			// Fallback: simple bar chart if geo fails to load
-			mkChart('chart-worldmap', 'bar', prepData(lastData.countries,'name','count',15,true), BAR_PALETTE(), false);
-			mkChart('chart-site-worldmap', 'bar', prepData(lastData.site_countries,'name','count',15,true), BAR_PALETTE(), false);
+			mkChart('chart-worldmap', 'bar', prepData(lastData.countries,'name','count',15,true), STATIC_BAR_PALETTE, false);
+			mkChart('chart-site-worldmap', 'bar', prepData(lastData.site_countries,'name','count',15,true), STATIC_BAR_PALETTE, false);
 		});
 
-		mkChart('chart-country-bars', 'bar', prepData(lastData.countries, 'name', 'count', 12, true), BAR_PALETTE(), false);
+		mkChart('chart-country-bars', 'bar', prepData(lastData.countries, 'name', 'count', 12, true), STATIC_BAR_PALETTE, false);
 
 		// Activity Trend Chart
 		const activityCtx = document.getElementById('chart-activity')?.getContext('2d');
@@ -1395,7 +1398,7 @@ margin-top: 2px;
 			});
 		} else if (eventsCtx) {
 			if (charts['chart-events']) charts['chart-events'].destroy();
-			mkChart('chart-events', 'bar', {labels: ['No Data'], data: [0]}, BAR_PALETTE());
+			mkChart('chart-events', 'bar', {labels: ['No Data'], data: [0]}, STATIC_BAR_PALETTE);
 		}
 		
 		// Site Activity Trend Chart
@@ -1462,7 +1465,7 @@ margin-top: 2px;
 		} else if (siteActivityCtx) {
 		    // Empty state for site activity
 			if (charts['chart-site-activity']) charts['chart-site-activity'].destroy();
-			mkChart('chart-site-activity', 'bar', {labels: ['No Data'], data: [0]}, BAR_PALETTE());
+			mkChart('chart-site-activity', 'bar', {labels: ['No Data'], data: [0]}, STATIC_BAR_PALETTE);
 		}
 
 		const distRaw = lastData.cameras_dist || [];
@@ -1474,7 +1477,7 @@ margin-top: 2px;
 			distLabels[i] = distRaw[i].name + ' cam';
 			distData[i] = distRaw[i].count;
 		}
-		mkChart('chart-cameras-dist', 'bar', { labels: distLabels, data: distData }, BAR_PALETTE());
+		mkChart('chart-cameras-dist', 'bar', { labels: distLabels, data: distData }, STATIC_BAR_PALETTE);
 
 		const gdistRaw = lastData.groups_dist || [];
 		// ⚡ Bolt: Use a single-pass loop with pre-allocated arrays instead of multiple .map() calls to prevent severe performance bottlenecks in hot render loops
@@ -1485,12 +1488,12 @@ margin-top: 2px;
 			gdistLabels[i] = gdistRaw[i].name + ' grp';
 			gdistData[i] = gdistRaw[i].count;
 		}
-		mkChart('chart-groups-dist', 'bar', { labels: gdistLabels, data: gdistData }, BAR_PALETTE());
-		mkChart('chart-versions',     'bar',      prepData(lastData.versions), BAR_PALETTE());
+		mkChart('chart-groups-dist', 'bar', { labels: gdistLabels, data: gdistData }, STATIC_BAR_PALETTE);
+		mkChart('chart-versions',     'bar',      prepData(lastData.versions), STATIC_BAR_PALETTE);
 		mkChart('chart-versions-pie', 'doughnut', prepData(lastData.versions_24h), PIE_PALETTE());
-		mkChart('chart-ram',          'bar',      prepData(lastData.ram,'name','count',8), BAR_PALETTE());
-		mkChart('chart-cpu-models',   'bar',      prepData(lastData.cpu_models,'name','count',12), BAR_PALETTE(), true);
-		mkChart('chart-cpu-cores',    'bar',      prepData(lastData.cpu_cores,'name','count',10), BAR_PALETTE(), true);
+		mkChart('chart-ram',          'bar',      prepData(lastData.ram,'name','count',8), STATIC_BAR_PALETTE);
+		mkChart('chart-cpu-models',   'bar',      prepData(lastData.cpu_models,'name','count',12), STATIC_BAR_PALETTE, true);
+		mkChart('chart-cpu-cores',    'bar',      prepData(lastData.cpu_cores,'name','count',10), STATIC_BAR_PALETTE, true);
 		
 		mkChart('chart-arch',         'doughnut', prepData(lastData.arch), PIE_PALETTE());
 		mkChart('chart-arch-24h',     'doughnut', prepData(lastData.arch_24h), PIE_PALETTE());
@@ -1498,7 +1501,7 @@ margin-top: 2px;
 		mkChart('chart-motion-engines', 'doughnut', prepData(lastData.motion_engines), PIE_PALETTE());
 		
 		// New Charts logic
-		mkChart('chart-recent-countries', 'bar', prepData(lastData.countries_24h, 'name', 'count', 12, true), BAR_PALETTE(), window.innerWidth < 600);
+		mkChart('chart-recent-countries', 'bar', prepData(lastData.countries_24h, 'name', 'count', 12, true), STATIC_BAR_PALETTE, window.innerWidth < 600);
 		const leaderboardData = prepData(lastData.countries, 'name', 'count', 10, true);
 		const maxLbValue = Math.max(...leaderboardData.data, 1);
 		const lbEl = document.getElementById('leaderboard-countries');
