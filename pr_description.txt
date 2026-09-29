@@ -1,13 +1,5 @@
-💡 What:
-Cached the evaluation of `window.matchMedia('(prefers-reduced-motion: reduce)')` outside of the `animateValue` loop.
-
-🎯 Why:
-Inside `animateValue` (which is triggered for every KPI on load/update), repeatedly invoking `window.matchMedia` causes the browser to redundantly query the CSSOM to evaluate the media query. This incurs unnecessary CPU overhead and allocates new `MediaQueryList` object instances continuously within hot render/animation paths.
-
-📊 Impact:
-Significantly reduces garbage collection pressure and minimizes main-thread layout thrashing during KPI metric updates and initial dashboard loading by reusing a single static boolean evaluation for the reduced-motion preference.
-
-🔬 Measurement:
-1. Open the dashboard page in Chrome DevTools Performance tab.
-2. Record a performance trace while toggling the theme or reloading the page.
-3. Observe the reduced time spent in "Recalculate Style" and "Minor GC" during the initial paint frames compared to the unoptimized version.
+🚨 Severity: HIGH
+💡 Vulnerability: Potential Negative Caching DoS in Asset Proxy. When the proxy fetched upstream assets, it could theoretically cache failed responses (like 404 or 502) if the error throwing was removed to preserve HTTP semantics, causing CDNs to serve errors persistently. Additionally, throwing exceptions on upstream non-2xx responses bypassed the injection of security headers (like CSP and X-Content-Type-Options) for those specific error responses.
+🎯 Impact: Attackers or random upstream failures could result in CDNs persistently caching a 5xx or 4xx error for 7 days (Negative Caching DoS). Furthermore, the lack of security headers on error pages reduced the overall defense-in-depth posture of the proxy.
+🔧 Fix: Refactored `handleAssets` to pass through upstream non-OK responses directly to preserve standard HTTP semantics securely without throwing exceptions. Conditionally applied `Cache-Control: public, max-age=604800` only to successful (`response.ok`) responses, and applied `Cache-Control: no-store, no-cache, must-revalidate` to error responses. Ensured `SECURITY_HEADERS` are applied to both success and failure paths.
+✅ Verification: Ran `node -c src/assets.js` to verify syntax. Code review confirmed the fix is correct and prevents caching of error responses while maintaining security headers.

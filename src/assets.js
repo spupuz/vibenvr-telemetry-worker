@@ -12,14 +12,17 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 				signal: AbortSignal.timeout(10000)
 			});
 
-			if (!response.ok) {
-				throw new Error("Asset upstream fetch failed with status " + response.status);
+			const headers = new Headers(response.headers);
+
+			if (response.ok) {
+				headers.set('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
+			} else {
+				headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
 			}
 
-			const headers = new Headers(response.headers);
-			headers.set('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
 			// Remove GitHub cookies/identity headers
 			headers.delete('set-cookie');
+
 			// Apply Sentinel Security Headers to proxied assets
 			if (SECURITY_HEADERS) {
 				for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
@@ -28,6 +31,7 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 			} else {
 				headers.set('Access-Control-Allow-Origin', '*');
 			}
+
 			return new Response(response.body, { status: response.status, headers });
 		} catch (error) {
 			console.error("Asset Proxy Error:", error);
