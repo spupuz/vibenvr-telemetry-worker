@@ -108,3 +108,6 @@
 ## 2026-10-25 - [Cache window.matchMedia outside of hot paths]
 **Learning:** Evaluating `window.matchMedia` inside a frequently called function (like `animateValue` which is triggered for every KPI card) incurs repeated CSSOM evaluation overhead and unnecessary object allocations.
 **Action:** Always cache the result of `window.matchMedia` (and its properties like `.matches` if static, or the whole MediaQueryList if listening for changes) outside of hot paths and render/animation loops to improve performance and reduce GC pressure.
+## 2024-05-18 - Optimize memory allocation in hot UI logic
+**Learning:** Instantiating configuration maps or dictionaries (like color palettes) inside frequently called functions (such as `tok(name)` which executes dozens of times per chart render) creates severe garbage collection overhead.
+**Action:** Extract static lookup objects into outer scopes and reference them conditionally, rather than dynamically re-instantiating the object graph on every invocation.

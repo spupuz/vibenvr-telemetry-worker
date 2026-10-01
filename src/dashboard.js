@@ -1041,17 +1041,30 @@ margin-top: 2px;
 	})();
 
 	// ─── CHART HELPERS ───────────────────────────────────────────────────────
+	// ⚡ Bolt: Cache token maps outside of hot functions to prevent object allocation overhead on every render
+	const LIGHT_TOKENS = {
+		bg:      '#ffffff',
+		border:  '#e2e6f0',
+		text:    '#111827',
+		muted:   '#6b7280',
+		'text-muted': '#4b5563',
+		primary: '#3b82f6',
+		accent:  '#8b5cf6',
+	};
+
+	const DARK_TOKENS = {
+		bg:      '#161b22',
+		border:  '#21262d',
+		text:    '#e6edf3',
+		muted:   '#7d8590',
+		'text-muted': '#9ca3af',
+		primary: '#58a6ff',
+		accent:  '#a78bfa',
+	};
+
 	function tok(name) {
 		const dark = document.documentElement.classList.contains('dark');
-		const map = {
-			bg:      dark ? '#161b22' : '#ffffff',
-			border:  dark ? '#21262d' : '#e2e6f0',
-			text:    dark ? '#e6edf3' : '#111827',
-			muted:   dark ? '#7d8590' : '#6b7280',
-			'text-muted': dark ? '#9ca3af' : '#4b5563',
-			primary: dark ? '#58a6ff' : '#3b82f6',
-			accent:  dark ? '#a78bfa' : '#8b5cf6',
-		};
+		const map = dark ? DARK_TOKENS : LIGHT_TOKENS;
 		return map[name] || '#888';
 	}
 
