@@ -100,3 +100,8 @@
 **Vulnerability:** The application was missing defense-in-depth HTTP security headers, specifically `form-action 'none'` in the Content Security Policy and `Cross-Origin-Opener-Policy: same-origin` (COOP).
 **Learning:** `form-action 'none'` prevents the execution of malicious forms even if a page is vulnerable to HTML injection. COOP isolates the browsing context, providing a critical mitigation against cross-origin information leaks (like Spectre).
 **Prevention:** Always include `form-action 'none'` in CSP policies for applications that do not require form submissions, and configure `Cross-Origin-Opener-Policy: same-origin` by default to ensure safe browsing context isolation.
+
+## 2024-10-01 - Avoid Negative Caching of Proxied Errors
+**Vulnerability:** Proxying logic aggressively cached non-2xx upstream responses, leading to persistent denial-of-service or long-term error states if an upstream temporarily failed.
+**Learning:** Upstream errors must be gracefully returned to the client to preserve HTTP semantics, but cache-control headers on these responses must explicitly disable caching (`no-store, no-cache, must-revalidate`) to prevent negative caching.
+**Prevention:** When proxying transparent requests, check `response.ok` before applying cache-control headers. Always apply `no-cache` to non-2xx responses.

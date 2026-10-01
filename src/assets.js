@@ -12,12 +12,14 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 				signal: AbortSignal.timeout(10000)
 			});
 
-			if (!response.ok) {
-				throw new Error("Asset upstream fetch failed with status " + response.status);
+			const headers = new Headers(response.headers);
+
+			if (response.ok) {
+				headers.set('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
+			} else {
+				headers.set('Cache-Control', 'no-store, no-cache, must-revalidate'); // Do not cache upstream errors
 			}
 
-			const headers = new Headers(response.headers);
-			headers.set('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
 			// Remove GitHub cookies/identity headers
 			headers.delete('set-cookie');
 			// Apply Sentinel Security Headers to proxied assets
