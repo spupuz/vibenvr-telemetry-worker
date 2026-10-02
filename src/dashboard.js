@@ -1045,21 +1045,51 @@ margin-top: 2px;
 	})();
 
 	// ─── CHART HELPERS ───────────────────────────────────────────────────────
+	// ⚡ Bolt: Extract static maps to avoid reallocation on every render loop
+	const LIGHT_TOKENS = {
+		bg: '#ffffff',
+		border: '#e2e6f0',
+		text: '#111827',
+		muted: '#6b7280',
+		'text-muted': '#4b5563',
+		primary: '#3b82f6',
+		accent: '#8b5cf6',
+	};
+
+	const DARK_TOKENS = {
+		bg: '#161b22',
+		border: '#21262d',
+		text: '#e6edf3',
+		muted: '#7d8590',
+		'text-muted': '#9ca3af',
+		primary: '#58a6ff',
+		accent: '#a78bfa',
+	};
+
 	function tok(name) {
 		const dark = document.documentElement.classList.contains('dark');
-		const map = {
-			bg:      dark ? '#161b22' : '#ffffff',
-			border:  dark ? '#21262d' : '#e2e6f0',
-			text:    dark ? '#e6edf3' : '#111827',
-			muted:   dark ? '#7d8590' : '#6b7280',
-			'text-muted': dark ? '#9ca3af' : '#4b5563',
-			primary: dark ? '#58a6ff' : '#3b82f6',
-			accent:  dark ? '#a78bfa' : '#8b5cf6',
-		};
+		const map = dark ? DARK_TOKENS : LIGHT_TOKENS;
 		return map[name] || '#888';
 	}
 
-	const PIE_PALETTE  = () => [tok('primary'), tok('accent'), '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#84cc16'];
+	// ⚡ Bolt: Cache PIE_PALETTE output locally to prevent re-instantiating the array on every invocation
+	let cachedPieDark = null;
+	let cachedPieLight = null;
+
+	const PIE_PALETTE = () => {
+		const dark = document.documentElement.classList.contains('dark');
+		if (dark) {
+			if (!cachedPieDark) {
+				cachedPieDark = [DARK_TOKENS.primary, DARK_TOKENS.accent, '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#84cc16'];
+			}
+			return cachedPieDark;
+		} else {
+			if (!cachedPieLight) {
+				cachedPieLight = [LIGHT_TOKENS.primary, LIGHT_TOKENS.accent, '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#84cc16'];
+			}
+			return cachedPieLight;
+		}
+	};
 
 	// ⚡ Bolt: Cache static bar palette to prevent array reallocation on every render loop
 	const STATIC_BAR_PALETTE = [

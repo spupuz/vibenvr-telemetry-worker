@@ -111,3 +111,6 @@
 ## 2026-09-29 - Extract Static Maps to Reduce Render Cycle Allocations
 **Learning:** Returning fresh objects or arrays (like color palettes or lookup dictionaries) from functions inside render cycles, or redefining them inside render scopes, causes unnecessary memory allocations and garbage collection overhead on every redraw (e.g. when toggling themes).
 **Action:** Extract large or frequently used static objects and constant arrays out of render loops and into the module/global scope.
+## 2025-02-23 - Extract Static Lookup Objects from Render Scope
+**Learning:** Re-instantiating object literals (like CSS variable maps or color arrays) inside frequently called helper functions (like `tok()` or `PIE_PALETTE()`) during render loops creates unnecessary array and object allocations, leading to increased garbage collection pressure and decreased performance.
+**Action:** Always extract static lookup objects and cache array outputs based on state (e.g. theme) into the outer module scope to avoid reallocating memory on every function invocation in hot paths.
