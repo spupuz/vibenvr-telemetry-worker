@@ -105,3 +105,7 @@
 **Vulnerability:** Proxying logic aggressively cached non-2xx upstream responses, leading to persistent denial-of-service or long-term error states if an upstream temporarily failed.
 **Learning:** Upstream errors must be gracefully returned to the client to preserve HTTP semantics, but cache-control headers on these responses must explicitly disable caching (`no-store, no-cache, must-revalidate`) to prevent negative caching.
 **Prevention:** When proxying transparent requests, check `response.ok` before applying cache-control headers. Always apply `no-cache` to non-2xx responses.
+## 2024-11-06 - UI Information Disclosure via Explicit Error Messages
+**Vulnerability:** The dashboard UI explicitly displayed an error message stating "Check Cloudflare API credentials." when telemetry data failed to load.
+**Learning:** Exposing specific backend infrastructure details or missing credential information in user-facing UI elements is a form of information disclosure. It can help an attacker map the application's architecture and understand its dependencies.
+**Prevention:** Obfuscate specific server-side configuration errors or missing credentials by replacing them with generic error messages (e.g., 'Internal Server Error', 'Please try again later') in frontend UI elements.

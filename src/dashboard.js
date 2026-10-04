@@ -582,7 +582,8 @@ margin-top: 2px;
 
 	<!-- Error -->
 	<div class="err-box" id="error-msg" role="alert" aria-live="assertive">
-		<span style="display: flex; align-items: center; gap: 0.5rem;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>Failed to load telemetry data. Check Cloudflare API credentials.</span>
+		<!-- 🛡️ Sentinel: Obfuscate backend configuration failures to prevent information disclosure -->
+		<span style="display: flex; align-items: center; gap: 0.5rem;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>Failed to load telemetry data. Please try again later.</span>
 		<button class="retry-btn" id="retry-btn" aria-label="Retry loading telemetry data" aria-keyshortcuts="R">
 			<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
 			Retry
