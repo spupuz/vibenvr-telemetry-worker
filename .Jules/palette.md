@@ -79,3 +79,6 @@
 ## 2026-11-20 - Adding focus-within to Scroll-Hidden Footers
 **Learning:** Dynamically hidden elements, such as a fixed smart footer that hides on scroll using `transform: translateY(100%)`, can obscure their contents for keyboard navigators if they accidentally receive focus while hidden.
 **Action:** Always map `:focus-within` styles to override the hidden transform states (e.g., `transform: translateY(0) !important;`) on such containers, ensuring the interface returns to view when assistive technologies or keyboard users focus on internal elements.
+## 2024-11-20 - Semantic Warning Icons for Error States
+**Learning:** Error states that rely purely on background color changes fail WCAG accessibility guidelines because color-blind users might not perceive the warning. Additionally, it lacks visual polish.
+**Action:** Always pair error background colors with a semantic, high-contrast warning icon to provide an unambiguous visual cue.

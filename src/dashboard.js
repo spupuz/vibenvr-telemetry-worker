@@ -167,6 +167,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			white-space: nowrap;
 		}
 		.theme-btn:hover, .theme-btn:focus-visible { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
+		.theme-btn:active { transform: scale(0.96); }
 
 		.shortcut-key {
 			display: none;
@@ -352,12 +353,13 @@ margin-top: 2px;
 			color: var(--err);
 			font-size: .8rem;
 			white-space: nowrap;
-			transition: background .2s;
+			transition: all .2s;
 			display: inline-flex;
 			align-items: center;
 			gap: 0.35rem;
 		}
 		.retry-btn:hover, .retry-btn:focus-visible { background: color-mix(in srgb, var(--err) 10%, transparent); }
+		.retry-btn:active { transform: scale(0.96); }
 
 		/* Smart Footer CSS (Identical to Site) */
 		.smart-footer {
@@ -423,6 +425,7 @@ margin-top: 2px;
 		.footer-link-site:hover, .footer-link-site:focus, .footer-link-site:focus-visible {
 			color: var(--primary);
 		}
+		.footer-link-site:active { transform: scale(0.96); }
 
 		.footer-divider {
 			color: var(--border);
@@ -503,6 +506,7 @@ margin-top: 2px;
 		.dark .footer-link:hover, .dark .footer-link:focus-visible {
 			box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 		}
+		.footer-link:active { transform: scale(0.96); }
 
 		@media (max-width: 900px) {
 			.chart-row.cols-3 { grid-template-columns: repeat(2, 1fr); }
@@ -559,7 +563,7 @@ margin-top: 2px;
 			<span>VibeNVR Telemetry</span><span class="sr-only"> (opens in a new tab)</span>
 	</a>
 	<div class="topbar-right">
-		<div class="badge-live"><span class="dot"></span> Live</div>
+		<div class="badge-live"><span class="dot" aria-hidden="true"></span> Live</div>
 		<button class="theme-btn" id="theme-toggle" title="Toggle theme" aria-label="Switch to Dark Mode">
 			<svg aria-hidden="true" id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
 			<svg aria-hidden="true" id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -578,7 +582,7 @@ margin-top: 2px;
 
 	<!-- Error -->
 	<div class="err-box" id="error-msg" role="alert" aria-live="assertive">
-		<span>Failed to load telemetry data. Check Cloudflare API credentials.</span>
+		<span style="display: flex; align-items: center; gap: 0.5rem;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>Failed to load telemetry data. Check Cloudflare API credentials.</span>
 		<button class="retry-btn" id="retry-btn" aria-label="Retry loading telemetry data" aria-keyshortcuts="R">
 			<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
 			Retry
@@ -588,13 +592,13 @@ margin-top: 2px;
 
 	<!-- Loading -->
 	<div class="state-box" id="loader" role="status" aria-live="polite">
-		<div class="spinner"></div>
+		<div class="spinner" aria-hidden="true"></div>
 		<span>Loading telemetry…</span>
 	</div>
 
 	<!-- Record Count Disclaimer & External Links -->
-	<div style="margin-bottom: 1.25rem; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); text-align: center;">
-		Note: Only VibeNVR installations with active telemetry enabled are counted in these statistics.
+	<div style="margin-bottom: 1.25rem; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+		<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>Note: Only VibeNVR installations with active telemetry enabled are counted in these statistics.
 	</div>
 	
 	<div class="footer-links">
