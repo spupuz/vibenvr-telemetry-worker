@@ -109,3 +109,7 @@
 **Vulnerability:** The dashboard UI explicitly displayed an error message stating "Check Cloudflare API credentials." when telemetry data failed to load.
 **Learning:** Exposing specific backend infrastructure details or missing credential information in user-facing UI elements is a form of information disclosure. It can help an attacker map the application's architecture and understand its dependencies.
 **Prevention:** Obfuscate specific server-side configuration errors or missing credentials by replacing them with generic error messages (e.g., 'Internal Server Error', 'Please try again later') in frontend UI elements.
+## 2024-11-06 - Prevent Reverse Tabnabbing via Target Blank Links
+**Vulnerability:** Anchor tags (`<a>`) using `target="_blank"` were missing the `noreferrer` attribute alongside `noopener`.
+**Learning:** When a link opens a new tab via `target="_blank"`, the new page may have access to the original page's `window.opener` object (in older browsers) or can track the referrer information. While `noopener` mitigates the `window.opener` reverse tabnabbing attack, adding `noreferrer` is a best practice for privacy and defense-in-depth to prevent the target site from seeing the referrer URL.
+**Prevention:** Always use `rel="noopener noreferrer"` when using `target="_blank"` on links to external sites.
