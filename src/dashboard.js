@@ -102,6 +102,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			justify-content: space-between;
 			gap: 1rem;
 			backdrop-filter: blur(8px);
+			transition: background-color .25s, border-color .25s;
 		}
 		.topbar-brand {
 			display: flex;
@@ -208,7 +209,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			border-radius: var(--radius);
 			padding: 1.2rem 1.4rem;
 			box-shadow: var(--shadow);
-			transition: border-color .2s, box-shadow .2s;
+			transition: border-color .25s, box-shadow .25s, background-color .25s;
 		}
 		.card:hover, .card:focus-visible { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-4px); }
 		.card[title] { cursor: help; }
@@ -228,7 +229,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			border-radius: var(--radius);
 			padding: 1.1rem 1.25rem;
 			box-shadow: var(--shadow);
-			transition: border-color .2s, box-shadow .2s, transform .2s;
+			transition: border-color .25s, box-shadow .25s, transform .25s, background-color .25s;
 			position: relative;
 			overflow: hidden;
 		}
@@ -373,7 +374,7 @@ margin-top: 2px;
 			border-top: 1px solid var(--border);
 			box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05);
 			transform: translateY(0);
-			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color .25s, border-color .25s;
 			z-index: 100;
 			padding: 1rem 0;
 		}
