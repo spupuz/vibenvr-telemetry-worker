@@ -82,3 +82,7 @@
 ## 2024-11-20 - Semantic Warning Icons for Error States
 **Learning:** Error states that rely purely on background color changes fail WCAG accessibility guidelines because color-blind users might not perceive the warning. Additionally, it lacks visual polish.
 **Action:** Always pair error background colors with a semantic, high-contrast warning icon to provide an unambiguous visual cue.
+
+## 2026-11-20 - Synchronize CSS Transitions for Theme Toggles
+**Learning:** During theme toggles (e.g. Dark/Light mode), elements with background colors or borders that lack explicit CSS transitions will flash instantly, whereas the body background transitions smoothly. This creates a jarring, disjointed visual effect across surface components like cards and headers.
+**Action:** Always synchronize `background-color` and `border-color` transitions (e.g., `transition: background-color .25s, border-color .25s;`) across all theme-responsive surface containers to match the global theme transition duration.
