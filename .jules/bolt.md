@@ -56,7 +56,7 @@
 ## 2025-02-23 - Edge Cache for Proxied Assets
 **Learning:** Proxying static external assets (like GitHub hosted logos/images) on every request without leveraging the Cloudflare Cache API (`caches.default`) results in redundant external network calls, increasing TTFB and Worker CPU time.
 **Action:** Always wrap proxy endpoints for static assets with the Edge Cache API by checking `caches.default.match()` and storing successful responses with `ctx.waitUntil(caches.default.put())`.
-## $(date +%Y-%m-%d) - [Optimize Date Formatting in Render Loops]
+## 2024-10-06 - [Optimize Date Formatting in Render Loops]
 **Learning:** Calling `toLocaleDateString()` with options inside a hot loop (like a `map` over chart dataset items) creates a severe performance bottleneck because V8 implicitly instantiates a new `Intl.DateTimeFormat` object on every iteration (in testing, 1000 calls took ~404ms vs ~2ms for a cached formatter).
 **Action:** Always instantiate `new Intl.DateTimeFormat(...)` once outside the loop and reuse the instance by calling `.format(date)` inside the loop.
 ## 2025-02-23 - Optimize Date Formatting in Render Loops
@@ -80,7 +80,7 @@
 ## 2024-05-18 - Optimize chaining of String.prototype.replace()
 **Learning:** Chaining multiple `.replace()` calls on a string with different regular expressions (e.g., `str.replace(/a/g, '').replace(/b/g, '')`) causes the engine to allocate intermediate strings and scan the original string multiple times.
 **Action:** Always combine the regular expressions using the OR (`|`) operator and pre-compile them outside of loops to evaluate the string in a single pass, which reduces garbage collection (GC) pressure and execution time (e.g., `const regex = /a|b/g; str.replace(regex, '')`).
-## $(date +%Y-%m-%d) - [Optimize fixed-length string indexing]
+## 2024-10-06 - [Optimize fixed-length string indexing]
 **Learning:** Processing small, fixed-length strings (like 2-character country codes) using `.split('').map(...)` inside high-frequency functions creates severe performance bottlenecks. V8 implicitly allocates multiple arrays and functional scopes on every invocation, triggering heavy garbage collection.
 **Action:** When extracting characters or code points from known fixed-length strings (e.g. 2-char codes), use explicit index access methods like `str.charCodeAt(0)` and `str.charCodeAt(1)`. This avoids array allocation and is over 50% faster in hot paths.
 ## 2025-05-18 - Avoid array allocations in hot render loops string parsing
@@ -93,16 +93,16 @@
 ## 2026-09-15 - [Conditionally Generate CSP Nonce]
 **Learning:** Generating a high-entropy string using `btoa(crypto.randomUUID())` and creating new object references for security headers on every request adds measurable overhead to Cloudflare Workers, especially for high-frequency API or ingest endpoints that don't need a `nonce`.
 **Action:** When injecting Content Security Policy (CSP) headers across an entire application, conditionally evaluate if the current route actually serves HTML. For non-HTML routes (like API endpoints or static assets), bypass `nonce` generation and return a pre-allocated, statically cached headers object to reduce CPU usage and garbage collection pressure.
-## $(date +%Y-%m-%d) - [Optimize array manipulations in Chart datasets]
+## 2024-10-06 - [Optimize array manipulations in Chart datasets]
 **Learning:** Chaining multiple `.map()` calls on the same array to extract different properties for Chart.js datasets creates severe performance bottlenecks. V8 implicitly allocates multiple closures and intermediate arrays on every pass, triggering heavy garbage collection pauses in hot render loops.
 **Action:** When extracting multiple series of data from a single array of objects, use a single-pass `for` loop with pre-allocated arrays (`new Array(len)`) to minimize array allocations and significantly reduce execution time.
-## $(date +%Y-%m-%d) - Optimize array manipulations in Chart datasets
+## 2024-10-06 - Optimize array manipulations in Chart datasets
 **Learning:** Chaining multiple `.map()` calls on the same array to extract different properties for Chart.js datasets creates severe performance bottlenecks. V8 implicitly allocates multiple closures and intermediate arrays on every pass, triggering heavy garbage collection pauses in hot render loops.
 **Action:** When extracting multiple series of data from a single array of objects, use a single-pass `for` loop with pre-allocated arrays (`new Array(len)`) to minimize array allocations and significantly reduce execution time.
-## $(date +%Y-%m-%d) - Optimize array manipulations in API data mapping
+## 2024-10-06 - Optimize array manipulations in API data mapping
 **Learning:** Performing multiple independent `.map()` calls on the same array (like `activityAndEventsData`) to extract different properties creates severe performance bottlenecks. V8 implicitly allocates multiple closures and intermediate arrays on every pass, triggering heavy garbage collection pauses in hot data processing loops.
 **Action:** When extracting multiple series of data from a single array of objects, use a single-pass `for` loop with pre-allocated arrays (`new Array(len)`) to minimize array allocations and significantly reduce execution time.
-## $(date +%Y-%m-%d) - [Optimize Object to Array Conversions]
+## 2024-10-06 - [Optimize Object to Array Conversions]
 **Learning:** `Object.entries(obj).map().sort()` creates multiple intermediate arrays, causing unnecessary garbage collection pressure in hot paths. Replacing it with a single `for...in` loop and array `push` reduces allocation overhead significantly. However, a `for...in` loop behaves differently than `Object.entries()` as it iterates over inherited enumerable properties.
 **Action:** When manually replacing `Object.entries()` with a `for...in` loop to avoid intermediate array allocations, always include an `Object.hasOwn(obj, key)` check inside the loop to safely replicate the behavior of `Object.entries()` and prevent iterating over inherited enumerable properties from the prototype chain.
 ## 2026-10-25 - [Cache window.matchMedia outside of hot paths]
@@ -114,3 +114,6 @@
 ## 2025-02-23 - Extract Static Lookup Objects from Render Scope
 **Learning:** Re-instantiating object literals (like CSS variable maps or color arrays) inside frequently called helper functions (like `tok()` or `PIE_PALETTE()`) during render loops creates unnecessary array and object allocations, leading to increased garbage collection pressure and decreased performance.
 **Action:** Always extract static lookup objects and cache array outputs based on state (e.g. theme) into the outer module scope to avoid reallocating memory on every function invocation in hot paths.
+## 2024-10-06 - Defer URL Parameter Extraction
+**Learning:** Blindly extracting all possible URL search parameters at the start of a shared request handler function (like `handleIngestion`) creates unnecessary string parsing and dictionary lookup overhead when branching logic (e.g. `/site-telemetry.png`) only requires a tiny subset of them.
+**Action:** Always defer the extraction of URL parameters until after route branching is resolved, and use early returns to prevent parsing parameters that will not be used in the current execution path.

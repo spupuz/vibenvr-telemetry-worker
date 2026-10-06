@@ -10,41 +10,7 @@ const transparentPos = new Uint8Array([
 
 export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) => {
 	const cleanStr = (val, max = 100) => (val || 'unknown').toString().trim().slice(0, max);
-	const instance_id = cleanStr(url.searchParams.get('instance_id'), 128);
-	const version = cleanStr(url.searchParams.get('version'), 20);
-	const os = cleanStr(url.searchParams.get('os'), 20);
-	const arch = cleanStr(url.searchParams.get('arch'), 20);
-	const cpu_model = cleanStr(url.searchParams.get('cpu_model'), 100);
-
-	if (url.pathname !== '/site-telemetry.png') {
-		if (instance_id === 'unknown' || instance_id.length < 16) {
-			return new Response("Invalid ID format", { status: 400, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
-		}
-	}
-
 	const country = request.cf?.country || 'Unknown';
-
-	const parseNum = (val) => {
-		const str = (val || '0').toString().trim().slice(0, 20);
-		const n = parseInt(str, 10);
-		return isFinite(n) ? Math.min(Math.max(0, n), 999999) : 0;
-	};
-
-	const cpu = parseNum(url.searchParams.get('cpu'));
-	const ram = parseNum(url.searchParams.get('ram'));
-	const cameras = parseNum(url.searchParams.get('cameras'));
-	const groups = parseNum(url.searchParams.get('groups'));
-	const events = parseNum(url.searchParams.get('events'));
-	const motion_opencv = parseNum(url.searchParams.get('motion_opencv'));
-	const motion_onvif = parseNum(url.searchParams.get('motion_onvif'));
-	const motion_ai_engine = parseNum(url.searchParams.get('motion_ai_engine'));
-	const motion_ai = parseNum(url.searchParams.get('motion_ai'));
-	const onvif_count = parseNum(url.searchParams.get('onvif_count'));
-	const substream_count = parseNum(url.searchParams.get('substream_count'));
-
-	const gpu = (url.searchParams.get('gpu') === 'True' || url.searchParams.get('gpu') === 'true' || url.searchParams.get('gpu') === '1') ? 1 : 0;
-	const notifications = (url.searchParams.get('notifications') === 'True' || url.searchParams.get('notifications') === 'true' || url.searchParams.get('notifications') === '1') ? 1 : 0;
-	const mqtt_active = (url.searchParams.get('mqtt_active') === 'True' || url.searchParams.get('mqtt_active') === 'true' || url.searchParams.get('mqtt_active') === '1') ? 1 : 0;
 
 	if (url.pathname === '/site-telemetry.png') {
 		if (env.VIBENVR_SITE_USAGE) {
@@ -86,7 +52,56 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 				}
 			}
 		}
-	} else if (env.VIBENVR_USAGE) {
+
+		return new Response(transparentPos, {
+			headers: {
+				...SECURITY_HEADERS,
+				'Content-Type': 'image/png',
+				'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+			},
+		});
+	}
+
+	// Rest of the logic handles standard telemetry endpoints (e.g. /telemetry)
+	const instance_id = cleanStr(url.searchParams.get('instance_id'), 128);
+
+	if (instance_id === 'unknown' || instance_id.length < 16) {
+		return new Response("Invalid ID format", { status: 400, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
+	}
+
+	const version = cleanStr(url.searchParams.get('version'), 20);
+	const os = cleanStr(url.searchParams.get('os'), 20);
+	const arch = cleanStr(url.searchParams.get('arch'), 20);
+	const cpu_model = cleanStr(url.searchParams.get('cpu_model'), 100);
+
+	const parseNum = (val) => {
+		const str = (val || '0').toString().trim().slice(0, 20);
+		const n = parseInt(str, 10);
+		return isFinite(n) ? Math.min(Math.max(0, n), 999999) : 0;
+	};
+
+	const cpu = parseNum(url.searchParams.get('cpu'));
+	const ram = parseNum(url.searchParams.get('ram'));
+	const cameras = parseNum(url.searchParams.get('cameras'));
+	const groups = parseNum(url.searchParams.get('groups'));
+	const events = parseNum(url.searchParams.get('events'));
+	const motion_opencv = parseNum(url.searchParams.get('motion_opencv'));
+	const motion_onvif = parseNum(url.searchParams.get('motion_onvif'));
+	const motion_ai_engine = parseNum(url.searchParams.get('motion_ai_engine'));
+	const motion_ai = parseNum(url.searchParams.get('motion_ai'));
+	const onvif_count = parseNum(url.searchParams.get('onvif_count'));
+	const substream_count = parseNum(url.searchParams.get('substream_count'));
+
+	const gpuParam = url.searchParams.get('gpu');
+	const gpu = (gpuParam === 'True' || gpuParam === 'true' || gpuParam === '1') ? 1 : 0;
+
+	const notificationsParam = url.searchParams.get('notifications');
+	const notifications = (notificationsParam === 'True' || notificationsParam === 'true' || notificationsParam === '1') ? 1 : 0;
+
+	const mqttActiveParam = url.searchParams.get('mqtt_active');
+	const mqtt_active = (mqttActiveParam === 'True' || mqttActiveParam === 'true' || mqttActiveParam === '1') ? 1 : 0;
+
+	if (env.VIBENVR_USAGE) {
 		try {
 			env.VIBENVR_USAGE.writeDataPoint({
 				blobs: [ instance_id, version, os, arch, cpu_model, country ],
@@ -104,7 +119,7 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 
 	// ⚡ Bolt: Execute blocking KV reads/writes asynchronously in the background using ctx.waitUntil()
 	// to avoid blocking the main thread and drastically reduce TTFB latency for the tracking pixel response.
-	if (url.pathname !== '/site-telemetry.png' && env.VIBENVR_IDS && instance_id !== 'unknown') {
+	if (env.VIBENVR_IDS) {
 		ctx.waitUntil((async () => {
 			try {
 				const kvKey = `id:${instance_id}`;
