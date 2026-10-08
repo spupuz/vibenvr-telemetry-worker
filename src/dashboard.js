@@ -24,6 +24,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 
 		/* === TOKENS === */
 		:root {
+			color-scheme: light;
 			--bg: #f4f6fb;
 			--surface: #ffffff;
 			--surface2: #f0f2f8;
@@ -41,6 +42,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			--shadow-hover: 0 10px 25px -5px rgba(59, 130, 246, 0.15), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
 		}
 		.dark {
+			color-scheme: dark;
 			--bg: #0d1117;
 			--surface: #161b22;
 			--surface2: #1c2330;
@@ -110,6 +112,10 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			gap: .6rem;
 			text-decoration: none;
 			color: var(--text);
+			transition: opacity .2s;
+		}
+		.topbar-brand:hover, .topbar-brand:focus-visible {
+			opacity: 0.8;
 		}
 		.topbar-brand img {
 			height: 30px;
@@ -894,6 +900,7 @@ margin-top: 2px;
 		Powered by Cloudflare Workers Analytics Engine <span aria-hidden="true">·</span> No IP addresses or personal data stored <span aria-hidden="true">·</span>
 		All metrics are anonymous aggregate counts
 	</div>
+</main>
 	<footer id="smart-footer" class="smart-footer">
 		<div class="footer-content">
 			<div class="footer-logo">
@@ -917,7 +924,6 @@ margin-top: 2px;
 			</div>
 		</div>
 	</footer>
-</main>
 
 <script nonce="${nonce}">
 	(async function fetchVersions() {
