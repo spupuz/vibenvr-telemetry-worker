@@ -398,10 +398,17 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					{ name: 'ONVIF Edge', count: stats.total_motion_onvif }
 				].filter(x => x.count > 0).sort((a, b) => b.count - a.count);
 				// Normalise cameras_dist to ordered array
+				// ⚡ Bolt: Replace .filter().map() with a single-pass loop to minimize array allocations in API mapping
 				const bkOrder = ['0', '1', '2-3', '4-5', '6-10', '11-20', '21+'];
-				stats.cameras_dist = bkOrder
-					.filter(k => stats.cameras_dist && stats.cameras_dist[k])
-					.map(k => ({ name: k, count: stats.cameras_dist[k] }));
+				const camDistTemp = [];
+				for (let i = 0; i < bkOrder.length; i++) {
+					const k = bkOrder[i];
+					if (stats.cameras_dist && stats.cameras_dist[k]) {
+						camDistTemp.push({ name: k, count: stats.cameras_dist[k] });
+					}
+				}
+				stats.cameras_dist = camDistTemp;
+
 				stats.countries_24h = objectToSortedArray(countryCounts24h);
 				stats.countries_prev24h = objectToSortedArray(countryCounts48_24h);
 				stats.versions_24h = objectToSortedArray(versionCounts24h);
@@ -411,10 +418,16 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				stats.active_installs_prev24h = activeCountPrev24h;
 
 				// Normalise groups_dist to ordered array
+				// ⚡ Bolt: Replace .filter().map() with a single-pass loop to minimize array allocations in API mapping
 				const gbkOrder = ['0', '1', '2-3', '4-5', '6-10', '11+'];
-				stats.groups_dist = gbkOrder
-					.filter(k => stats.groups_dist && stats.groups_dist[k])
-					.map(k => ({ name: k, count: stats.groups_dist[k] }));
+				const groupDistTemp = [];
+				for (let i = 0; i < gbkOrder.length; i++) {
+					const k = gbkOrder[i];
+					if (stats.groups_dist && stats.groups_dist[k]) {
+						groupDistTemp.push({ name: k, count: stats.groups_dist[k] });
+					}
+				}
+				stats.groups_dist = groupDistTemp;
 
 				return new Response(JSON.stringify(stats), {
 					headers: {
