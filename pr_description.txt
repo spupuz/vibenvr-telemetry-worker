@@ -1,5 +1,11 @@
-🚨 Severity: MEDIUM
-💡 Vulnerability: Proxying logic aggressively cached non-2xx upstream responses (like 404 Not Found or 502 Bad Gateway) from the external asset host.
-🎯 Impact: This could lead to a persistent denial-of-service (DoS) or long-term broken visual state if the upstream temporarily fails, because the Cloudflare Edge network would aggressively cache the error response (via `Cache-Control: public, max-age=604800`) and serve it to all subsequent users for up to 7 days, even after the upstream recovers.
-🔧 Fix: Modifies the response handling to explicitly check `response.ok`. It gracefully returns the upstream error status (preserving HTTP semantics and preventing unhandled promise rejections) but applies strict `no-store, no-cache, must-revalidate` cache-control headers to prevent negative caching of the failure state.
-✅ Verification: Tested proxy logic to ensure upstream errors correctly generate 502 status codes with `no-cache` headers, while successful 200 OK responses receive the 7-day public cache header.
+## 💡 What
+Moved the extraction and parsing of various URL query parameters (such as `version`, `os`, `cpu`, etc.) inside the `if (env.VIBENVR_USAGE)` block in `src/ingest.js`.
+
+## 🎯 Why
+Previously, `src/ingest.js` blindly extracted a large number of search parameters from the URL indiscriminately for all requests, regardless of whether the telemetry analytics engine binding (`env.VIBENVR_USAGE`) was actually configured or available. This causes unnecessary string parsing (`url.searchParams.get`), string manipulation (`trim`, `slice`), and type coercion (`parseInt`, `parseFloat`) overhead. By moving these extractions directly before they are used (inside the conditional block), we only perform this work if the parameters are going to be ingested.
+
+## 📊 Impact
+Reduces unnecessary CPU cycles, memory allocations, and garbage collection overhead in the Cloudflare Worker when processing telemetry ingestion requests if `env.VIBENVR_USAGE` is not configured, or if the request exits early due to an invalid ID. This improves TTFB and lowers compute duration for cold paths.
+
+## 🔬 Measurement
+The logic remains functionally identical if `env.VIBENVR_USAGE` is configured. If it is unconfigured, the worker will process the request without wasting resources parsing unused parameters.
