@@ -117,3 +117,6 @@
 ## 2024-10-06 - Defer URL Parameter Extraction
 **Learning:** Blindly extracting all possible URL search parameters at the start of a shared request handler function (like `handleIngestion`) creates unnecessary string parsing and dictionary lookup overhead when branching logic (e.g. `/site-telemetry.png`) only requires a tiny subset of them.
 **Action:** Always defer the extraction of URL parameters until after route branching is resolved, and use early returns to prevent parsing parameters that will not be used in the current execution path.
+## 2026-10-08 - [Avoid caching MediaQueryList.matches directly]
+**Learning:** While `window.matchMedia` evaluation involves CSSOM querying and should be cached outside hot loops, caching its `.matches` boolean directly instead of the `MediaQueryList` object breaks the dynamic nature of media queries (e.g., changes to user preferences like reduced motion or dark mode while the page is open). Reading `.matches` from a cached `MediaQueryList` is an instantaneous getter and not a performance bottleneck.
+**Action:** When caching `window.matchMedia` to prevent redundant object allocations in hot loops, cache the returned `MediaQueryList` object, not its `.matches` property.
