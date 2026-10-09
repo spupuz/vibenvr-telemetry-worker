@@ -69,39 +69,39 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 		return new Response("Invalid ID format", { status: 400, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
 	}
 
-	const version = cleanStr(url.searchParams.get('version'), 20);
-	const os = cleanStr(url.searchParams.get('os'), 20);
-	const arch = cleanStr(url.searchParams.get('arch'), 20);
-	const cpu_model = cleanStr(url.searchParams.get('cpu_model'), 100);
-
-	const parseNum = (val) => {
-		const str = (val || '0').toString().trim().slice(0, 20);
-		const n = parseInt(str, 10);
-		return isFinite(n) ? Math.min(Math.max(0, n), 999999) : 0;
-	};
-
-	const cpu = parseNum(url.searchParams.get('cpu'));
-	const ram = parseNum(url.searchParams.get('ram'));
-	const cameras = parseNum(url.searchParams.get('cameras'));
-	const groups = parseNum(url.searchParams.get('groups'));
-	const events = parseNum(url.searchParams.get('events'));
-	const motion_opencv = parseNum(url.searchParams.get('motion_opencv'));
-	const motion_onvif = parseNum(url.searchParams.get('motion_onvif'));
-	const motion_ai_engine = parseNum(url.searchParams.get('motion_ai_engine'));
-	const motion_ai = parseNum(url.searchParams.get('motion_ai'));
-	const onvif_count = parseNum(url.searchParams.get('onvif_count'));
-	const substream_count = parseNum(url.searchParams.get('substream_count'));
-
-	const gpuParam = url.searchParams.get('gpu');
-	const gpu = (gpuParam === 'True' || gpuParam === 'true' || gpuParam === '1') ? 1 : 0;
-
-	const notificationsParam = url.searchParams.get('notifications');
-	const notifications = (notificationsParam === 'True' || notificationsParam === 'true' || notificationsParam === '1') ? 1 : 0;
-
-	const mqttActiveParam = url.searchParams.get('mqtt_active');
-	const mqtt_active = (mqttActiveParam === 'True' || mqttActiveParam === 'true' || mqttActiveParam === '1') ? 1 : 0;
-
 	if (env.VIBENVR_USAGE) {
+		const version = cleanStr(url.searchParams.get('version'), 20);
+		const os = cleanStr(url.searchParams.get('os'), 20);
+		const arch = cleanStr(url.searchParams.get('arch'), 20);
+		const cpu_model = cleanStr(url.searchParams.get('cpu_model'), 100);
+
+		const parseNum = (val) => {
+			const str = (val || '0').toString().trim().slice(0, 20);
+			const n = parseInt(str, 10);
+			return isFinite(n) ? Math.min(Math.max(0, n), 999999) : 0;
+		};
+
+		const cpu = parseNum(url.searchParams.get('cpu'));
+		const ram = parseNum(url.searchParams.get('ram'));
+		const cameras = parseNum(url.searchParams.get('cameras'));
+		const groups = parseNum(url.searchParams.get('groups'));
+		const events = parseNum(url.searchParams.get('events'));
+		const motion_opencv = parseNum(url.searchParams.get('motion_opencv'));
+		const motion_onvif = parseNum(url.searchParams.get('motion_onvif'));
+		const motion_ai_engine = parseNum(url.searchParams.get('motion_ai_engine'));
+		const motion_ai = parseNum(url.searchParams.get('motion_ai'));
+		const onvif_count = parseNum(url.searchParams.get('onvif_count'));
+		const substream_count = parseNum(url.searchParams.get('substream_count'));
+
+		const gpuParam = url.searchParams.get('gpu');
+		const gpu = (gpuParam === 'True' || gpuParam === 'true' || gpuParam === '1') ? 1 : 0;
+
+		const notificationsParam = url.searchParams.get('notifications');
+		const notifications = (notificationsParam === 'True' || notificationsParam === 'true' || notificationsParam === '1') ? 1 : 0;
+
+		const mqttActiveParam = url.searchParams.get('mqtt_active');
+		const mqtt_active = (mqttActiveParam === 'True' || mqttActiveParam === 'true' || mqttActiveParam === '1') ? 1 : 0;
+
 		try {
 			env.VIBENVR_USAGE.writeDataPoint({
 				blobs: [ instance_id, version, os, arch, cpu_model, country ],
