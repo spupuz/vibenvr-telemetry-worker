@@ -86,3 +86,7 @@
 ## 2026-11-20 - Synchronize CSS Transitions for Theme Toggles
 **Learning:** During theme toggles (e.g. Dark/Light mode), elements with background colors or borders that lack explicit CSS transitions will flash instantly, whereas the body background transitions smoothly. This creates a jarring, disjointed visual effect across surface components like cards and headers.
 **Action:** Always synchronize `background-color` and `border-color` transitions (e.g., `transition: background-color .25s, border-color .25s;`) across all theme-responsive surface containers to match the global theme transition duration.
+
+## 2026-11-20 - Enhancing Theme Native Components and Footer ARIA Semantics
+**Learning:** Native form elements and scrollbars will not follow CSS custom properties (like dark mode background colors) unless explicitly told via the `color-scheme` CSS property. Additionally, the `<footer` element loses its implicit ARIA `contentinfo` landmark role when nested inside a `<main>` tag, breaking screen reader navigation.
+**Action:** Always declare `color-scheme: light;` in `:root` and `color-scheme: dark;` in `.dark` (or equivalent theme classes) so the browser's native components match the active theme. Always place site-wide `<footer>` elements entirely outside of `<main>` blocks to preserve their semantic landmark roles.
