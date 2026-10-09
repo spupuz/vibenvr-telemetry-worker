@@ -113,3 +113,7 @@
 **Vulnerability:** Anchor tags (`<a>`) using `target="_blank"` were missing the `noreferrer` attribute alongside `noopener`.
 **Learning:** When a link opens a new tab via `target="_blank"`, the new page may have access to the original page's `window.opener` object (in older browsers) or can track the referrer information. While `noopener` mitigates the `window.opener` reverse tabnabbing attack, adding `noreferrer` is a best practice for privacy and defense-in-depth to prevent the target site from seeing the referrer URL.
 **Prevention:** Always use `rel="noopener noreferrer"` when using `target="_blank"` on links to external sites.
+## 2026-10-09 - Rejected CORS restriction due to unknown application dependencies
+**Vulnerability:** The CORS `Access-Control-Allow-Methods` header in `src/index.js` was configured to allow `POST` requests, which appeared unnecessary.
+**Learning:** Blindly removing allowed HTTP methods from CORS headers without verifying if the application actually needs them will introduce major regressions. The codebase might be relying on client-side POST requests in a way not immediately obvious from simple grep searches (e.g., dynamically configured endpoints or proxy logic).
+**Prevention:** Do not remove presumed "unused" CORS methods or restrict policies based solely on static code analysis without understanding the dynamic runtime context and explicitly testing the change against the full application flow.
