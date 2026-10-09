@@ -894,30 +894,31 @@ margin-top: 2px;
 		Powered by Cloudflare Workers Analytics Engine <span aria-hidden="true">·</span> No IP addresses or personal data stored <span aria-hidden="true">·</span>
 		All metrics are anonymous aggregate counts
 	</div>
-	<footer id="smart-footer" class="smart-footer">
-		<div class="footer-content">
-			<div class="footer-logo">
-				<ion-icon name="videocam" aria-hidden="true"></ion-icon> VibeNVR
-			</div>
-			
-			<div class="footer-links-site">
-				<a href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener noreferrer" class="footer-link-site">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
-				<a href="https://github.com/spupuz/VibeNVR/issues" target="_blank" rel="noopener noreferrer" class="footer-link-site">Issues<span class="sr-only"> (opens in a new tab)</span></a>
-				<a href="https://github.com/spupuz/VibeNVR/discussions" target="_blank" rel="noopener noreferrer" class="footer-link-site">Discussions<span class="sr-only"> (opens in a new tab)</span></a>
-				<span class="footer-divider" aria-hidden="true">|</span>
-				<a href="https://github.com/spupuz/VibeNVR/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="footer-link-site">License<span class="sr-only"> (opens in a new tab)</span></a>
-				<a href="https://spupuz.github.io/vibe-nvr-site/docs/Telemetry/" target="_blank" rel="noopener noreferrer" class="footer-link-site">Privacy & Telemetry<span class="sr-only"> (opens in a new tab)</span></a>
-			</div>
+</main>
 
-			<div class="footer-copy">
-				&copy; 2026 Alessandro Belloni.<br>
-				<div style="margin-top: 0.5rem; font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
-					telemetry version <span id="telemetry-version">v1.37.34</span>
-				</div>
+<footer id="smart-footer" class="smart-footer">
+	<div class="footer-content">
+		<div class="footer-logo">
+			<ion-icon name="videocam" aria-hidden="true"></ion-icon> VibeNVR
+		</div>
+
+		<div class="footer-links-site">
+			<a href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener noreferrer" class="footer-link-site">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
+			<a href="https://github.com/spupuz/VibeNVR/issues" target="_blank" rel="noopener noreferrer" class="footer-link-site">Issues<span class="sr-only"> (opens in a new tab)</span></a>
+			<a href="https://github.com/spupuz/VibeNVR/discussions" target="_blank" rel="noopener noreferrer" class="footer-link-site">Discussions<span class="sr-only"> (opens in a new tab)</span></a>
+			<span class="footer-divider" aria-hidden="true">|</span>
+			<a href="https://github.com/spupuz/VibeNVR/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="footer-link-site">License<span class="sr-only"> (opens in a new tab)</span></a>
+			<a href="https://spupuz.github.io/vibe-nvr-site/docs/Telemetry/" target="_blank" rel="noopener noreferrer" class="footer-link-site">Privacy & Telemetry<span class="sr-only"> (opens in a new tab)</span></a>
+		</div>
+
+		<div class="footer-copy">
+			&copy; 2026 Alessandro Belloni.<br>
+			<div style="margin-top: 0.5rem; font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
+				telemetry version <span id="telemetry-version">v1.37.34</span>
 			</div>
 		</div>
-	</footer>
-</main>
+	</div>
+</footer>
 
 <script nonce="${nonce}">
 	(async function fetchVersions() {
