@@ -120,3 +120,6 @@
 ## 2026-10-08 - [Avoid caching MediaQueryList.matches directly]
 **Learning:** While `window.matchMedia` evaluation involves CSSOM querying and should be cached outside hot loops, caching its `.matches` boolean directly instead of the `MediaQueryList` object breaks the dynamic nature of media queries (e.g., changes to user preferences like reduced motion or dark mode while the page is open). Reading `.matches` from a cached `MediaQueryList` is an instantaneous getter and not a performance bottleneck.
 **Action:** When caching `window.matchMedia` to prevent redundant object allocations in hot loops, cache the returned `MediaQueryList` object, not its `.matches` property.
+## 2026-10-10 - [Optimize cache key URL normalization]
+**Learning:** Instantiating a new `URL` object (e.g., `new URL(request.url)`) to manipulate or strip query parameters for cache keys adds significant parsing overhead (10-15x slower) on every request compared to simple string manipulation.
+**Action:** When normalizing fully-formed string URLs to strip query parameters (e.g., removing cache-busting search strings), use `urlStr.split('?')[0]` instead of re-instantiating a `URL` object, assigning `.search = ''`, and calling `.toString()`.
