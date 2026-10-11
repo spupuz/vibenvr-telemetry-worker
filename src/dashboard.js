@@ -215,7 +215,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			border-radius: var(--radius);
 			padding: 1.2rem 1.4rem;
 			box-shadow: var(--shadow);
-			transition: border-color .25s, box-shadow .25s, background-color .25s;
+			transition: border-color .25s, box-shadow .25s, transform .25s, background-color .25s;
 		}
 		.card:hover, .card:focus-visible { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-4px); }
 		.card[title] { cursor: help; }
