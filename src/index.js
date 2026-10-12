@@ -52,9 +52,8 @@ export default {
 				// 🛡️ Sentinel: Normalize cache key to prevent Cache-Busting DoS
 				// Attackers could append random query strings (?rnd=1) to force cache misses
 				// which would cause heavy SQL queries to be executed for every request.
-				const cacheUrl = new URL(request.url);
-				cacheUrl.search = '';
-				const cacheRequest = new Request(cacheUrl.toString(), request);
+				// ⚡ Bolt: Use string manipulation to avoid URL parsing overhead in hot path
+				const cacheRequest = new Request(request.url.split('?')[0], request);
 
 				const cachedResponse = await cache.match(cacheRequest);
 				if (cachedResponse) {
@@ -91,9 +90,8 @@ export default {
 				const cache = caches.default;
 
 				// 🛡️ Sentinel: Normalize cache key to prevent Cache-Busting DoS
-				const cacheUrl = new URL(request.url);
-				cacheUrl.search = '';
-				const cacheRequest = new Request(cacheUrl.toString(), request);
+				// ⚡ Bolt: Use string manipulation to avoid URL parsing overhead in hot path
+				const cacheRequest = new Request(request.url.split('?')[0], request);
 
 				const cachedResponse = await cache.match(cacheRequest);
 				if (cachedResponse) {
