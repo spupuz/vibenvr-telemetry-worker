@@ -215,7 +215,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			border-radius: var(--radius);
 			padding: 1.2rem 1.4rem;
 			box-shadow: var(--shadow);
-			transition: border-color .25s, box-shadow .25s, background-color .25s;
+			transition: border-color .25s, box-shadow .25s, background-color .25s, transform .25s;
 		}
 		.card:hover, .card:focus-visible { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-4px); }
 		.card[title] { cursor: help; }
@@ -424,7 +424,7 @@ margin-top: 2px;
 			color: var(--text-muted);
 			font-size: 0.85rem;
 			font-weight: 500;
-			transition: color 0.2s;
+			transition: color 0.2s, transform 0.2s;
 			text-decoration: none;
 			-webkit-tap-highlight-color: transparent;
 		}
