@@ -931,11 +931,10 @@ margin-top: 2px;
 			const telRes = await fetch('https://api.github.com/repos/spupuz/vibenvr-telemetry-worker/releases/latest', {
 				signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
 			});
-			if (telRes.ok) {
-				const telData = await telRes.json();
-				const telEl = document.getElementById('telemetry-version');
-				if (telEl) telEl.textContent = telData.tag_name;
-			}
+			if (!telRes.ok) throw new Error('HTTP ' + telRes.status);
+			const telData = await telRes.json();
+			const telEl = document.getElementById('telemetry-version');
+			if (telEl) telEl.textContent = telData.tag_name;
 		} catch (err) {
 			console.error('Failed to fetch versions', err);
 		}

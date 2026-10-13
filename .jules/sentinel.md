@@ -117,3 +117,7 @@
 **Vulnerability:** The CORS `Access-Control-Allow-Methods` header in `src/index.js` was configured to allow `POST` requests, which appeared unnecessary.
 **Learning:** Blindly removing allowed HTTP methods from CORS headers without verifying if the application actually needs them will introduce major regressions. The codebase might be relying on client-side POST requests in a way not immediately obvious from simple grep searches (e.g., dynamically configured endpoints or proxy logic).
 **Prevention:** Do not remove presumed "unused" CORS methods or restrict policies based solely on static code analysis without understanding the dynamic runtime context and explicitly testing the change against the full application flow.
+## 2026-10-13 - Prevent Unhandled Promise Rejections from External API Calls
+**Vulnerability:** Calling `.json()` on external `fetch` responses without validating the HTTP response status (`res.ok`) can lead to unhandled `SyntaxError` exceptions if the API returns an HTML error page or unexpected schema. This could potentially crash the worker or leak API response structures on unexpected errors.
+**Learning:** External API dependencies are untrusted and failure-prone. Explicit error checks are necessary before parsing their responses.
+**Prevention:** Always check `if (!res.ok)` and throw a sanitized error (e.g., `throw new Error('HTTP ' + res.status)`) before calling `.json()` on `fetch` responses.
