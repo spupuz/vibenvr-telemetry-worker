@@ -987,6 +987,9 @@ margin-top: 2px;
 	// ⚡ Bolt: Cache NumberFormat instance to prevent instantiating new formatters in loops
 	const numberFormatter = new Intl.NumberFormat();
 
+	// ⚡ Bolt: Cache DateTimeFormat instance to prevent instantiating new formatters in loops
+	const dateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+
 	// ⚡ Bolt: Fetch GitHub stars once on load rather than inside renderChartsIfReady
 	// which fires repeatedly on theme toggles
 	fetch('https://api.github.com/repos/spupuz/VibeNVR', {
@@ -1316,9 +1319,6 @@ margin-top: 2px;
 					});
 				}
 		};
-
-		// ⚡ Bolt: Cache DateTimeFormat instance to prevent instantiating new formatters in loops
-		const dateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
 
 		// World map choropleth & Site map choropleth
 		cachedCountriesPromise.then(renderMaps).catch(() => {
