@@ -127,3 +127,7 @@
 ## 2026-10-14 - [Avoid Instantiating Intl Constructors in Render Loops]
 **Learning:** Re-instantiating `Intl` formatting objects, like `new Intl.DateTimeFormat()`, inside functions that execute frequently (e.g. `renderChartsIfReady()`, which fires on theme toggles) creates severe performance bottlenecks. V8 implicitly allocates multiple closures and heavily impacts GC execution time in hot render loops.
 **Action:** Always instantiate `new Intl.DateTimeFormat()` or `new Intl.NumberFormat()` once outside the loop (in the global or module scope) and reuse the cached instance inside the function.
+
+## 2026-10-15 - Extract Closure Functions to Module Scope in Cloudflare Workers
+**Learning:** Defining utility functions like string cleaners or parsers inside the main request handler (`export default { fetch() }` or exported handlers) causes V8 to allocate closure memory for these functions on every single request. In high-throughput paths like tracking pixel ingestion, this creates severe Garbage Collection (GC) pressure that degrades overall worker performance and increases latency.
+**Action:** Always move static utility functions, regexes, and constants outside the request handler into the outer module scope. They will be instantiated once when the worker starts and reused across all subsequent requests without adding to GC overhead.
