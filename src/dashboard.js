@@ -4,6 +4,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#ffffff" id="theme-color-meta">
 	<title>VibeNVR Telemetry</title>
 	<link rel="icon" type="image/png" href="${prefix}/favicon.png">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1029,6 +1030,8 @@ margin-top: 2px;
 
 	function applyTheme(dark) {
 		document.documentElement.classList.toggle('dark', dark);
+		const themeMeta = document.getElementById('theme-color-meta');
+		if (themeMeta) themeMeta.content = dark ? '#161b22' : '#ffffff';
 		const logo = document.getElementById('logo-img');
 		const sun = document.getElementById('icon-sun');
 		const moon = document.getElementById('icon-moon');

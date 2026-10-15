@@ -90,3 +90,6 @@
 ## 2026-11-20 - Enhancing Theme Native Components and Footer ARIA Semantics
 **Learning:** Native form elements and scrollbars will not follow CSS custom properties (like dark mode background colors) unless explicitly told via the `color-scheme` CSS property. Additionally, the `<footer` element loses its implicit ARIA `contentinfo` landmark role when nested inside a `<main>` tag, breaking screen reader navigation.
 **Action:** Always declare `color-scheme: light;` in `:root` and `color-scheme: dark;` in `.dark` (or equivalent theme classes) so the browser's native components match the active theme. Always place site-wide `<footer>` elements entirely outside of `<main>` blocks to preserve their semantic landmark roles.
+## 2026-11-20 - Adding dynamic theme-color meta tag
+**Learning:** Native mobile browsers do not automatically match the address bar color to the active CSS theme unless explicitly guided by a `<meta name="theme-color">` tag. Without this tag, the browser chrome might clash visually with the app's top bar, breaking the cohesive immersion.
+**Action:** Always include a `<meta name="theme-color">` tag in the `<head>` and dynamically update its `content` value using JavaScript when the user toggles between light and dark modes to ensure a seamless app-like experience on mobile.
