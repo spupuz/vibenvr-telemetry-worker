@@ -123,3 +123,7 @@
 ## 2026-10-10 - [Optimize cache key URL normalization]
 **Learning:** Instantiating a new `URL` object (e.g., `new URL(request.url)`) to manipulate or strip query parameters for cache keys adds significant parsing overhead (10-15x slower) on every request compared to simple string manipulation.
 **Action:** When normalizing fully-formed string URLs to strip query parameters (e.g., removing cache-busting search strings), use `urlStr.split('?')[0]` instead of re-instantiating a `URL` object, assigning `.search = ''`, and calling `.toString()`.
+
+## 2026-10-14 - [Avoid Instantiating Intl Constructors in Render Loops]
+**Learning:** Re-instantiating `Intl` formatting objects, like `new Intl.DateTimeFormat()`, inside functions that execute frequently (e.g. `renderChartsIfReady()`, which fires on theme toggles) creates severe performance bottlenecks. V8 implicitly allocates multiple closures and heavily impacts GC execution time in hot render loops.
+**Action:** Always instantiate `new Intl.DateTimeFormat()` or `new Intl.NumberFormat()` once outside the loop (in the global or module scope) and reuse the cached instance inside the function.
