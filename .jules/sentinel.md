@@ -117,3 +117,7 @@
 **Vulnerability:** The CORS `Access-Control-Allow-Methods` header in `src/index.js` was configured to allow `POST` requests, which appeared unnecessary.
 **Learning:** Blindly removing allowed HTTP methods from CORS headers without verifying if the application actually needs them will introduce major regressions. The codebase might be relying on client-side POST requests in a way not immediately obvious from simple grep searches (e.g., dynamically configured endpoints or proxy logic).
 **Prevention:** Do not remove presumed "unused" CORS methods or restrict policies based solely on static code analysis without understanding the dynamic runtime context and explicitly testing the change against the full application flow.
+## 2026-10-15 - Prevent ID Injection in KV and Analytics
+**Vulnerability:** User-provided identifiers (`visitor_id`, `instance_id`) were passed to KV storage keys and Analytics Engine indexes with only length checks, allowing potential control character or format injection.
+**Learning:** Even internal tracking IDs from trusted client scripts must be strictly validated on the backend to ensure they conform to expected formats (e.g., alphanumeric and safe characters) before being used in database or storage operations.
+**Prevention:** Always apply strict regex validation (e.g., `/^[a-zA-Z0-9_-]+$/`) to all user-provided identifiers to enforce a safe, known format.

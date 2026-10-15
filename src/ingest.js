@@ -17,7 +17,8 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 			const visitor_id = cleanStr(url.searchParams.get('visitor_id'), 128);
 			const path = cleanStr(url.searchParams.get('path'), 200);
 
-			if (visitor_id !== 'unknown' && visitor_id.length >= 8) {
+			// 🛡️ Sentinel: Validate visitor_id format to prevent injection in KV keys and Analytics indexes
+			if (visitor_id !== 'unknown' && visitor_id.length >= 8 && /^[a-zA-Z0-9_-]+$/.test(visitor_id)) {
 				try {
 					env.VIBENVR_SITE_USAGE.writeDataPoint({
 						blobs: [ visitor_id, path, country ],
@@ -65,7 +66,8 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 	// Rest of the logic handles standard telemetry endpoints (e.g. /telemetry)
 	const instance_id = cleanStr(url.searchParams.get('instance_id'), 128);
 
-	if (instance_id === 'unknown' || instance_id.length < 16) {
+	// 🛡️ Sentinel: Validate instance_id format to prevent injection in KV keys and Analytics indexes
+	if (instance_id === 'unknown' || instance_id.length < 16 || !/^[a-zA-Z0-9_-]+$/.test(instance_id)) {
 		return new Response("Invalid ID format", { status: 400, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
 	}
 
