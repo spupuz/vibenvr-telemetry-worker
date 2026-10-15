@@ -572,10 +572,11 @@ margin-top: 2px;
 	</a>
 	<div class="topbar-right">
 		<div class="badge-live"><span class="dot" aria-hidden="true"></span> Live</div>
-		<button type="button" class="theme-btn" id="theme-toggle" title="Toggle theme" aria-label="Switch to Dark Mode" aria-keyshortcuts="T">
+		<button type="button" class="theme-btn" id="theme-toggle" title="Toggle theme" aria-label="Theme: Follow System" aria-keyshortcuts="T">
 			<svg aria-hidden="true" id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
-			<svg aria-hidden="true" id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-			<span id="theme-label">Switch to Dark Mode</span>
+			<svg aria-hidden="true" id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+			<svg aria-hidden="true" id="icon-system" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+			<span id="theme-label">System</span>
 			<kbd class="shortcut-key" aria-hidden="true">T</kbd>
 		</button>
 	</div>
@@ -920,7 +921,7 @@ margin-top: 2px;
 			<div class="footer-copy">
 				&copy; 2026 Alessandro Belloni.<br>
 				<div style="margin-top: 0.5rem; font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
-					telemetry version <span id="telemetry-version">v1.37.37</span>
+					telemetry version <span id="telemetry-version">v1.37.38</span>
 				</div>
 			</div>
 		</div>
@@ -1031,34 +1032,57 @@ margin-top: 2px;
 	const LOGO_DARK  = '${prefix}/assets/logo-dark';
 	const LOGO_LIGHT = '${prefix}/assets/logo-light';
 
-	function applyTheme(dark) {
-		document.documentElement.classList.toggle('dark', dark);
+	let currentThemeSetting = 'system';
+
+	function applyTheme(setting) {
+		currentThemeSetting = setting;
+		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+		const isDark = setting === 'dark' || (setting === 'system' && prefersDark);
+
+		document.documentElement.classList.toggle('dark', isDark);
 		const themeMeta = document.getElementById('theme-color-meta');
-		if (themeMeta) themeMeta.content = dark ? '#161b22' : '#ffffff';
+		if (themeMeta) themeMeta.content = isDark ? '#161b22' : '#ffffff';
 		const logo = document.getElementById('logo-img');
 		const sun = document.getElementById('icon-sun');
 		const moon = document.getElementById('icon-moon');
+		const system = document.getElementById('icon-system');
 		const lbl = document.getElementById('theme-label');
-		if (logo) logo.src = dark ? LOGO_DARK : LOGO_LIGHT;
-		if (sun) sun.style.display = dark ? 'block' : 'none';
-		if (moon) moon.style.display = dark ? 'none' : 'block';
 		const btn = document.getElementById('theme-toggle');
-		if (lbl) lbl.textContent = dark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+
+		if (logo) logo.src = isDark ? LOGO_DARK : LOGO_LIGHT;
+		if (sun) sun.style.display = setting === 'light' ? 'block' : 'none';
+		if (moon) moon.style.display = setting === 'dark' ? 'block' : 'none';
+		if (system) system.style.display = setting === 'system' ? 'block' : 'none';
+
+		const nextMode = setting === 'system' ? 'light' : (setting === 'light' ? 'dark' : 'system');
+		const nextLabel = setting === 'system' ? 'Light' : (setting === 'light' ? 'Dark' : 'Follow System');
+		const currentLabel = setting === 'system' ? 'System' : (setting === 'light' ? 'Light' : 'Dark');
+
+		if (lbl) lbl.textContent = currentLabel;
 		if (btn) {
-			btn.title = dark ? 'Switch to Light Mode (T)' : 'Switch to Dark Mode (T)';
-			btn.setAttribute('aria-label', dark ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+			btn.title = `Theme: ${currentLabel} (Click for ${nextLabel}, or press T)`;
+			btn.setAttribute('aria-label', `Theme: ${currentLabel}. Switch to ${nextLabel}`);
 		}
-		localStorage.setItem('vnvr-theme', dark ? 'dark' : 'light');
+		localStorage.setItem('vnvr-theme', setting);
 		if (lastData) renderChartsIfReady();
 	}
+
 	function toggleTheme() {
-		applyTheme(!document.documentElement.classList.contains('dark'));
+		const next = currentThemeSetting === 'system' ? 'light' : (currentThemeSetting === 'light' ? 'dark' : 'system');
+		applyTheme(next);
 	}
+
 	// Init theme from localStorage or system preference
 	(function() {
 		const saved = localStorage.getItem('vnvr-theme');
-		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-		applyTheme(saved ? saved === 'dark' : prefersDark);
+		const initial = (saved === 'dark' || saved === 'light' || saved === 'system') ? saved : 'system';
+		applyTheme(initial);
+
+		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+			if (currentThemeSetting === 'system') {
+				applyTheme('system');
+			}
+		});
 	})();
 
 	// ─── CHART HELPERS ───────────────────────────────────────────────────────
