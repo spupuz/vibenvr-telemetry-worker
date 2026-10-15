@@ -123,3 +123,7 @@
 ## 2026-10-10 - [Optimize cache key URL normalization]
 **Learning:** Instantiating a new `URL` object (e.g., `new URL(request.url)`) to manipulate or strip query parameters for cache keys adds significant parsing overhead (10-15x slower) on every request compared to simple string manipulation.
 **Action:** When normalizing fully-formed string URLs to strip query parameters (e.g., removing cache-busting search strings), use `urlStr.split('?')[0]` instead of re-instantiating a `URL` object, assigning `.search = ''`, and calling `.toString()`.
+
+## 2026-10-15 - Extract Closure Functions to Module Scope in Cloudflare Workers
+**Learning:** Defining utility functions like string cleaners or parsers inside the main request handler (`export default { fetch() }` or exported handlers) causes V8 to allocate closure memory for these functions on every single request. In high-throughput paths like tracking pixel ingestion, this creates severe Garbage Collection (GC) pressure that degrades overall worker performance and increases latency.
+**Action:** Always move static utility functions, regexes, and constants outside the request handler into the outer module scope. They will be instantiated once when the worker starts and reused across all subsequent requests without adding to GC overhead.

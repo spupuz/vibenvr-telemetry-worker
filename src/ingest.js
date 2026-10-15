@@ -8,8 +8,19 @@ const transparentPos = new Uint8Array([
 	0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
 ]);
 
+// ⚡ Bolt: Extract utility functions to module scope to prevent re-allocating closure memory
+// on every request, reducing Garbage Collection (GC) overhead on the hot path.
+const cleanStr = (val, max = 100) => (val || 'unknown').toString().trim().slice(0, max);
+
+const parseNum = (val) => {
+	const str = (val || '0').toString().trim().slice(0, 20);
+	const n = parseInt(str, 10);
+	return isFinite(n) ? Math.min(Math.max(0, n), 999999) : 0;
+};
+
+const parseBool = (val) => (val === 'True' || val === 'true' || val === '1') ? 1 : 0;
+
 export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) => {
-	const cleanStr = (val, max = 100) => (val || 'unknown').toString().trim().slice(0, max);
 	const country = request.cf?.country || 'Unknown';
 
 	if (url.pathname === '/site-telemetry.png') {
@@ -75,12 +86,6 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 		const arch = cleanStr(url.searchParams.get('arch'), 20);
 		const cpu_model = cleanStr(url.searchParams.get('cpu_model'), 100);
 
-		const parseNum = (val) => {
-			const str = (val || '0').toString().trim().slice(0, 20);
-			const n = parseInt(str, 10);
-			return isFinite(n) ? Math.min(Math.max(0, n), 999999) : 0;
-		};
-
 		const cpu = parseNum(url.searchParams.get('cpu'));
 		const ram = parseNum(url.searchParams.get('ram'));
 		const cameras = parseNum(url.searchParams.get('cameras'));
@@ -93,14 +98,9 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 		const onvif_count = parseNum(url.searchParams.get('onvif_count'));
 		const substream_count = parseNum(url.searchParams.get('substream_count'));
 
-		const gpuParam = url.searchParams.get('gpu');
-		const gpu = (gpuParam === 'True' || gpuParam === 'true' || gpuParam === '1') ? 1 : 0;
-
-		const notificationsParam = url.searchParams.get('notifications');
-		const notifications = (notificationsParam === 'True' || notificationsParam === 'true' || notificationsParam === '1') ? 1 : 0;
-
-		const mqttActiveParam = url.searchParams.get('mqtt_active');
-		const mqtt_active = (mqttActiveParam === 'True' || mqttActiveParam === 'true' || mqttActiveParam === '1') ? 1 : 0;
+		const gpu = parseBool(url.searchParams.get('gpu'));
+		const notifications = parseBool(url.searchParams.get('notifications'));
+		const mqtt_active = parseBool(url.searchParams.get('mqtt_active'));
 
 		try {
 			env.VIBENVR_USAGE.writeDataPoint({
