@@ -121,3 +121,8 @@
 **Vulnerability:** Calling `.json()` on external `fetch` responses without validating the HTTP response status (`res.ok`) can lead to unhandled `SyntaxError` exceptions if the API returns an HTML error page or unexpected schema. This could potentially crash the worker or leak API response structures on unexpected errors.
 **Learning:** External API dependencies are untrusted and failure-prone. Explicit error checks are necessary before parsing their responses.
 **Prevention:** Always check `if (!res.ok)` and throw a sanitized error (e.g., `throw new Error('HTTP ' + res.status)`) before calling `.json()` on `fetch` responses.
+
+## 2026-10-15 - Prevent ID Injection in KV and Analytics
+**Vulnerability:** User-provided identifiers (`visitor_id`, `instance_id`) were passed to KV storage keys and Analytics Engine indexes with only length checks, allowing potential control character or format injection.
+**Learning:** Even internal tracking IDs from trusted client scripts must be strictly validated on the backend to ensure they conform to expected formats (e.g., alphanumeric and safe characters) before being used in database or storage operations.
+**Prevention:** Always apply strict regex validation (e.g., `/^[a-zA-Z0-9_-]+$/`) to all user-provided identifiers to enforce a safe, known format.
