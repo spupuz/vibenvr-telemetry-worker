@@ -1060,8 +1060,8 @@ margin-top: 2px;
 
 		if (lbl) lbl.textContent = currentLabel;
 		if (btn) {
-			btn.title = `Theme: ${currentLabel} (Click for ${nextLabel}, or press T)`;
-			btn.setAttribute('aria-label', `Theme: ${currentLabel}. Switch to ${nextLabel}`);
+			btn.title = 'Theme: ' + currentLabel + ' (Click for ' + nextLabel + ', or press T)';
+			btn.setAttribute('aria-label', 'Theme: ' + currentLabel + '. Switch to ' + nextLabel);
 		}
 		localStorage.setItem('vnvr-theme', setting);
 		if (lastData) renderChartsIfReady();
