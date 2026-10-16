@@ -921,7 +921,7 @@ margin-top: 2px;
 			<div class="footer-copy">
 				&copy; 2026 Alessandro Belloni.<br>
 				<div style="margin-top: 0.5rem; font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
-					telemetry version <span id="telemetry-version">v1.37.38</span>
+					telemetry version <span id="telemetry-version">v1.37.41</span>
 				</div>
 			</div>
 		</div>
@@ -929,16 +929,29 @@ margin-top: 2px;
 
 <script nonce="${nonce}">
 	(async function fetchVersions() {
+		const telEl = document.getElementById('telemetry-version');
+		let cached = null;
+		try {
+			cached = sessionStorage.getItem('vnvr_telemetry_version');
+		} catch (e) {}
+		if (cached && telEl) {
+			telEl.textContent = cached;
+			return;
+		}
 		try {
 			const telRes = await fetch('https://api.github.com/repos/spupuz/vibenvr-telemetry-worker/releases/latest', {
 				signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
 			});
 			if (!telRes.ok) throw new Error('HTTP ' + telRes.status);
 			const telData = await telRes.json();
-			const telEl = document.getElementById('telemetry-version');
-			if (telEl) telEl.textContent = telData.tag_name;
+			if (telEl && telData && telData.tag_name) {
+				telEl.textContent = telData.tag_name;
+				try {
+					sessionStorage.setItem('vnvr_telemetry_version', telData.tag_name);
+				} catch (e) {}
+			}
 		} catch (err) {
-			console.error('Failed to fetch versions', err);
+			console.warn('Could not refresh telemetry version from GitHub, using default:', err.message || err);
 		}
 	})();
 
@@ -991,18 +1004,48 @@ margin-top: 2px;
 	// ⚡ Bolt: Cache DateTimeFormat instance to prevent instantiating new formatters in loops
 	const dateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
 
-	// ⚡ Bolt: Fetch GitHub stars once on load rather than inside renderChartsIfReady
-	// which fires repeatedly on theme toggles
-	fetch('https://api.github.com/repos/spupuz/VibeNVR', {
-		signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
-	})
-		.then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r; })
-		.then(r => r.json())
-		.then(repo => {
-			const currentStars = repo.stargazers_count || 0;
-			const el = document.getElementById('header-github-stars');
-			if (el) animateValue(el, 0, currentStars, 1500);
-		}).catch(e => console.error("Error fetching GitHub stars:", e));
+	// ⚡ Bolt: Fetch GitHub stars once on load and cache in localStorage (1 hour TTL) to prevent 403 API rate limit errors
+	(function fetchGitHubStars() {
+		const el = document.getElementById('header-github-stars');
+		const CACHE_KEY = 'vnvr_github_stars';
+		const CACHE_TTL = 3600000; // 1 hour
+		try {
+			const cached = localStorage.getItem(CACHE_KEY);
+			if (cached) {
+				const parsed = JSON.parse(cached);
+				if (parsed && typeof parsed.count === 'number' && (Date.now() - parsed.ts) < CACHE_TTL) {
+					if (el) el.textContent = numberFormatter.format(parsed.count);
+					return;
+				}
+			}
+		} catch (e) {}
+
+		fetch('https://api.github.com/repos/spupuz/VibeNVR', {
+			signal: (window.AbortSignal && AbortSignal.timeout) ? AbortSignal.timeout(10000) : undefined
+		})
+			.then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r; })
+			.then(r => r.json())
+			.then(repo => {
+				const currentStars = repo.stargazers_count || 0;
+				if (el) animateValue(el, 0, currentStars, 1500);
+				try {
+					localStorage.setItem(CACHE_KEY, JSON.stringify({ count: currentStars, ts: Date.now() }));
+				} catch (e) {}
+			}).catch(e => {
+				// Fallback to stale cached stars if available on rate limit or network error
+				try {
+					const stale = localStorage.getItem(CACHE_KEY);
+					if (stale && el) {
+						const parsed = JSON.parse(stale);
+						if (parsed && typeof parsed.count === 'number') {
+							el.textContent = numberFormatter.format(parsed.count);
+							return;
+						}
+					}
+				} catch (err) {}
+				console.warn('Could not fetch GitHub stars, keeping default:', e.message || e);
+			});
+	})();
 
 	// ⚡ Bolt: Cache matchMedia evaluation outside the hot animation loop to prevent redundant CSSOM querying and object allocation
 	const prefersReducedMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
