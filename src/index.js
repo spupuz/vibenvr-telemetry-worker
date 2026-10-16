@@ -16,7 +16,9 @@ export default {
 				url.pathname = '/';
 			} else if (url.pathname.startsWith('/telemetry/')) {
 				prefix = '/telemetry';
-				url.pathname = url.pathname.replace(/^\/telemetry/, '');
+				// ⚡ Bolt: Use .substring(10) instead of regex replacement for string manipulation
+				// to avoid regex engine overhead on hot request paths when the prefix length is known.
+				url.pathname = url.pathname.substring(10);
 			}
 
 			// 0. Security Setup

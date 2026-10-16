@@ -1647,7 +1647,12 @@ margin-top: 2px;
 		
 
 		set('kpi-total',         data.total_installs);
-		const activeCountriesCount = data.countries ? data.countries.filter(c => c.name !== 'Unknown').length : 0;
+		let activeCountriesCount = 0;
+		if (data.countries) {
+			for (let i = 0; i < data.countries.length; i++) {
+				if (data.countries[i].name !== 'Unknown') activeCountriesCount++;
+			}
+		}
 		set('kpi-countries',     activeCountriesCount);
 		
 		set('kpi-cameras',       data.total_cameras);
