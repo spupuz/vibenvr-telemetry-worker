@@ -126,3 +126,7 @@
 **Vulnerability:** User-provided identifiers (`visitor_id`, `instance_id`) were passed to KV storage keys and Analytics Engine indexes with only length checks, allowing potential control character or format injection.
 **Learning:** Even internal tracking IDs from trusted client scripts must be strictly validated on the backend to ensure they conform to expected formats (e.g., alphanumeric and safe characters) before being used in database or storage operations.
 **Prevention:** Always apply strict regex validation (e.g., `/^[a-zA-Z0-9_-]+$/`) to all user-provided identifiers to enforce a safe, known format.
+## 2026-10-17 - Input Sanitization for Telemetry Data
+**Vulnerability:** Control characters could be injected into telemetry data via URL parameters, potentially causing log injection or data format corruption.
+**Learning:** Even internal tracking IDs and telemetry data like OS versions need to be sanitized to prevent control character injection, especially before being written to storage or logs.
+**Prevention:** Always strip control characters using `replace(/[\x00-\x1F\x7F-\x9F]/g, '')` or similar robust sanitization on user-provided strings.

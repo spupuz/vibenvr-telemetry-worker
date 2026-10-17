@@ -10,7 +10,7 @@ const transparentPos = new Uint8Array([
 
 // ⚡ Bolt: Extract utility functions to module scope to prevent re-allocating closure memory
 // on every request, reducing Garbage Collection (GC) overhead on the hot path.
-const cleanStr = (val, max = 100) => (val || 'unknown').toString().trim().slice(0, max);
+const cleanStr = (val, max = 100) => (val || 'unknown').toString().trim().replace(/[\x00-\x1F\x7F-\x9F]/g, '').slice(0, max);
 
 const parseNum = (val) => {
 	const str = (val || '0').toString().trim().slice(0, 20);
