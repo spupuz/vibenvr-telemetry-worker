@@ -135,3 +135,6 @@
 ## 2026-10-16 - [Optimize regex replacement string parsing]
 **Learning:** Using a Regex `.replace()` to strip a known string prefix from a URL or path in hot request loops incurs unnecessary regular expression engine overhead. In tests, `.replace(/^\/telemetry/, '')` was roughly 12x slower than `.substring(10)` (26ms vs 2.2ms for 100k operations).
 **Action:** When stripping a known string prefix from a URL or path in hot request loops (e.g., after already verifying it with `.startsWith()`), prefer using `.substring(length)` rather than a Regex `.replace()` to avoid unnecessary regular expression engine overhead and reduce CPU usage.
+## 2026-10-18 - [Cache prefers-color-scheme media query]
+**Learning:** Re-evaluating `window.matchMedia('(prefers-color-scheme: dark)')` during theme initialization and toggling creates redundant CSSOM querying and object allocation.
+**Action:** Extract and cache the `MediaQueryList` object for `prefers-color-scheme` in an outer scope (e.g., `prefersDarkTheme`) to reuse it for `.matches` checks and event listeners, reducing performance overhead.

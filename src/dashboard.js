@@ -1049,6 +1049,7 @@ margin-top: 2px;
 
 	// ⚡ Bolt: Cache matchMedia evaluation outside the hot animation loop to prevent redundant CSSOM querying and object allocation
 	const prefersReducedMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+	const prefersDarkTheme = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
 	function animateValue(obj, start, end, duration) {
 		if (prefersReducedMotion && prefersReducedMotion.matches) {
@@ -1079,7 +1080,7 @@ margin-top: 2px;
 
 	function applyTheme(setting) {
 		currentThemeSetting = setting;
-		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+		const prefersDark = prefersDarkTheme && prefersDarkTheme.matches;
 		const isDark = setting === 'dark' || (setting === 'system' && prefersDark);
 
 		document.documentElement.classList.toggle('dark', isDark);
@@ -1121,11 +1122,13 @@ margin-top: 2px;
 		const initial = (saved === 'dark' || saved === 'light' || saved === 'system') ? saved : 'system';
 		applyTheme(initial);
 
-		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-			if (currentThemeSetting === 'system') {
-				applyTheme('system');
-			}
-		});
+		if (prefersDarkTheme) {
+			prefersDarkTheme.addEventListener('change', () => {
+				if (currentThemeSetting === 'system') {
+					applyTheme('system');
+				}
+			});
+		}
 	})();
 
 	// ─── CHART HELPERS ───────────────────────────────────────────────────────
