@@ -8,9 +8,13 @@ const transparentPos = new Uint8Array([
 	0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
 ]);
 
+// ⚡ Bolt: Extract static regexes to module scope to prevent re-compilation on every request
+const CONTROL_CHAR_REGEX = /[\x00-\x1F\x7F-\x9F]/g;
+const ID_VALIDATION_REGEX = /^[a-zA-Z0-9_-]+$/;
+
 // ⚡ Bolt: Extract utility functions to module scope to prevent re-allocating closure memory
 // on every request, reducing Garbage Collection (GC) overhead on the hot path.
-const cleanStr = (val, max = 100) => (val || 'unknown').toString().trim().replace(/[\x00-\x1F\x7F-\x9F]/g, '').slice(0, max);
+const cleanStr = (val, max = 100) => (val || 'unknown').toString().trim().replace(CONTROL_CHAR_REGEX, '').slice(0, max);
 
 const parseNum = (val) => {
 	const str = (val || '0').toString().trim().slice(0, 20);
@@ -29,7 +33,7 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 			const path = cleanStr(url.searchParams.get('path'), 200);
 
 			// 🛡️ Sentinel: Validate visitor_id format to prevent injection in KV keys and Analytics indexes
-			if (visitor_id !== 'unknown' && visitor_id.length >= 8 && /^[a-zA-Z0-9_-]+$/.test(visitor_id)) {
+			if (visitor_id !== 'unknown' && visitor_id.length >= 8 && ID_VALIDATION_REGEX.test(visitor_id)) {
 				try {
 					env.VIBENVR_SITE_USAGE.writeDataPoint({
 						blobs: [ visitor_id, path, country ],
@@ -78,7 +82,7 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 	const instance_id = cleanStr(url.searchParams.get('instance_id'), 128);
 
 	// 🛡️ Sentinel: Validate instance_id format to prevent injection in KV keys and Analytics indexes
-	if (instance_id === 'unknown' || instance_id.length < 16 || !/^[a-zA-Z0-9_-]+$/.test(instance_id)) {
+	if (instance_id === 'unknown' || instance_id.length < 16 || !ID_VALIDATION_REGEX.test(instance_id)) {
 		return new Response("Invalid ID format", { status: 400, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
 	}
 

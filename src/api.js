@@ -11,6 +11,88 @@ const objectToSortedArray = (obj) => {
 	return arr.sort((a, b) => b.count - a.count);
 };
 
+// ⚡ Bolt: Extract static SQL queries to module scope to prevent re-allocating memory and parsing strings on every request
+const sqlActive = `
+	SELECT
+		blob1 as instance_id,
+		blob2 as version,
+		blob3 as os,
+		blob4 as arch,
+		blob6 as country,
+		blob5 as cpu,
+		timestamp,
+		double1 as cpu_cores,
+		double2 as ram,
+		double3 as cameras,
+		double4 as groups,
+		double5 as events,
+		double6 as gpu,
+		double7 as notifications,
+		double8 as mqtt_active,
+		double9 as motion_opencv,
+		double10 as motion_onvif,
+		double11 as motion_ai_engine,
+		double12 as motion_ai,
+		double13 as onvif_count,
+		double14 as substream_count
+	FROM vibenvr_telemetry_events
+	WHERE timestamp >= NOW() - INTERVAL '30' DAY
+`;
+
+const sqlTotal = `SELECT count(DISTINCT blob1) as total FROM vibenvr_telemetry_events`;
+
+const sqlActivityAndEvents = `
+	SELECT
+		day,
+		sum(user_pings) as pings,
+		count(DISTINCT blob1) as uniques,
+		sum(max_events) as events
+	FROM (
+		SELECT
+			toStartOfDay(timestamp) as day,
+			blob1,
+			count() as user_pings,
+			max(double5) as max_events
+		FROM vibenvr_telemetry_events
+		WHERE timestamp >= NOW() - INTERVAL '30' DAY
+		GROUP BY day, blob1
+	)
+	GROUP BY day
+	ORDER BY day ASC
+`;
+
+const sqlSiteActivity = `
+	SELECT
+		toStartOfDay(timestamp) as day,
+		count() as pageviews,
+		count(DISTINCT blob1) as uniques
+	FROM vibenvr_site_events
+	WHERE timestamp >= NOW() - INTERVAL '30' DAY
+	GROUP BY day
+	ORDER BY day ASC
+`;
+
+const sqlSiteCountries = `
+	SELECT
+		blob3 as country,
+		count(DISTINCT blob1) as uniques
+	FROM vibenvr_site_events
+	WHERE timestamp >= NOW() - INTERVAL '30' DAY
+	GROUP BY country
+`;
+
+const sqlSiteTotals = `
+	SELECT
+		count(DISTINCT blob1) as total_visitors,
+		count() as total_pageviews
+	FROM vibenvr_site_events
+	WHERE timestamp >= NOW() - INTERVAL '30' DAY
+`;
+
+// ⚡ Bolt: Extract constant arrays to module scope to prevent reallocation during API processing loops
+const CAMERAS_DIST_ORDER = ['0', '1', '2-3', '4-5', '6-10', '11-20', '21+'];
+const GROUPS_DIST_ORDER = ['0', '1', '2-3', '4-5', '6-10', '11+'];
+
 export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			if (!env.ACCOUNT_ID || !env.API_TOKEN) {
 				return new Response(JSON.stringify({ error: "Internal Server Error" }), {
@@ -18,84 +100,6 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json' }
 				});
 			}
-
-			// Query 1: Active instances and their latest properties (Last 30 Days)
-			const sqlActive = `
-				SELECT 
-					blob1 as instance_id, 
-					blob2 as version, 
-					blob3 as os,
-					blob4 as arch,
-					blob6 as country, 
-					blob5 as cpu,
-					timestamp,
-					double1 as cpu_cores,
-					double2 as ram,
-					double3 as cameras,
-					double4 as groups,
-					double5 as events,
-					double6 as gpu,
-					double7 as notifications,
-					double8 as mqtt_active,
-					double9 as motion_opencv,
-					double10 as motion_onvif,
-					double11 as motion_ai_engine,
-					double12 as motion_ai,
-					double13 as onvif_count,
-					double14 as substream_count
-				FROM vibenvr_telemetry_events 
-				WHERE timestamp >= NOW() - INTERVAL '30' DAY
-			`;
-
-			const sqlTotal = `SELECT count(DISTINCT blob1) as total FROM vibenvr_telemetry_events`;
-
-			const sqlActivityAndEvents = `
-				SELECT 
-					day,
-					sum(user_pings) as pings,
-					count(DISTINCT blob1) as uniques,
-					sum(max_events) as events
-				FROM (
-					SELECT
-						toStartOfDay(timestamp) as day,
-						blob1,
-						count() as user_pings,
-						max(double5) as max_events
-					FROM vibenvr_telemetry_events
-					WHERE timestamp >= NOW() - INTERVAL '30' DAY
-					GROUP BY day, blob1
-				)
-				GROUP BY day
-				ORDER BY day ASC
-			`;
-
-			const sqlSiteActivity = `
-				SELECT 
-					toStartOfDay(timestamp) as day,
-					count() as pageviews,
-					count(DISTINCT blob1) as uniques
-				FROM vibenvr_site_events 
-				WHERE timestamp >= NOW() - INTERVAL '30' DAY 
-				GROUP BY day
-				ORDER BY day ASC
-			`;
-
-			const sqlSiteCountries = `
-				SELECT
-					blob3 as country,
-					count(DISTINCT blob1) as uniques
-				FROM vibenvr_site_events
-				WHERE timestamp >= NOW() - INTERVAL '30' DAY
-				GROUP BY country
-			`;
-
-			const sqlSiteTotals = `
-				SELECT
-					count(DISTINCT blob1) as total_visitors,
-					count() as total_pageviews
-				FROM vibenvr_site_events 
-				WHERE timestamp >= NOW() - INTERVAL '30' DAY
-			`;
 
 			try {
 				// ⚡ Bolt: Kick off KV reads concurrently with SQL queries to prevent sequential network blocking and reduce overall TTFB
@@ -399,10 +403,9 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				].filter(x => x.count > 0).sort((a, b) => b.count - a.count);
 				// Normalise cameras_dist to ordered array
 				// ⚡ Bolt: Replace .filter().map() with a single-pass loop to minimize array allocations in API mapping
-				const bkOrder = ['0', '1', '2-3', '4-5', '6-10', '11-20', '21+'];
 				const camDistTemp = [];
-				for (let i = 0; i < bkOrder.length; i++) {
-					const k = bkOrder[i];
+				for (let i = 0; i < CAMERAS_DIST_ORDER.length; i++) {
+					const k = CAMERAS_DIST_ORDER[i];
 					if (stats.cameras_dist && stats.cameras_dist[k]) {
 						camDistTemp.push({ name: k, count: stats.cameras_dist[k] });
 					}
@@ -419,10 +422,9 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 
 				// Normalise groups_dist to ordered array
 				// ⚡ Bolt: Replace .filter().map() with a single-pass loop to minimize array allocations in API mapping
-				const gbkOrder = ['0', '1', '2-3', '4-5', '6-10', '11+'];
 				const groupDistTemp = [];
-				for (let i = 0; i < gbkOrder.length; i++) {
-					const k = gbkOrder[i];
+				for (let i = 0; i < GROUPS_DIST_ORDER.length; i++) {
+					const k = GROUPS_DIST_ORDER[i];
 					if (stats.groups_dist && stats.groups_dist[k]) {
 						groupDistTemp.push({ name: k, count: stats.groups_dist[k] });
 					}
