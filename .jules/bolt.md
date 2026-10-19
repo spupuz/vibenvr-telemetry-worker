@@ -138,3 +138,7 @@
 ## 2026-10-18 - [Cache prefers-color-scheme media query]
 **Learning:** Re-evaluating `window.matchMedia('(prefers-color-scheme: dark)')` during theme initialization and toggling creates redundant CSSOM querying and object allocation.
 **Action:** Extract and cache the `MediaQueryList` object for `prefers-color-scheme` in an outer scope (e.g., `prefersDarkTheme`) to reuse it for `.matches` checks and event listeners, reducing performance overhead.
+
+## 2026-10-19 - Extract SQL Strings and Constant Arrays to Module Scope
+**Learning:** Initializing large multi-line string templates (like SQL queries) and constant arrays (like ordering arrays) directly inside the main request handler or API functions forces V8 to allocate memory for those strings and closures on every single request. In high-throughput environments like Cloudflare Workers, this unnecessarily increases Garbage Collection (GC) overhead.
+**Action:** Always extract invariant data structures—such as static SQL query strings, ordering arrays, and constant regexes—into the outer module scope. This guarantees they are parsed and allocated only once per worker isolate, rather than on every incoming network request.
