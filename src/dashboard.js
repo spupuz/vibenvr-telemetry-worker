@@ -145,12 +145,14 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			border-radius: 99px;
 			letter-spacing: .03em;
 			text-transform: uppercase;
+			transition: background-color .25s, border-color .25s, color .25s;
 		}
 		.badge-live .dot {
 			width: 6px; height: 6px;
 			border-radius: 50%;
 			background: var(--success);
 			animation: pulse 2s infinite;
+			transition: background-color .25s;
 		}
 		@keyframes pulse {
 			0%,100% { opacity: 1; }
@@ -171,7 +173,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			color: var(--text-muted);
 			font-size: .78rem;
 			font-weight: 500;
-			transition: all .2s;
+			transition: background-color .25s, border-color .25s, color .25s, transform .2s;
 			white-space: nowrap;
 		}
 		.theme-btn:hover, .theme-btn:focus-visible { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
@@ -301,6 +303,7 @@ grid-row: 1;
 margin-top: 2px;
 stroke: var(--primary);
 filter: drop-shadow(0 0 2px var(--primary-light));
+transition: stroke .25s, filter .25s;
 }
 .chart-title span {
 grid-column: 2;
@@ -351,6 +354,7 @@ margin-top: 2px;
 			justify-content: space-between;
 			gap: 1rem;
 			margin-bottom: 1.5rem;
+			transition: background-color .25s, border-color .25s, color .25s;
 		}
 		.retry-btn {
 			cursor: pointer;
@@ -361,7 +365,7 @@ margin-top: 2px;
 			color: var(--err);
 			font-size: .8rem;
 			white-space: nowrap;
-			transition: all .2s;
+			transition: background-color .25s, border-color .25s, color .25s, transform .2s;
 			display: inline-flex;
 			align-items: center;
 			gap: 0.35rem;
@@ -489,7 +493,7 @@ margin-top: 2px;
 			border-radius: 8px;
 			border: 1px solid var(--border);
 			background: var(--surface);
-			transition: all 0.2s;
+			transition: background-color .25s, border-color .25s, color .25s, box-shadow .25s, transform .2s;
 			font-size: 0.8rem;
 			font-weight: 500;
 		}
