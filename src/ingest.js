@@ -83,7 +83,7 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 
 	// 🛡️ Sentinel: Validate instance_id format to prevent injection in KV keys and Analytics indexes
 	if (instance_id === 'unknown' || instance_id.length < 16 || !ID_VALIDATION_REGEX.test(instance_id)) {
-		return new Response("Invalid ID format", { status: 400, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
+		return new Response("Invalid ID format", { status: 400, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8', 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 	}
 
 	if (env.VIBENVR_USAGE) {

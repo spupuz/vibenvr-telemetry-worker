@@ -130,3 +130,7 @@
 **Vulnerability:** Control characters could be injected into telemetry data via URL parameters, potentially causing log injection or data format corruption.
 **Learning:** Even internal tracking IDs and telemetry data like OS versions need to be sanitized to prevent control character injection, especially before being written to storage or logs.
 **Prevention:** Always strip control characters using `replace(/[\x00-\x1F\x7F-\x9F]/g, '')` or similar robust sanitization on user-provided strings.
+## 2025-02-09 - Prevent negative caching of error states
+**Vulnerability:** Error responses (e.g. 404, 405, 500) were being returned without strict Cache-Control headers, allowing upstream proxies or browsers to cache them.
+**Learning:** If an error response is cached, subsequent valid requests might receive the cached error, causing persistent denial of service or degraded availability even after the backend recovers.
+**Prevention:** Always append `Cache-Control: no-store, no-cache, must-revalidate` to all non-2xx HTTP responses to instruct all intermediary caches not to store the error state.

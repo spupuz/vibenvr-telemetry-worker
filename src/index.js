@@ -39,7 +39,7 @@ export default {
 			// 1. TELEMETRY INGESTION ENDPOINT
 			if (url.pathname === '/telemetry' || url.pathname === '/telemetry.png' || url.pathname === '/site-telemetry.png') {
 				if (request.method !== 'GET') {
-					return new Response('Method Not Allowed', { status: 405, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
+					return new Response('Method Not Allowed', { status: 405, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8', 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 				}
 				return handleIngestion(request, url, env, ctx, SECURITY_HEADERS);
 			}
@@ -47,7 +47,7 @@ export default {
 			// 2. DASHBOARD PUBLIC API
 			if (url.pathname === '/api/stats') {
 				if (request.method !== 'GET') {
-					return new Response('Method Not Allowed', { status: 405, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
+					return new Response('Method Not Allowed', { status: 405, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8', 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 				}
 				const cache = caches.default;
 
@@ -74,7 +74,7 @@ export default {
 			// 3. HTML DASHBOARD PAGE
 			if (url.pathname === '/dashboard' || url.pathname === '/') {
 				if (request.method !== 'GET') {
-					return new Response('Method Not Allowed', { status: 405, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
+					return new Response('Method Not Allowed', { status: 405, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8', 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 				}
 				const htmlTemplate = getDashboardHtml(nonce, prefix);
 				return new Response(htmlTemplate, {
@@ -89,7 +89,7 @@ export default {
 			// Assets Proxy
 			if (url.pathname.startsWith('/assets/') || url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
 				if (request.method !== 'GET') {
-					return new Response('Method Not Allowed', { status: 405, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
+					return new Response('Method Not Allowed', { status: 405, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8', 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 				}
 				const cache = caches.default;
 
@@ -111,7 +111,7 @@ export default {
 			}
 
 			// Fallback for unknown routes
-			return new Response("Not Found", { status: 404, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8' } });
+			return new Response("Not Found", { status: 404, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8', 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 
 		} catch (error) {
 			console.error("Unhandled Error:", error);
@@ -119,7 +119,7 @@ export default {
 			const fallbackHeaders = getSecurityContext(false).SECURITY_HEADERS;
 			return new Response("Internal Server Error", {
 				status: 500,
-				headers: { ...fallbackHeaders, 'Content-Type': 'text/plain;charset=UTF-8' }
+				headers: { ...fallbackHeaders, 'Content-Type': 'text/plain;charset=UTF-8', 'Cache-Control': 'no-store, no-cache, must-revalidate' }
 			});
 		}
 	},

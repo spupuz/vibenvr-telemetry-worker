@@ -97,7 +97,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			if (!env.ACCOUNT_ID || !env.API_TOKEN) {
 				return new Response(JSON.stringify({ error: "Internal Server Error" }), {
 					status: 500,
-					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json' }
+					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store, no-cache, must-revalidate' }
 				});
 			}
 
@@ -443,7 +443,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				console.error("Dashboard API Error:", err);
 				return new Response(JSON.stringify({ error: "Internal Server Error" }), {
 					status: 500,
-					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json' }
+					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store, no-cache, must-revalidate' }
 				});
 			}
 };

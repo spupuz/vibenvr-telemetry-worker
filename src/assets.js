@@ -38,7 +38,8 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 				status: 502,
 				headers: {
 					...(SECURITY_HEADERS || {}),
-					'Content-Type': 'text/plain;charset=UTF-8'
+					'Content-Type': 'text/plain;charset=UTF-8',
+					'Cache-Control': 'no-store, no-cache, must-revalidate'
 				}
 			});
 		}
