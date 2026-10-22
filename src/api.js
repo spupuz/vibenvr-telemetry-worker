@@ -1,11 +1,15 @@
 // ⚡ Bolt: Helper function to convert objects to sorted arrays efficiently
 // Using a for-in loop prevents intermediate array allocations from Object.entries() and .map()
 // Declared outside handler to avoid reallocation on every request
-const objectToSortedArray = (obj) => {
+const objectToSortedArray = (obj, formatter = null) => {
 	const arr = [];
-	for (const name in obj) {
+	for (let name in obj) {
 		if (Object.hasOwn(obj, name)) {
-			arr.push({ name, count: obj[name] });
+			let finalName = name;
+			if (formatter) {
+				finalName = formatter(name);
+			}
+			arr.push({ name: finalName, count: obj[name] });
 		}
 	}
 	return arr.sort((a, b) => b.count - a.count);
@@ -327,6 +331,10 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				let activeCount24h = 0;
 				let activeCountPrev24h = 0;
 				
+				// ⚡ Bolt: Pre-initialize distribution objects to prevent conditional existence checks on every iteration
+				stats.cameras_dist = Object.create(null);
+				stats.groups_dist = Object.create(null);
+
 				for (const row of uniqueInstances.values()) {
 					// Aggregations
 					const v = row.version || 'unknown';
@@ -352,14 +360,14 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					osCounts[o] = (osCounts[o] || 0) + 1;
 					archCounts[a] = (archCounts[a] || 0) + 1;
 
-					const r = row.ram ? `${row.ram} GB` : 'Unknown';
+					const r = row.ram ? row.ram : 'Unknown';
 					ramCounts[r] = (ramCounts[r] || 0) + 1;
 
 					// CPU model (commercial name, blob5)
 					const modelName = row.cpu && row.cpu !== 'unknown' && row.cpu !== '' ? row.cpu : null;
 					if (modelName) cpuModelCounts[modelName] = (cpuModelCounts[modelName] || 0) + 1;
 					// CPU cores (double1)
-					const coresLabel = row.cpu_cores ? row.cpu_cores + ' Cores' : 'Unknown';
+					const coresLabel = row.cpu_cores ? row.cpu_cores : 'Unknown';
 					cpuCoresCounts[coresLabel] = (cpuCoresCounts[coresLabel] || 0) + 1;
 
 					stats.total_cameras += Number(row.cameras) || 0;
@@ -378,23 +386,23 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					// Cameras distribution bucket
 					const nc = Number(row.cameras) || 0;
 					const bk = nc === 0 ? '0' : nc === 1 ? '1' : nc <= 3 ? '2-3' : nc <= 5 ? '4-5' : nc <= 10 ? '6-10' : nc <= 20 ? '11-20' : '21+';
-					if (!stats.cameras_dist) stats.cameras_dist = Object.create(null);
 					stats.cameras_dist[bk] = (stats.cameras_dist[bk] || 0) + 1;
 
 					// Groups distribution bucket
 					const ng = Number(row.groups) || 0;
 					const gbk = ng === 0 ? '0' : ng === 1 ? '1' : ng <= 3 ? '2-3' : ng <= 5 ? '4-5' : ng <= 10 ? '6-10' : '11+';
-					if (!stats.groups_dist) stats.groups_dist = Object.create(null);
 					stats.groups_dist[gbk] = (stats.groups_dist[gbk] || 0) + 1;
 				}
 
 				stats.versions = objectToSortedArray(versionCounts);
 				stats.countries = objectToSortedArray(countryCounts);
 				stats.cpu_models = objectToSortedArray(cpuModelCounts);
-				stats.cpu_cores = objectToSortedArray(cpuCoresCounts);
+				// ⚡ Bolt: Defer string concatenation for labels to the end of aggregation
+				stats.cpu_cores = objectToSortedArray(cpuCoresCounts, val => val !== 'Unknown' ? val + ' Cores' : val);
 				stats.os = objectToSortedArray(osCounts);
 				stats.arch = objectToSortedArray(archCounts);
-				stats.ram = objectToSortedArray(ramCounts);
+				// ⚡ Bolt: Defer string concatenation for labels to the end of aggregation
+				stats.ram = objectToSortedArray(ramCounts, val => val !== 'Unknown' ? val + ' GB' : val);
 				
 				stats.motion_engines = [
 					{ name: 'AI Native', count: stats.total_motion_ai_engine },

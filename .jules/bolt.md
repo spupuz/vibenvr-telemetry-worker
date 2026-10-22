@@ -142,3 +142,7 @@
 ## 2026-10-19 - Extract SQL Strings and Constant Arrays to Module Scope
 **Learning:** Initializing large multi-line string templates (like SQL queries) and constant arrays (like ordering arrays) directly inside the main request handler or API functions forces V8 to allocate memory for those strings and closures on every single request. In high-throughput environments like Cloudflare Workers, this unnecessarily increases Garbage Collection (GC) overhead.
 **Action:** Always extract invariant data structures—such as static SQL query strings, ordering arrays, and constant regexes—into the outer module scope. This guarantees they are parsed and allocated only once per worker isolate, rather than on every incoming network request.
+
+## 2026-10-25 - [Defer String Formatting in Aggregation Loops]
+**Learning:** Performing string concatenation (e.g., adding labels like " GB" or " Cores" to raw numeric values) directly inside a large loop (e.g., iterating through thousands of rows for aggregations) causes thousands of unnecessary string allocations and heavily pressures the garbage collector.
+**Action:** When aggregating items into counts/buckets, use the raw values as keys during the large iteration loop. Apply formatting/concatenation only at the very end on the much smaller, deduplicated set of final result keys (e.g., during the conversion of the counts map to a final array).
