@@ -146,3 +146,8 @@
 ## 2026-10-25 - [Defer String Formatting in Aggregation Loops]
 **Learning:** Performing string concatenation (e.g., adding labels like " GB" or " Cores" to raw numeric values) directly inside a large loop (e.g., iterating through thousands of rows for aggregations) causes thousands of unnecessary string allocations and heavily pressures the garbage collector.
 **Action:** When aggregating items into counts/buckets, use the raw values as keys during the large iteration loop. Apply formatting/concatenation only at the very end on the much smaller, deduplicated set of final result keys (e.g., during the conversion of the counts map to a final array).
+
+
+## 2026-10-25 - [Optimize redundant object allocation in concurrent requests]
+**Learning:** Re-instantiating identical literal objects (like `{ 'Authorization': \`Bearer ${env.API_TOKEN}\` }`) inside multiple concurrent `fetch` requests within a `Promise.all` array causes unnecessary memory allocation overhead and increases Garbage Collection (GC) pressure.
+**Action:** Always extract invariant object configurations (such as standard fetch headers) to a single constant variable outside the `Promise.all` block to reuse the same object reference across all concurrent network requests.

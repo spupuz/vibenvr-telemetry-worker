@@ -113,6 +113,10 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					env.VIBENVR_IDS.get('site_stats:total_hits')
 				]) : null;
 
+				// ⚡ Bolt: Extract identical headers object outside the Promise.all array to prevent redundant memory allocation
+				// for 6 identical objects, reducing GC pressure during concurrent fetches
+				const fetchHeaders = { 'Authorization': `Bearer ${env.API_TOKEN}` };
+
 				// ⚡ Bolt: Optimize JSON parsing concurrency
 				// By chaining .json() directly to the fetch promises, we allow V8 to begin reading and parsing
 				// each individual response stream as soon as it arrives, rather than waiting for the slowest query
@@ -123,7 +127,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				] = await Promise.all([
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
-						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						headers: fetchHeaders,
 						body: sqlActive,
 						signal: AbortSignal.timeout(15000)
 					}).then(async res => {
@@ -132,7 +136,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					}),
 					env.VIBENVR_IDS ? Promise.resolve({ data: [] }) : fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
-						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						headers: fetchHeaders,
 						body: sqlTotal,
 						signal: AbortSignal.timeout(15000)
 					}).then(async res => {
@@ -141,7 +145,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					}),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
-						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						headers: fetchHeaders,
 						body: sqlActivityAndEvents,
 						signal: AbortSignal.timeout(15000)
 					}).then(async res => {
@@ -150,7 +154,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					}),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
-						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						headers: fetchHeaders,
 						body: sqlSiteActivity,
 						signal: AbortSignal.timeout(15000)
 					}).then(async res => {
@@ -159,7 +163,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					}).catch(() => ({ data: [] })), // Don't fail the whole API if the site dataset doesn't exist yet
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
-						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						headers: fetchHeaders,
 						body: sqlSiteCountries,
 						signal: AbortSignal.timeout(15000)
 					}).then(async res => {
@@ -168,7 +172,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					}).catch(() => ({ data: [] })),
 					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 						method: 'POST',
-						headers: { 'Authorization': `Bearer ${env.API_TOKEN}` },
+						headers: fetchHeaders,
 						body: sqlSiteTotals,
 						signal: AbortSignal.timeout(15000)
 					}).then(async res => {
