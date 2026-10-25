@@ -151,3 +151,9 @@
 ## 2026-10-25 - [Optimize redundant object allocation in concurrent requests]
 **Learning:** Re-instantiating identical literal objects (like `{ 'Authorization': \`Bearer ${env.API_TOKEN}\` }`) inside multiple concurrent `fetch` requests within a `Promise.all` array causes unnecessary memory allocation overhead and increases Garbage Collection (GC) pressure.
 **Action:** Always extract invariant object configurations (such as standard fetch headers) to a single constant variable outside the `Promise.all` block to reuse the same object reference across all concurrent network requests.
+## 2026-10-25 - [Remove redundant sorting of already sorted data]
+**Learning:** Cloning and sorting large arrays of data (e.g., `[...list].sort()`) on the frontend during render loops creates unnecessary garbage collection pressure and CPU overhead when the backend API already guarantees the data is returned sorted.
+**Action:** Trust the backend contract for sorted data structures and remove redundant frontend array cloning and `.sort()` calls in chart preparation loops to minimize memory allocation and execution time.
+## 2026-10-25 - [Batch DOM insertions with DocumentFragment]
+**Learning:** Appending DOM nodes individually in a loop directly to an active element in the DOM (e.g. `lbEl.appendChild(tr)`) triggers multiple layout reflows and recalculations. This creates performance bottlenecks in rendering data-heavy components, especially when executed during hot render loops or theme toggles.
+**Action:** Use a `DocumentFragment` as a staging area when building lists of DOM elements dynamically. Append all new elements to the fragment first, and then append the complete fragment to the target element in a single operation to minimize layout reflows.

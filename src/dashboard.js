@@ -1625,6 +1625,8 @@ margin-top: 2px;
 		const lbEl = document.getElementById('leaderboard-countries');
 		if(lbEl) {
 			lbEl.textContent = ''; // clear existing rows safely
+			// ⚡ Bolt: Use a DocumentFragment to batch DOM insertions and minimize layout reflows
+			const fragment = document.createDocumentFragment();
 			leaderboardData.labels.forEach((name, i) => {
 				const val = leaderboardData.data[i];
 				const pct = (val / maxLbValue) * 100;
@@ -1671,8 +1673,9 @@ margin-top: 2px;
 				tr.appendChild(tdLeft);
 				tr.appendChild(tdRight);
 
-				lbEl.appendChild(tr);
+				fragment.appendChild(tr);
 			});
+			lbEl.appendChild(fragment);
 		}
 	}
 
