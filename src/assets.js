@@ -24,8 +24,11 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 			headers.delete('set-cookie');
 			// Apply Sentinel Security Headers to proxied assets
 			if (SECURITY_HEADERS) {
-				for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
-					headers.set(key, value);
+				// ⚡ Bolt: Use for...in instead of Object.entries() to avoid intermediate array allocations
+				for (const key in SECURITY_HEADERS) {
+					if (Object.hasOwn(SECURITY_HEADERS, key)) {
+						headers.set(key, SECURITY_HEADERS[key]);
+					}
 				}
 			} else {
 				headers.set('Access-Control-Allow-Origin', '*');
