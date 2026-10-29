@@ -54,9 +54,10 @@ export default {
 				// 🛡️ Sentinel: Normalize cache key to prevent Cache-Busting DoS
 				// Attackers could append random query strings (?rnd=1) to force cache misses
 				// which would cause heavy SQL queries to be executed for every request.
-				// ⚡ Bolt: Optimize cache key generation string parsing by using string.split
-				// instead of re-instantiating a new URL object which is significantly slower
-				const cacheKeyStr = request.url.split('?')[0];
+				// ⚡ Bolt: Optimize cache key generation string parsing by using .indexOf and .substring
+				// instead of .split('?')[0] to avoid intermediate array allocation overhead
+				const qIndex = request.url.indexOf('?');
+				const cacheKeyStr = qIndex !== -1 ? request.url.substring(0, qIndex) : request.url;
 				const cacheRequest = new Request(cacheKeyStr, request);
 
 				const cachedResponse = await cache.match(cacheRequest);
@@ -94,9 +95,10 @@ export default {
 				const cache = caches.default;
 
 				// 🛡️ Sentinel: Normalize cache key to prevent Cache-Busting DoS
-				// ⚡ Bolt: Optimize cache key generation string parsing by using string.split
-				// instead of re-instantiating a new URL object which is significantly slower
-				const cacheKeyStr = request.url.split('?')[0];
+				// ⚡ Bolt: Optimize cache key generation string parsing by using .indexOf and .substring
+				// instead of .split('?')[0] to avoid intermediate array allocation overhead
+				const qIndex = request.url.indexOf('?');
+				const cacheKeyStr = qIndex !== -1 ? request.url.substring(0, qIndex) : request.url;
 				const cacheRequest = new Request(cacheKeyStr, request);
 
 				const cachedResponse = await cache.match(cacheRequest);

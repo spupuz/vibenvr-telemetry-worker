@@ -151,3 +151,7 @@
 ## 2026-10-25 - [Optimize redundant object allocation in concurrent requests]
 **Learning:** Re-instantiating identical literal objects (like `{ 'Authorization': \`Bearer ${env.API_TOKEN}\` }`) inside multiple concurrent `fetch` requests within a `Promise.all` array causes unnecessary memory allocation overhead and increases Garbage Collection (GC) pressure.
 **Action:** Always extract invariant object configurations (such as standard fetch headers) to a single constant variable outside the `Promise.all` block to reuse the same object reference across all concurrent network requests.
+
+## 2024-10-29 - [Optimize string splitting in cache key normalization]
+**Learning:** Using `request.url.split('?')[0]` to strip query parameters creates an unnecessary intermediate array and string allocation, creating garbage collection pressure in hot request paths.
+**Action:** Always use `.indexOf('?')` and `.substring(0, index)` instead of `.split('?')[0]` when stripping query parameters from URL strings to avoid array allocation overhead.
