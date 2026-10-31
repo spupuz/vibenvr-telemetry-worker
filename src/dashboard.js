@@ -571,7 +571,7 @@ margin-top: 2px;
 			<span>VibeNVR Telemetry</span><span class="sr-only"> (opens in a new tab)</span>
 	</a>
 	<div class="topbar-right">
-		<div class="badge-live"><span class="dot" aria-hidden="true"></span> Live</div>
+		<div class="badge-live" aria-label="Live status" role="status"><span class="dot" aria-hidden="true"></span> <span aria-hidden="true">Live</span></div>
 		<button type="button" class="theme-btn" id="theme-toggle" title="Toggle theme" aria-label="Theme: Follow System" aria-keyshortcuts="T">
 			<svg aria-hidden="true" id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
 			<svg aria-hidden="true" id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1270,7 +1270,7 @@ margin-top: 2px;
 					legend: {
 						display: !isBar,
 						position: 'right',
-						labels: { color: tok('text'), padding: 14, font: { family: 'Inter', size: 11 }, boxWidth: 10 }
+						labels: { color: tok('text'), padding: 14, font: { family: 'Geist', size: 11 }, boxWidth: 10 }
 					},
 					tooltip: {
 						backgroundColor: tok('bg'),
@@ -1280,8 +1280,8 @@ margin-top: 2px;
 					}
 				},
 				scales: isBar ? {
-					x: { grid: { color: tok('border') }, ticks: { color: tok('text-muted'), font: { family: 'Inter, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } }, beginAtZero: true },
-					y: { grid: { display: false }, ticks: { color: tok('text-muted'), font: { family: 'Inter, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } } }
+					x: { grid: { color: tok('border') }, ticks: { color: tok('text-muted'), font: { family: 'Geist, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } }, beginAtZero: true },
+					y: { grid: { display: false }, ticks: { color: tok('text-muted'), font: { family: 'Geist, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } } }
 				} : { x: { display:false }, y: { display:false } }
 			}
 		});
