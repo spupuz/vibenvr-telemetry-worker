@@ -1270,7 +1270,7 @@ margin-top: 2px;
 					legend: {
 						display: !isBar,
 						position: 'right',
-						labels: { color: tok('text'), padding: 14, font: { family: 'Inter', size: 11 }, boxWidth: 10 }
+						labels: { color: tok('text'), padding: 14, font: { family: 'Geist', size: 11 }, boxWidth: 10 }
 					},
 					tooltip: {
 						backgroundColor: tok('bg'),
@@ -1280,8 +1280,8 @@ margin-top: 2px;
 					}
 				},
 				scales: isBar ? {
-					x: { grid: { color: tok('border') }, ticks: { color: tok('text-muted'), font: { family: 'Inter, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } }, beginAtZero: true },
-					y: { grid: { display: false }, ticks: { color: tok('text-muted'), font: { family: 'Inter, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } } }
+					x: { grid: { color: tok('border') }, ticks: { color: tok('text-muted'), font: { family: 'Geist, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } }, beginAtZero: true },
+					y: { grid: { display: false }, ticks: { color: tok('text-muted'), font: { family: 'Geist, "Twemoji Country Flags", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif', size: 10 } } }
 				} : { x: { display:false }, y: { display:false } }
 			}
 		});
