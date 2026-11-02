@@ -12,7 +12,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 	<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" nonce="${nonce}" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo@4.3.6/build/index.umd.min.js" nonce="${nonce}" integrity="sha384-EW6qTcZh7bPyECHRcIzVvefbUO37nGjPkmDFEdcdAe7ex44EjBA0GWnoleczHbC/" crossorigin="anonymous"></script>
-	<script nonce="${nonce}" type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.4.0/dist/ionicons/ionicons.esm.js" integrity="sha384-ka/QOj1/87D5umY1GYq4GS0y8e8vwy0Wj0BKvxJTWpNFUIarDm645Kvr8QvOQmQ8iFC563H7a2Q6pgmQnC9Xx8YhE" crossorigin="anonymous"></script>
+	<script nonce="${nonce}" type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.4.0/dist/ionicons/ionicons.esm.js" integrity="sha384-ka/QOj1/87D5umY1GYq4GS0y8e8vwy0Wj0BKvxJTWpNFUIarDm645Kvr8Q6Q" crossorigin="anonymous"></script>
 	<script nonce="${nonce}" nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.4.0/dist/ionicons/ionicons.js" integrity="sha384-I7UNMgUrv6nA6xNHRbytUMytFlugSJWu/Il4VAV+Rhv73j9qaQqjf5IS1w9vHGsD" crossorigin="anonymous"></script>
 	<style>
 		*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -97,20 +97,70 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 		.kpi-card:hover::before, .kpi-card:focus-visible::before { opacity: 1; }
 		.kpi-card:hover, .kpi-card:focus-visible { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-4px); }
 		.kpi-label { font-size: .75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .8rem; display: flex; align-items: flex-start; gap: .5rem; }
-		.kpi-value { font-size: 2.2rem; font-weight: 800; color: var(--text); line-height: 1; letter-spacing: -.02em; }
+		.kpi-label svg {
+			stroke: var(--primary);
+			filter: drop-shadow(0 0 2px var(--primary-light));
+		}
+		.kpi-value {
+			font-size: 2.2rem;
+			font-weight: 800;
+			color: var(--text);
+			line-height: 1;
+			letter-spacing: -.02em;
+		}
+		.kpi-value.accent { color: var(--primary); }
 		.kpi-sub { font-size: .72rem; color: var(--text-muted); margin-top: .4rem; }
 		.chart-row { display: grid; gap: 1rem; margin-bottom: 1rem; }
 		.chart-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
 		.chart-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
 		.chart-row.cols-1 { grid-template-columns: 1fr; }
+		.chart-title { display: grid; grid-template-columns: max-content 1fr; column-gap: 0.4rem; align-items: start; font-size: .875rem; font-weight: 600; color: var(--text); margin-bottom: 1rem; line-height: 1.4; }
+		.chart-title svg { grid-column: 1; grid-row: 1; margin-top: 2px; stroke: var(--primary); filter: drop-shadow(0 0 2px var(--primary-light)); }
+		.chart-title span { grid-column: 2; font-size: 12px; font-weight: normal; color: var(--text-muted); margin-top: 2px; }
 		.chart-wrap { position: relative; height: 220px; }
 		.chart-wrap.tall { height: 260px; }
+		.aos { opacity: 0; transform: translateY(30px) scale(0.98); filter: blur(4px); transition: all 1s cubic-bezier(0.22, 1, 0.36, 1); }
+		.aos.in-view { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 		.state-box { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; gap: 1rem; color: var(--text-muted); }
 		.spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--primary); animation: spin .8s linear infinite; }
 		@keyframes spin { to { transform: rotate(360deg); } }
-		.err-box { display: none; background: color-mix(in srgb, var(--err) 8%, transparent); border: 1px solid color-mix(in srgb, var(--err) 30%, transparent); color: var(--err); border-radius: var(--radius); padding: 1rem 1.25rem; }
+		.err-box { display: none; background: color-mix(in srgb, var(--err) 8%, transparent); border: 1px solid color-mix(in srgb, var(--err) 30%, transparent); color: var(--err); border-radius: var(--radius); padding: 1rem 1.25rem; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+		.retry-btn { cursor: pointer; border: 1px solid color-mix(in srgb, var(--err) 40%, transparent); background: transparent; border-radius: 8px; padding: .3rem .8rem; color: var(--err); font-size: .8rem; white-space: nowrap; transition: all .2s; display: inline-flex; align-items: center; gap: 0.35rem; }
+		.retry-btn:hover, .retry-btn:focus-visible { background: color-mix(in srgb, var(--err) 10%, transparent); }
+		.retry-btn:active { transform: scale(0.96); }
+		.smart-footer { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--border); box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); transform: translateY(0); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color .25s, border-color .25s; z-index: 100; padding: 1rem 0; }
+		.smart-footer.hidden { transform: translateY(100%); }
+		.smart-footer:focus-within, .smart-footer.hidden:focus-within { transform: translateY(0) !important; }
+		.footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; max-width: 1320px; margin: 0 auto; padding: 0 1.5rem; }
+		.footer-logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--text); }
+		.footer-links-site { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; align-items: center; }
+		.footer-link-site { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; transition: color 0.2s, transform 0.2s; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+		.footer-link-site:hover, .footer-link-site:focus, .footer-link-site:focus-visible { color: var(--primary); }
+		.footer-link-site:active { transform: scale(0.96); }
+		.footer-divider { color: var(--border); }
+		.footer-copy { font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+		@media (max-width: 768px) {
+			.footer-content { flex-direction: column; justify-content: center; text-align: center; gap: 0.75rem; }
+			.footer-links-site { gap: 1rem; justify-content: center; width: 100%; }
+			.footer-divider { display: none; }
+		}
+		.footer { text-align: center; padding: 2rem 1rem; font-size: .75rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 1.5rem; }
 		.footer-links { margin-bottom: 1.5rem; display: flex; justify-content: center; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
 		.footer-link { color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); transition: all 0.2s; font-size: 0.8rem; font-weight: 500; }
+		.github-badge { background: var(--primary-dark); color: #fff; padding: 0.1rem 0.45rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; margin-left: 0.2rem; display: inline-flex; align-items: center; justify-content: center; }
+		.footer-link:hover, .footer-link:focus-visible { border-color: var(--primary); color: var(--primary); background: var(--primary-light); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+		.dark .footer-link:hover, .dark .footer-link:focus-visible { box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+		.footer-link:active { transform: scale(0.96); }
+		@media (max-width: 900px) { .chart-row.cols-3 { grid-template-columns: repeat(2, 1fr); } }
+		@media (max-width: 600px) { .main { padding: 0.75rem; } .card { padding: 1rem; } .kpi-card { padding: 0.8rem; } .kpi-value { font-size: 1.75rem; } .kpi-label { font-size: 0.7rem; } .chart-row.cols-3, .chart-row.cols-2 { grid-template-columns: 1fr; } .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } }
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after {
+				animation-duration: 0.01ms !important;
+				animation-iteration-count: 1 !important;
+				transition-duration: 0.01ms !important;
+				scroll-behavior: auto !important;
+			}
+		}
 		.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
 	</style>
 	<script nonce="${nonce}">
