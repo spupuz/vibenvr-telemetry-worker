@@ -40,8 +40,6 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 						indexes: [visitor_id]
 					});
 
-					// ⚡ Bolt: Execute blocking KV reads/writes asynchronously in the background using ctx.waitUntil()
-					// to avoid blocking the main thread and drastically reduce TTFB latency for the tracking pixel response.
 					if (env.VIBENVR_IDS) {
 						ctx.waitUntil((async () => {
 							try {
@@ -78,10 +76,8 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 		});
 	}
 
-	// Rest of the logic handles standard telemetry endpoints (e.g. /telemetry)
 	const instance_id = cleanStr(url.searchParams.get('instance_id'), 128);
 
-	// 🛡️ Sentinel: Validate instance_id format to prevent injection in KV keys and Analytics indexes
 	if (instance_id === 'unknown' || instance_id.length < 16 || !ID_VALIDATION_REGEX.test(instance_id)) {
 		return new Response("Invalid ID format", { status: 400, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8', 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 	}
@@ -114,9 +110,9 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 			env.VIBENVR_USAGE.writeDataPoint({
 				blobs: [ instance_id, version, os, arch, cpu_model, country ],
 				doubles: [ 
-					cpu, ram, cameras, groups, events, gpu, notifications, 
+					cpu, ram, cameras, groups, events, gpu, notifications,
 					mqtt_active, motion_opencv, motion_onvif, motion_ai_engine,
-					motion_ai, onvif_count, substream_count 
+					motion_ai, onvif_count, substream_count
 				],
 				indexes: [instance_id]
 			});
@@ -125,8 +121,6 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 		}
 	}
 
-	// ⚡ Bolt: Execute blocking KV reads/writes asynchronously in the background using ctx.waitUntil()
-	// to avoid blocking the main thread and drastically reduce TTFB latency for the tracking pixel response.
 	if (env.VIBENVR_IDS) {
 		ctx.waitUntil((async () => {
 			try {
