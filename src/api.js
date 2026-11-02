@@ -197,9 +197,9 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				if (kvPromise) {
 					const [statsTotalCount, siteStatsTotalCount, siteStatsTotalHits] = await kvPromise;
 
-					totalCount = parseInt(statsTotalCount || "0", 10);
-					siteTotalCountAllTime = parseInt(siteStatsTotalCount || "0", 10);
-					siteTotalHitsAllTime = parseInt(siteStatsTotalHits || "0", 10);
+					totalCount = parseInt(statsTotalCount || "0", 10) || 0;
+					siteTotalCountAllTime = parseInt(siteStatsTotalCount || "0", 10) || 0;
+					siteTotalHitsAllTime = parseInt(siteStatsTotalHits || "0", 10) || 0;
 				} else {
 					totalCount = parseInt(totalData[0]?.total || "0", 10);
 					siteTotalCountAllTime = siteTotalsData[0]?.total_visitors || 0;
