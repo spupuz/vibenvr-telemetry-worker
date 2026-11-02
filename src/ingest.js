@@ -100,7 +100,8 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 		const motion_opencv = parseNum(url.searchParams.get('motion_opencv'));
 		const motion_onvif = parseNum(url.searchParams.get('motion_onvif'));
 		const motion_ai_engine = parseNum(url.searchParams.get('motion_ai_engine'));
-		const motion_ai = parseNum(url.searchParams.get('motion_ai'));
+		const motion_ai_legacy = parseNum(url.searchParams.get('ai_enabled')) || parseNum(url.searchParams.get('ai'));
+		const motion_ai = parseNum(url.searchParams.get('motion_ai')) || motion_ai_legacy || motion_ai_engine;
 		const onvif_count = parseNum(url.searchParams.get('onvif_count'));
 		const substream_count = parseNum(url.searchParams.get('substream_count'));
 
