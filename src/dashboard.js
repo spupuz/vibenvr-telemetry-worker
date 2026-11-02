@@ -44,12 +44,13 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 					['Cameras', data.total_cameras || 0],
 					['Events', data.total_events || 0]
 				];
-				kpis.innerHTML = entries.map(([label, value]) => `
-					<div class="kpi">
-						<div class="kpi-label">${label}</div>
-						<div class="kpi-value">${Number(value).toLocaleString()}</div>
-					</div>
-				`).join('');
+				const cards = entries.map(([label, value]) => {
+					return '<div class="kpi">' +
+						'<div class="kpi-label">' + label + '</div>' +
+						'<div class="kpi-value">' + Number(value).toLocaleString() + '</div>' +
+						'</div>';
+				}).join('');
+				kpis.innerHTML = cards;
 			} catch (err) {
 				status.textContent = 'Telemetry unavailable';
 				status.style.color = '#fca5a5';
