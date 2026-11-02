@@ -408,11 +408,13 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				// ⚡ Bolt: Defer string concatenation for labels to the end of aggregation
 				stats.ram = objectToSortedArray(ramCounts, val => val !== 'Unknown' ? val + ' GB' : val);
 				
-				stats.motion_engines = [
-					{ name: 'AI Native', count: stats.total_motion_ai_engine },
-					{ name: 'OpenCV', count: stats.total_motion_opencv },
-					{ name: 'ONVIF Edge', count: stats.total_motion_onvif }
-				].filter(x => x.count > 0).sort((a, b) => b.count - a.count);
+				// ⚡ Bolt: Prevent array allocation and redundant iterations by conditionally pushing to a new array and sorting it
+				const motionEnginesTemp = [];
+				if (stats.total_motion_ai_engine > 0) motionEnginesTemp.push({ name: 'AI Native', count: stats.total_motion_ai_engine });
+				if (stats.total_motion_opencv > 0) motionEnginesTemp.push({ name: 'OpenCV', count: stats.total_motion_opencv });
+				if (stats.total_motion_onvif > 0) motionEnginesTemp.push({ name: 'ONVIF Edge', count: stats.total_motion_onvif });
+				stats.motion_engines = motionEnginesTemp.sort((a, b) => b.count - a.count);
+
 				// Normalise cameras_dist to ordered array
 				// ⚡ Bolt: Replace .filter().map() with a single-pass loop to minimize array allocations in API mapping
 				const camDistTemp = [];

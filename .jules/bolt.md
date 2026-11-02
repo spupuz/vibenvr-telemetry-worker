@@ -155,3 +155,7 @@
 
 **Learning:** Re-instantiating `URL` objects or using `.split("?")[0]` to extract the base URL path in hot paths causes unnecessary array allocations, parsing overhead, and increases Garbage Collection (GC) pressure.
 **Action:** When extracting the base URL string to remove query parameters, prefer using `indexOf("?")` and `substring()` to slice the string, avoiding the creation of intermediate arrays and improving execution speed.
+
+## 2026-11-02 - [Minimize Chained Array Methods in Hot Paths]
+**Learning:** Chaining array methods like `.filter().sort()` on literal arrays in data mapping loops creates unnecessary intermediate arrays and forces multiple iterations over the data, which increases garbage collection (GC) pressure in hot API paths.
+**Action:** To minimize array allocations and redundant iterations in performance-critical data mapping (like API processing loops), replace chained array methods like `.filter().sort()` or `.filter().map()` with a single-pass loop or conditional `.push()` operation into an empty array, followed by a single `.sort()`.
