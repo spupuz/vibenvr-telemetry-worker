@@ -171,7 +171,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			color: var(--text-muted);
 			font-size: .78rem;
 			font-weight: 500;
-			transition: all .2s;
+			transition: all .2s, transform .2s;
 			white-space: nowrap;
 		}
 		.theme-btn:hover, .theme-btn:focus-visible { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
@@ -361,7 +361,7 @@ margin-top: 2px;
 			color: var(--err);
 			font-size: .8rem;
 			white-space: nowrap;
-			transition: all .2s;
+			transition: all .2s, transform .2s;
 			display: inline-flex;
 			align-items: center;
 			gap: 0.35rem;
@@ -489,7 +489,7 @@ margin-top: 2px;
 			border-radius: 8px;
 			border: 1px solid var(--border);
 			background: var(--surface);
-			transition: all 0.2s;
+			transition: all 0.2s, transform 0.2s;
 			font-size: 0.8rem;
 			font-weight: 500;
 		}
@@ -988,6 +988,10 @@ margin-top: 2px;
 	// ─── STATE (declared before IIFE to avoid TDZ) ───────────────────────────
 	let charts = Object.create(null);
 	let lastData = null;
+
+	// 🎨 Palette: Ensure Chart.js uses the 'Geist' font family for consistent typography
+	Chart.defaults.font.family = 'Geist';
+
 	// ⚡ Bolt: Cache the Promise itself so fetching/parsing only happens exactly once,
 	// and multiple calls to render() can simply await it without redundant logic.
 	const cachedCountriesPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json', {
