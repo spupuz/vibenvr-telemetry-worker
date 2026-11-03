@@ -263,11 +263,12 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 		</div>
 	</main>
 	<script nonce="${nonce}">
+		const numFormatter = new Intl.NumberFormat();
 		function set(id, value) {
 			const el = document.getElementById(id);
 			if (!el) return;
 			const num = Number(value ?? 0);
-			el.textContent = Number.isFinite(num) ? num.toLocaleString() : '0';
+			el.textContent = Number.isFinite(num) ? numFormatter.format(num) : '0';
 		}
 		(async function () {
 			try {
