@@ -89,6 +89,7 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 		.kpi-card {
 			background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
 			padding: 1.1rem 1.25rem; box-shadow: var(--shadow); position: relative; overflow: hidden;
+			transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
 		}
 		.kpi-card::before {
 			content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
