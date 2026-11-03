@@ -921,7 +921,7 @@ margin-top: 2px;
 			<div class="footer-copy">
 				&copy; 2026 Alessandro Belloni.<br>
 				<div style="margin-top: 0.5rem; font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
-					telemetry version <span id="telemetry-version">v1.37.51</span>
+					telemetry version <span id="telemetry-version">v1.37.52</span>
 				</div>
 			</div>
 		</div>
@@ -1716,7 +1716,7 @@ margin-top: 2px;
 		set('kpi-groups',        data.total_groups);
 		set('kpi-gpu',           data.gpu_enabled);
 		set('kpi-notifications', data.notifications_enabled);
-		set('kpi-ai',            data.total_motion_ai);
+		set('kpi-ai',            data.total_motion_ai || data.total_motion_ai_engine);
 		set('kpi-mqtt',          data.total_mqtt_active);
 		set('kpi-onvif',         data.total_onvif_cameras);
 		set('kpi-substreams',    data.total_substream_cameras);
