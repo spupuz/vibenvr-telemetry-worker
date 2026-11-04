@@ -134,3 +134,7 @@
 **Vulnerability:** Error responses (e.g. 404, 405, 500) were being returned without strict Cache-Control headers, allowing upstream proxies or browsers to cache them.
 **Learning:** If an error response is cached, subsequent valid requests might receive the cached error, causing persistent denial of service or degraded availability even after the backend recovers.
 **Prevention:** Always append `Cache-Control: no-store, no-cache, must-revalidate` to all non-2xx HTTP responses to instruct all intermediary caches not to store the error state.
+## 2026-10-18 - Remove wildcard CORS headers from Cloudflare Worker
+**Vulnerability:** The application was using the overly permissive `Access-Control-Allow-Origin: *` wildcard CORS header in `src/security.js` and `src/assets.js`.
+**Learning:** Telemetry ingestion via `/telemetry.png` is embedded as a 1x1 image pixel which does not require CORS, and `/api/stats` is fetched from the same origin as the dashboard. The application does not serve a public API requiring cross-origin requests.
+**Prevention:** Remove wildcard CORS headers when they are unnecessary for the application's core functionality to prevent potential cross-origin data exposure or abuse.
