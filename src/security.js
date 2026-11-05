@@ -7,6 +7,7 @@ const STATIC_SECURITY_HEADERS = {
 	'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
 	'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
 	'Cross-Origin-Opener-Policy': 'same-origin',
+	'X-Permitted-Cross-Domain-Policies': 'none',
 	'Vary': 'Origin',
 };
 
@@ -24,6 +25,7 @@ export const getSecurityContext = (isHtml = true) => {
 		'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
 		'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
 		'Cross-Origin-Opener-Policy': 'same-origin',
+		'X-Permitted-Cross-Domain-Policies': 'none',
 		'Vary': 'Origin',
 	};
 	return { nonce, SECURITY_HEADERS };
