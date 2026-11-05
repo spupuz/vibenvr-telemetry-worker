@@ -31,7 +31,7 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 					}
 				}
 			} else {
-				headers.set('Access-Control-Allow-Origin', '*');
+				// assets are same-origin; no wildcard CORS header
 			}
 			return new Response(response.body, { status: response.status, headers });
 		} catch (error) {
