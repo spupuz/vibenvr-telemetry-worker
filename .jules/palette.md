@@ -8,3 +8,6 @@
 ## 2026-11-20 - Adding dynamic theme-color meta tag
 **Learning:** Native mobile browsers do not automatically match the address bar color to the active CSS theme unless explicitly guided by a `<meta name="theme-color">` tag. Without this tag, the browser chrome might clash visually with the app's top bar, breaking the cohesive immersion.
 **Action:** Always include a `<meta name="theme-color">` tag in the `<head>` and dynamically update its `content` value using JavaScript when the user toggles between light and dark modes to ensure a seamless app-like experience on mobile.
+## 2026-11-21 - Unlocking Dormant Accessibility Features
+**Learning:** Found an accessibility safeguard (`@media (prefers-reduced-motion: reduce) { scroll-behavior: auto !important; }`) that was protecting a feature (`scroll-behavior: smooth`) which didn't actually exist in the base CSS. The intent was there, but the execution was missing, leaving keyboard users with jarring skip-link jumps.
+**Action:** Always verify that intended global UX behaviors (like smooth scrolling) are explicitly defined in the base stylesheet, especially when safeguards for them are already present in the codebase.

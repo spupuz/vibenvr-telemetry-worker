@@ -15,6 +15,8 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 	<script nonce="${nonce}" type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.4.0/dist/ionicons/ionicons.esm.js" integrity="sha384-ka/QOj1/87D5umY1GYq4GS0y8e8vwy0Wj0BKvxJTWpNFUIarDm645Kvr8QaxM3jy" crossorigin="anonymous"></script>
 	<script nonce="${nonce}" nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.4.0/dist/ionicons/ionicons.js" integrity="sha384-I7UNMgUrv6nA6xNHRbytUMytFlugSJWu/Il4VAV+Rhv73j9qaQqjf5IS1w9vHGsD" crossorigin="anonymous"></script>
 	<style>
+		html { scroll-behavior: smooth; }
+
 		*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 		@font-face {
