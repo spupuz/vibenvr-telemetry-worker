@@ -50,12 +50,14 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 									await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
 									const countKey = 'site_stats:total_count';
 									const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
-									await env.VIBENVR_IDS.put(countKey, (currentTotal + 1).toString());
+									const safeTotal = Number.isFinite(currentTotal) ? currentTotal : 0;
+									await env.VIBENVR_IDS.put(countKey, (safeTotal + 1).toString());
 								}
 
 								const hitsKey = 'site_stats:total_hits';
 								const currentHits = parseInt(await env.VIBENVR_IDS.get(hitsKey) || "0", 10);
-								await env.VIBENVR_IDS.put(hitsKey, (currentHits + 1).toString());
+								const safeHits = Number.isFinite(currentHits) ? currentHits : 0;
+								await env.VIBENVR_IDS.put(hitsKey, (safeHits + 1).toString());
 							} catch (e) {
 								console.error("Failed to write to Site KV in background", e);
 							}
@@ -130,7 +132,8 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 					await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
 					const countKey = 'stats:total_count';
 					const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
-					await env.VIBENVR_IDS.put(countKey, (currentTotal + 1).toString());
+					const safeTotal = Number.isFinite(currentTotal) ? currentTotal : 0;
+					await env.VIBENVR_IDS.put(countKey, (safeTotal + 1).toString());
 				}
 			} catch (kvErr) {
 				console.error("KV Storage Error in background:", kvErr);
