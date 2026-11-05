@@ -1,11 +1,5 @@
-## 💡 What
-Moved the extraction and parsing of various URL query parameters (such as `version`, `os`, `cpu`, etc.) inside the `if (env.VIBENVR_USAGE)` block in `src/ingest.js`.
-
-## 🎯 Why
-Previously, `src/ingest.js` blindly extracted a large number of search parameters from the URL indiscriminately for all requests, regardless of whether the telemetry analytics engine binding (`env.VIBENVR_USAGE`) was actually configured or available. This causes unnecessary string parsing (`url.searchParams.get`), string manipulation (`trim`, `slice`), and type coercion (`parseInt`, `parseFloat`) overhead. By moving these extractions directly before they are used (inside the conditional block), we only perform this work if the parameters are going to be ingested.
-
-## 📊 Impact
-Reduces unnecessary CPU cycles, memory allocations, and garbage collection overhead in the Cloudflare Worker when processing telemetry ingestion requests if `env.VIBENVR_USAGE` is not configured, or if the request exits early due to an invalid ID. This improves TTFB and lowers compute duration for cold paths.
-
-## 🔬 Measurement
-The logic remains functionally identical if `env.VIBENVR_USAGE` is configured. If it is unconfigured, the worker will process the request without wasting resources parsing unused parameters.
+🚨 Severity: MEDIUM
+💡 Vulnerability: Overly permissive CORS configuration allowing arbitrary cross-origin requests (`Access-Control-Allow-Origin: *`).
+🎯 Impact: Potentially allows unauthorized origins to read telemetry or dashboard data if the backend was ever exposed to authenticated sessions, or could be used to bypass same-origin policies.
+🔧 Fix: Removed the `Access-Control-Allow-Origin: *` wildcard from `STATIC_SECURITY_HEADERS` and fallback headers in the asset handler, relying strictly on same-origin policies. Telemetry ingestion operates via a 1x1 image pixel and the API acts as a same-origin proxy, so cross-origin requests are not needed.
+✅ Verification: Verified syntax (`node -c`). Verified that the `Access-Control-Allow-Origin` wildcard was successfully stripped from the codebase.

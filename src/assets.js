@@ -30,8 +30,6 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 						headers.set(key, SECURITY_HEADERS[key]);
 					}
 				}
-			} else {
-				headers.set('Access-Control-Allow-Origin', '*');
 			}
 			return new Response(response.body, { status: response.status, headers });
 		} catch (error) {
