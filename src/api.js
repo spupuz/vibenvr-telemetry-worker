@@ -202,7 +202,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					siteTotalCountAllTime = parseKvInt(siteStatsTotalCount);
 					siteTotalHitsAllTime = parseKvInt(siteStatsTotalHits);
 				} else {
-					totalCount = parseInt(totalData[0]?.total || "0", 10);
+					totalCount = parseKvInt(totalData[0]?.total);
 					siteTotalCountAllTime = siteTotalsData[0]?.total_visitors || 0;
 					siteTotalHitsAllTime = siteTotalsData[0]?.total_pageviews || 0;
 				}
