@@ -1,3 +1,6 @@
+// ⚡ Bolt: Hoist constant to module scope to avoid reallocating on every request
+const SAFE_UPSTREAM_HEADERS = ['content-type', 'content-length', 'etag', 'last-modified'];
+
 export const handleAssets = async (url, SECURITY_HEADERS) => {
 	let target;
 	if (url.pathname === '/assets/logo-dark') {
@@ -15,7 +18,6 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 				// 🛡️ Sentinel: Whitelist only safe upstream headers to prevent header
 			// injection / open-redirect / SSRF via spoofed upstream responses
 			// (e.g. Location, WWW-Authenticate, Content-Disposition, Set-Cookie).
-			const SAFE_UPSTREAM_HEADERS = ['content-type', 'content-length', 'etag', 'last-modified'];
 			const headers = new Headers();
 			for (const h of SAFE_UPSTREAM_HEADERS) {
 				const v = response.headers.get(h);
