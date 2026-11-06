@@ -12,16 +12,21 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 				signal: AbortSignal.timeout(10000)
 			});
 
-			const headers = new Headers(response.headers);
+				// 🛡️ Sentinel: Whitelist only safe upstream headers to prevent header
+			// injection / open-redirect / SSRF via spoofed upstream responses
+			// (e.g. Location, WWW-Authenticate, Content-Disposition, Set-Cookie).
+			const SAFE_UPSTREAM_HEADERS = ['content-type', 'content-length', 'etag', 'last-modified'];
+			const headers = new Headers();
+			for (const h of SAFE_UPSTREAM_HEADERS) {
+				const v = response.headers.get(h);
+				if (v) headers.set(h, v);
+			}
 
 			if (response.ok) {
 				headers.set('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
 			} else {
 				headers.set('Cache-Control', 'no-store, no-cache, must-revalidate'); // Do not cache upstream errors
 			}
-
-			// Remove GitHub cookies/identity headers
-			headers.delete('set-cookie');
 			// Apply Sentinel Security Headers to proxied assets
 			if (SECURITY_HEADERS) {
 				// ⚡ Bolt: Use for...in instead of Object.entries() to avoid intermediate array allocations
