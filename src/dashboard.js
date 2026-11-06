@@ -195,7 +195,8 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 
 		/* Focus States for Accessibility */
 		main:focus-visible {
-		outline: none;
+		outline: 2px solid var(--primary);
+		outline-offset: 2px;
 	}
 
 	:focus-visible {
