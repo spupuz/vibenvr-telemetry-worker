@@ -134,3 +134,7 @@
 **Vulnerability:** Error responses (e.g. 404, 405, 500) were being returned without strict Cache-Control headers, allowing upstream proxies or browsers to cache them.
 **Learning:** If an error response is cached, subsequent valid requests might receive the cached error, causing persistent denial of service or degraded availability even after the backend recovers.
 **Prevention:** Always append `Cache-Control: no-store, no-cache, must-revalidate` to all non-2xx HTTP responses to instruct all intermediary caches not to store the error state.
+## 2026-11-06 - Unnecessary Wildcard CORS Headers
+**Vulnerability:** Overly permissive wildcard CORS headers (`Access-Control-Allow-Origin: *`) were configured in both the static security headers object and the dynamic asset handler fallback.
+**Learning:** These headers were unnecessary because telemetry ingestion via `/telemetry.png` is embedded as a 1x1 image pixel (which does not require CORS), and `/api/stats` is fetched from the same origin as the dashboard. Using a wildcard CORS header exposes the API to requests from any origin, which is a bad practice when the API should only be accessed internally or from a specific set of known origins.
+**Prevention:** Default to same-origin policies. Only configure CORS headers with explicit, minimal allowlists when cross-origin access is genuinely required by the architecture.
