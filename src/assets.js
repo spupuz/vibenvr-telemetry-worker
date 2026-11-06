@@ -15,12 +15,20 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 				// 🛡️ Sentinel: Whitelist only safe upstream headers to prevent header
 			// injection / open-redirect / SSRF via spoofed upstream responses
 			// (e.g. Location, WWW-Authenticate, Content-Disposition, Set-Cookie).
-			const SAFE_UPSTREAM_HEADERS = ['content-type', 'content-length', 'etag', 'last-modified'];
-			const headers = new Headers();
-			for (const h of SAFE_UPSTREAM_HEADERS) {
-				const v = response.headers.get(h);
-				if (v) headers.set(h, v);
-			}
+			const SAFE_UPSTREAM_HEADERS = ['content-length', 'etag', 'last-modified'];
+					const headers = new Headers();
+					// Sentinel: Validate upstream Content-Type against a strict image allowlist
+					const SAFE_CONTENT_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon'];
+					const upstreamContentType = (response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+					if (upstreamContentType && SAFE_CONTENT_TYPES.includes(upstreamContentType)) {
+						headers.set('content-type', upstreamContentType);
+					} else {
+						headers.set('content-type', 'application/octet-stream');
+					}
+					for (const h of SAFE_UPSTREAM_HEADERS) {
+						const v = response.headers.get(h);
+						if (v) headers.set(h, v);
+					}
 
 			if (response.ok) {
 				headers.set('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
