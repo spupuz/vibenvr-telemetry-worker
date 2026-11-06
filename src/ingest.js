@@ -44,17 +44,23 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 						ctx.waitUntil((async () => {
 							try {
 								const kvKey = `site_id:${visitor_id}`;
-								const existing = await env.VIBENVR_IDS.get(kvKey);
+								const countKey = 'site_stats:total_count';
+								const hitsKey = 'site_stats:total_hits';
+
+								// ⚡ Bolt: Batch KV reads in one round-trip instead of sequential awaits
+								const [existing, countVal, hitsVal] = await Promise.all([
+									env.VIBENVR_IDS.get(kvKey),
+									env.VIBENVR_IDS.get(countKey),
+									env.VIBENVR_IDS.get(hitsKey),
+								]);
 
 								if (!existing) {
 									await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
-									const countKey = 'site_stats:total_count';
-									const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
+									const currentTotal = parseInt(countVal || "0", 10);
 									await env.VIBENVR_IDS.put(countKey, (currentTotal + 1).toString());
 								}
 
-								const hitsKey = 'site_stats:total_hits';
-								const currentHits = parseInt(await env.VIBENVR_IDS.get(hitsKey) || "0", 10);
+								const currentHits = parseInt(hitsVal || "0", 10);
 								await env.VIBENVR_IDS.put(hitsKey, (currentHits + 1).toString());
 							} catch (e) {
 								console.error("Failed to write to Site KV in background", e);
