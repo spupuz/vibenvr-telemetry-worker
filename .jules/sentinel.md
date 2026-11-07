@@ -134,3 +134,7 @@
 **Vulnerability:** Error responses (e.g. 404, 405, 500) were being returned without strict Cache-Control headers, allowing upstream proxies or browsers to cache them.
 **Learning:** If an error response is cached, subsequent valid requests might receive the cached error, causing persistent denial of service or degraded availability even after the backend recovers.
 **Prevention:** Always append `Cache-Control: no-store, no-cache, must-revalidate` to all non-2xx HTTP responses to instruct all intermediary caches not to store the error state.
+## 2026-11-07 - Overly Permissive CORS Configuration
+**Vulnerability:** The application was setting a wildcard CORS header (`Access-Control-Allow-Origin: *`) globally on the dashboard API, proxied assets endpoints, and general security context headers.
+**Learning:** This existed likely as a broad development convenience. However, because telemetry ingestion is via a 1x1 image pixel and dashboard APIs are requested same-origin, it opened unnecessary risk (e.g. allowing unauthorized origins to read the analytics data).
+**Prevention:** Remove CORS headers and allow the browser's default Same-Origin Policy to enforce boundaries.
