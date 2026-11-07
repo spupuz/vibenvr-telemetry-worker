@@ -194,10 +194,10 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				let totalCount = 0;
 				let siteTotalCountAllTime = 0;
 				let siteTotalHitsAllTime = 0;
+				const parseKvInt = (v) => { const n = parseInt(v || "0", 10); return Number.isFinite(n) ? n : 0; };
 				if (kvPromise) {
 					const [statsTotalCount, siteStatsTotalCount, siteStatsTotalHits] = await kvPromise;
 
-					const parseKvInt = (v) => { const n = parseInt(v || "0", 10); return Number.isFinite(n) ? n : 0; };
 					totalCount = parseKvInt(statsTotalCount);
 					siteTotalCountAllTime = parseKvInt(siteStatsTotalCount);
 					siteTotalHitsAllTime = parseKvInt(siteStatsTotalHits);
