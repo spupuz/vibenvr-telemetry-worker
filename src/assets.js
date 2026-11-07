@@ -13,7 +13,9 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 	if (target) {
 		try {
 			const response = await fetch(target, {
-				signal: AbortSignal.timeout(10000)
+				signal: AbortSignal.timeout(10000),
+				redirect: "error",
+				credentials: "omit"
 			});
 
 			// 🛡️ Sentinel: Whitelist only safe upstream headers to prevent header
