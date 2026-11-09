@@ -194,17 +194,17 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				let totalCount = 0;
 				let siteTotalCountAllTime = 0;
 				let siteTotalHitsAllTime = 0;
+				const parseKvInt = (v) => { const n = parseInt(v || "0", 10); return Number.isFinite(n) ? n : 0; };
 				if (kvPromise) {
 					const [statsTotalCount, siteStatsTotalCount, siteStatsTotalHits] = await kvPromise;
 
-					const parseKvInt = (v) => { const n = parseInt(v || "0", 10); return Number.isFinite(n) ? n : 0; };
 					totalCount = parseKvInt(statsTotalCount);
 					siteTotalCountAllTime = parseKvInt(siteStatsTotalCount);
 					siteTotalHitsAllTime = parseKvInt(siteStatsTotalHits);
 				} else {
 					totalCount = parseKvInt(totalData[0]?.total);
-					siteTotalCountAllTime = siteTotalsData[0]?.total_visitors || 0;
-					siteTotalHitsAllTime = siteTotalsData[0]?.total_pageviews || 0;
+					siteTotalCountAllTime = parseKvInt(siteTotalsData[0]?.total_visitors);
+					siteTotalHitsAllTime = parseKvInt(siteTotalsData[0]?.total_pageviews);
 				}
 
 				// Calcolo nazioni recenti (ultime 24 e 48 ore)
