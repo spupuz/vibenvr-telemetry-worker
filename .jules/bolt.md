@@ -159,3 +159,6 @@
 ## 2026-11-02 - [Minimize Chained Array Methods in Hot Paths]
 **Learning:** Chaining array methods like `.filter().sort()` on literal arrays in data mapping loops creates unnecessary intermediate arrays and forces multiple iterations over the data, which increases garbage collection (GC) pressure in hot API paths.
 **Action:** To minimize array allocations and redundant iterations in performance-critical data mapping (like API processing loops), replace chained array methods like `.filter().sort()` or `.filter().map()` with a single-pass loop or conditional `.push()` operation into an empty array, followed by a single `.sort()`.
+## 2026-11-09 - Optimize String Parsing for Delimiters
+**Learning:** Extracting a substring before a delimiter by chaining `.split(';')[0]` allocates an intermediate array and creates multiple string objects, leading to unnecessary GC overhead in hot paths.
+**Action:** To prevent intermediate array allocations and reduce garbage collection (GC) overhead when extracting a substring before a delimiter (such as parsing a `Content-Type` header up to a `;`), use `.indexOf()` and `.substring()` instead of `.split()[0]`.
