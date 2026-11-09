@@ -1,11 +1,9 @@
-## 💡 What
-Moved the extraction and parsing of various URL query parameters (such as `version`, `os`, `cpu`, etc.) inside the `if (env.VIBENVR_USAGE)` block in `src/ingest.js`.
+🚨 Severity: HIGH
 
-## 🎯 Why
-Previously, `src/ingest.js` blindly extracted a large number of search parameters from the URL indiscriminately for all requests, regardless of whether the telemetry analytics engine binding (`env.VIBENVR_USAGE`) was actually configured or available. This causes unnecessary string parsing (`url.searchParams.get`), string manipulation (`trim`, `slice`), and type coercion (`parseInt`, `parseFloat`) overhead. By moving these extractions directly before they are used (inside the conditional block), we only perform this work if the parameters are going to be ingested.
+💡 Vulnerability: The application previously configured the `Access-Control-Allow-Origin` header to `*` for the entire dashboard proxy and security context.
 
-## 📊 Impact
-Reduces unnecessary CPU cycles, memory allocations, and garbage collection overhead in the Cloudflare Worker when processing telemetry ingestion requests if `env.VIBENVR_USAGE` is not configured, or if the request exits early due to an invalid ID. This improves TTFB and lowers compute duration for cold paths.
+🎯 Impact: A wildcard CORS policy disables the Same-Origin Policy. If sensitive endpoints or proxy actions rely on cookies or specific local environments, this could allow a malicious site to make cross-origin requests to this domain on behalf of a victim, potentially leading to unauthorized data access or SSRF-like behavior depending on the specific proxy target.
 
-## 🔬 Measurement
-The logic remains functionally identical if `env.VIBENVR_USAGE` is configured. If it is unconfigured, the worker will process the request without wasting resources parsing unused parameters.
+🔧 Fix: Removed `Access-Control-Allow-Origin: '*'` from `STATIC_SECURITY_HEADERS` and `SECURITY_HEADERS` in `src/security.js` and removed the explicit override in `src/assets.js`, enforcing standard Same-Origin behavior by default unless explicitly needed. (Since telemetry points already omit this header as a 1x1 pixel image).
+
+✅ Verification: Run `node -c src/index.js` and `node -c src/security.js`. Checked that tests pass and the security headers no longer inject a wildcard CORS origin.
