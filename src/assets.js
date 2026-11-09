@@ -22,7 +22,11 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 			const headers = new Headers();
 
 			// Sentinel: Validate upstream Content-Type against a strict image allowlist
-			const upstreamContentType = (response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+			// ⚡ Bolt: Use .indexOf() and .substring() instead of .split() to prevent array allocation overhead
+			const rawContentType = response.headers.get('content-type') || '';
+			const semicolonIndex = rawContentType.indexOf(';');
+			const upstreamContentType = (semicolonIndex !== -1 ? rawContentType.substring(0, semicolonIndex) : rawContentType).trim().toLowerCase();
+
 			if (upstreamContentType && SAFE_CONTENT_TYPES.includes(upstreamContentType)) {
 				headers.set('content-type', upstreamContentType);
 			} else {
