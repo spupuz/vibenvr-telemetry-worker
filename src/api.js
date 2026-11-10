@@ -204,8 +204,8 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 					siteTotalHitsAllTime = parseKvInt(siteStatsTotalHits);
 				} else {
 					totalCount = parseKvInt(totalData[0]?.total);
-					siteTotalCountAllTime = siteTotalsData[0]?.total_visitors || 0;
-					siteTotalHitsAllTime = siteTotalsData[0]?.total_pageviews || 0;
+					siteTotalCountAllTime = parseKvInt(siteTotalsData[0]?.total_visitors);
+					siteTotalHitsAllTime = parseKvInt(siteTotalsData[0]?.total_pageviews);
 				}
 
 				// Calcolo nazioni recenti (ultime 24 e 48 ore)
