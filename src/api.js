@@ -97,6 +97,9 @@ const sqlSiteTotals = `
 const CAMERAS_DIST_ORDER = ['0', '1', '2-3', '4-5', '6-10', '11-20', '21+'];
 const GROUPS_DIST_ORDER = ['0', '1', '2-3', '4-5', '6-10', '11+'];
 
+// ⚡ Bolt: Extract closure functions to module scope to avoid reallocating on every request
+const parseKvInt = (v) => { const n = parseInt(v || "0", 10); return Number.isFinite(n) ? n : 0; };
+
 export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			if (!env.ACCOUNT_ID || !env.API_TOKEN) {
 				return new Response(JSON.stringify({ error: "Internal Server Error" }), {
@@ -191,7 +194,6 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 				let activeCount = activeData.length;
 
 				// 3. Get Persistent Total Installs from KV, fallback to SQL if KV is not bound
-				const parseKvInt = (v) => { const n = parseInt(v || "0", 10); return Number.isFinite(n) ? n : 0; };
 				let totalCount = 0;
 				let siteTotalCountAllTime = 0;
 				let siteTotalHitsAllTime = 0;
