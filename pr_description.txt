@@ -1,11 +1,5 @@
-## 💡 What
-Moved the extraction and parsing of various URL query parameters (such as `version`, `os`, `cpu`, etc.) inside the `if (env.VIBENVR_USAGE)` block in `src/ingest.js`.
-
-## 🎯 Why
-Previously, `src/ingest.js` blindly extracted a large number of search parameters from the URL indiscriminately for all requests, regardless of whether the telemetry analytics engine binding (`env.VIBENVR_USAGE`) was actually configured or available. This causes unnecessary string parsing (`url.searchParams.get`), string manipulation (`trim`, `slice`), and type coercion (`parseInt`, `parseFloat`) overhead. By moving these extractions directly before they are used (inside the conditional block), we only perform this work if the parameters are going to be ingested.
-
-## 📊 Impact
-Reduces unnecessary CPU cycles, memory allocations, and garbage collection overhead in the Cloudflare Worker when processing telemetry ingestion requests if `env.VIBENVR_USAGE` is not configured, or if the request exits early due to an invalid ID. This improves TTFB and lowers compute duration for cold paths.
-
-## 🔬 Measurement
-The logic remains functionally identical if `env.VIBENVR_USAGE` is configured. If it is unconfigured, the worker will process the request without wasting resources parsing unused parameters.
+🚨 Severity: MEDIUM
+💡 Vulnerability: The application previously configured overly permissive wildcard CORS headers (`Access-Control-Allow-Origin: *`) globally for the HTML dashboard context and conditionally for proxied assets.
+🎯 Impact: While this is a Cloudflare worker responding to `GET` requests, wildcard CORS on the primary HTML dashboard and proxy responses is an insecure default that unnecessarily exposes data or asset responses to arbitrary cross-origin domains.
+🔧 Fix: Removed `Access-Control-Allow-Origin: *` from `STATIC_SECURITY_HEADERS` and `SECURITY_HEADERS` in `src/security.js` and removed the fallback `headers.set('Access-Control-Allow-Origin', '*')` in `src/assets.js`.
+✅ Verification: Verified the syntax using `node -c src/security.js` and `node -c src/assets.js`.
