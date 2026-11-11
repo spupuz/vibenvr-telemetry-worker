@@ -1406,8 +1406,6 @@ margin-top: 2px;
 			mkChart('chart-site-worldmap', 'bar', prepData(lastData.site_countries,'name','count',15,true), STATIC_BAR_PALETTE, false);
 		});
 
-		mkChart('chart-country-bars', 'bar', prepData(lastData.countries, 'name', 'count', 12, true), STATIC_BAR_PALETTE, false);
-
 		// Activity Trend Chart
 		const activityCtx = document.getElementById('chart-activity')?.getContext('2d');
 		if (activityCtx) {

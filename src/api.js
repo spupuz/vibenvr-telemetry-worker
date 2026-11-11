@@ -101,365 +101,365 @@ const GROUPS_DIST_ORDER = ['0', '1', '2-3', '4-5', '6-10', '11+'];
 const parseKvInt = (v) => { const n = parseInt(v || "0", 10); return Number.isFinite(n) ? n : 0; };
 
 export const handleApiStats = async (env, SECURITY_HEADERS) => {
-			if (!env.ACCOUNT_ID || !env.API_TOKEN) {
-				return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-					status: 500,
-					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store, no-cache, must-revalidate' }
-				});
+	if (!env.ACCOUNT_ID || !env.API_TOKEN) {
+		return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+			status: 500,
+			headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store, no-cache, must-revalidate' }
+		});
+	}
+
+	try {
+		// ⚡ Bolt: Kick off KV reads concurrently with SQL queries to prevent sequential network blocking and reduce overall TTFB
+		const kvPromise = env.VIBENVR_IDS ? Promise.all([
+			env.VIBENVR_IDS.get('stats:total_count'),
+			env.VIBENVR_IDS.get('site_stats:total_count'),
+			env.VIBENVR_IDS.get('site_stats:total_hits')
+		]) : null;
+
+		// ⚡ Bolt: Extract identical headers object outside the Promise.all array to prevent redundant memory allocation
+		// for 6 identical objects, reducing GC pressure during concurrent fetches
+		const fetchHeaders = { 'Authorization': `Bearer ${env.API_TOKEN}` };
+
+		// ⚡ Bolt: Optimize JSON parsing concurrency
+		// By chaining .json() directly to the fetch promises, we allow V8 to begin reading and parsing
+		// each individual response stream as soon as it arrives, rather than waiting for the slowest query
+		// to finish TTFB before processing any data.
+		const [
+			activeJson, totalJson, activityAndEventsJson, siteActivityJson,
+			siteCountriesJson, siteTotalsJson
+		] = await Promise.all([
+			fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+				method: 'POST',
+				headers: fetchHeaders,
+				body: sqlActive,
+				signal: AbortSignal.timeout(15000)
+			}).then(async res => {
+				if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+				return res.json();
+			}),
+			env.VIBENVR_IDS ? Promise.resolve({ data: [] }) : fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+				method: 'POST',
+				headers: fetchHeaders,
+				body: sqlTotal,
+				signal: AbortSignal.timeout(15000)
+			}).then(async res => {
+				if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+				return res.json();
+			}),
+			fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+				method: 'POST',
+				headers: fetchHeaders,
+				body: sqlActivityAndEvents,
+				signal: AbortSignal.timeout(15000)
+			}).then(async res => {
+				if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+				return res.json();
+			}),
+			fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+				method: 'POST',
+				headers: fetchHeaders,
+				body: sqlSiteActivity,
+				signal: AbortSignal.timeout(15000)
+			}).then(async res => {
+				if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+				return res.json();
+			}).catch(() => ({ data: [] })), // Don't fail the whole API if the site dataset doesn't exist yet
+			fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+				method: 'POST',
+				headers: fetchHeaders,
+				body: sqlSiteCountries,
+				signal: AbortSignal.timeout(15000)
+			}).then(async res => {
+				if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+				return res.json();
+			}).catch(() => ({ data: [] })),
+			fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
+				method: 'POST',
+				headers: fetchHeaders,
+				body: sqlSiteTotals,
+				signal: AbortSignal.timeout(15000)
+			}).then(async res => {
+				if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
+				return res.json();
+			}).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] }))
+		]);
+
+		const activeData = activeJson.data || [];
+		const totalData = totalJson.data || [];
+		const activityAndEventsData = activityAndEventsJson.data || [];
+		const siteActivityData = siteActivityJson.data || [];
+		const siteCountriesData = siteCountriesJson.data || [];
+		const siteTotalsData = siteTotalsJson.data || [];
+
+		let activeCount = activeData.length;
+
+		// 3. Get Persistent Total Installs from KV, fallback to SQL if KV is not bound
+		let totalCount = 0;
+		let siteTotalCountAllTime = 0;
+		let siteTotalHitsAllTime = 0;
+		if (kvPromise) {
+			const [statsTotalCount, siteStatsTotalCount, siteStatsTotalHits] = await kvPromise;
+			totalCount = parseKvInt(statsTotalCount);
+			siteTotalCountAllTime = parseKvInt(siteStatsTotalCount);
+			siteTotalHitsAllTime = parseKvInt(siteStatsTotalHits);
+		} else {
+			totalCount = parseKvInt(totalData[0]?.total);
+			siteTotalCountAllTime = parseKvInt(siteTotalsData[0]?.total_visitors);
+			siteTotalHitsAllTime = parseKvInt(siteTotalsData[0]?.total_pageviews);
+		}
+
+		// Calcolo nazioni recenti (ultime 24 e 48 ore)
+		const recent48h = Date.now() - 48 * 60 * 60 * 1000;
+		const recent24h = Date.now() - 24 * 60 * 60 * 1000;
+
+		// Deduplicate instances: pick the latest record for each ID based on timestamp
+		const uniqueInstances = new Map();
+		for (const row of activeData) {
+			const id = row.instance_id;
+			// ⚡ Bolt: Optimize date parsing (Date.parse is ~7x faster than new Date().getTime() in hot loops)
+			// Cache it to avoid re-parsing for the same row
+			const ts = row._ts || (row._ts = Date.parse(row.timestamp));
+
+			let existing = uniqueInstances.get(id);
+
+			if (!existing || ts > existing._ts) {
+				// Preserve seen flags if the row is replaced by a newer record
+				const seen24h = existing ? existing._seen24h : false;
+				const seen48h = existing ? existing._seen48h : false;
+
+				uniqueInstances.set(id, row);
+				existing = row;
+
+				if (seen24h) existing._seen24h = true;
+				if (seen48h) existing._seen48h = true;
 			}
 
-			try {
-				// ⚡ Bolt: Kick off KV reads concurrently with SQL queries to prevent sequential network blocking and reduce overall TTFB
-				const kvPromise = env.VIBENVR_IDS ? Promise.all([
-					env.VIBENVR_IDS.get('stats:total_count'),
-					env.VIBENVR_IDS.get('site_stats:total_count'),
-					env.VIBENVR_IDS.get('site_stats:total_hits')
-				]) : null;
-
-				// ⚡ Bolt: Extract identical headers object outside the Promise.all array to prevent redundant memory allocation
-				// for 6 identical objects, reducing GC pressure during concurrent fetches
-				const fetchHeaders = { 'Authorization': `Bearer ${env.API_TOKEN}` };
-
-				// ⚡ Bolt: Optimize JSON parsing concurrency
-				// By chaining .json() directly to the fetch promises, we allow V8 to begin reading and parsing
-				// each individual response stream as soon as it arrives, rather than waiting for the slowest query
-				// to finish TTFB before processing any data.
-				const [
-					activeJson, totalJson, activityAndEventsJson, siteActivityJson,
-					siteCountriesJson, siteTotalsJson
-				] = await Promise.all([
-					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
-						method: 'POST',
-						headers: fetchHeaders,
-						body: sqlActive,
-						signal: AbortSignal.timeout(15000)
-					}).then(async res => {
-						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
-						return res.json();
-					}),
-					env.VIBENVR_IDS ? Promise.resolve({ data: [] }) : fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
-						method: 'POST',
-						headers: fetchHeaders,
-						body: sqlTotal,
-						signal: AbortSignal.timeout(15000)
-					}).then(async res => {
-						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
-						return res.json();
-					}),
-					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
-						method: 'POST',
-						headers: fetchHeaders,
-						body: sqlActivityAndEvents,
-						signal: AbortSignal.timeout(15000)
-					}).then(async res => {
-						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
-						return res.json();
-					}),
-					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
-						method: 'POST',
-						headers: fetchHeaders,
-						body: sqlSiteActivity,
-						signal: AbortSignal.timeout(15000)
-					}).then(async res => {
-						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
-						return res.json();
-					}).catch(() => ({ data: [] })), // Don't fail the whole API if the site dataset doesn't exist yet
-					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
-						method: 'POST',
-						headers: fetchHeaders,
-						body: sqlSiteCountries,
-						signal: AbortSignal.timeout(15000)
-					}).then(async res => {
-						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
-						return res.json();
-					}).catch(() => ({ data: [] })),
-					fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
-						method: 'POST',
-						headers: fetchHeaders,
-						body: sqlSiteTotals,
-						signal: AbortSignal.timeout(15000)
-					}).then(async res => {
-						if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
-						return res.json();
-					}).catch(() => ({ data: [{ total_visitors: 0, total_pageviews: 0 }] }))
-				]);
-
-				const activeData = activeJson.data || [];
-				const totalData = totalJson.data || [];
-				const activityAndEventsData = activityAndEventsJson.data || [];
-				const siteActivityData = siteActivityJson.data || [];
-				const siteCountriesData = siteCountriesJson.data || [];
-				const siteTotalsData = siteTotalsJson.data || [];
-
-				let activeCount = activeData.length;
-
-				// 3. Get Persistent Total Installs from KV, fallback to SQL if KV is not bound
-				let totalCount = 0;
-				let siteTotalCountAllTime = 0;
-				let siteTotalHitsAllTime = 0;
-				if (kvPromise) {
-					const [statsTotalCount, siteStatsTotalCount, siteStatsTotalHits] = await kvPromise;
-					totalCount = parseKvInt(statsTotalCount);
-					siteTotalCountAllTime = parseKvInt(siteStatsTotalCount);
-					siteTotalHitsAllTime = parseKvInt(siteStatsTotalHits);
-				} else {
-					totalCount = parseKvInt(totalData[0]?.total);
-					siteTotalCountAllTime = parseKvInt(siteTotalsData[0]?.total_visitors);
-					siteTotalHitsAllTime = parseKvInt(siteTotalsData[0]?.total_pageviews);
-				}
-
-				// Calcolo nazioni recenti (ultime 24 e 48 ore)
-				const recent48h = Date.now() - 48 * 60 * 60 * 1000;
-				const recent24h = Date.now() - 24 * 60 * 60 * 1000;
-
-				// Deduplicate instances: pick the latest record for each ID based on timestamp
-				const uniqueInstances = new Map();
-				for (const row of activeData) {
-					const id = row.instance_id;
-					// ⚡ Bolt: Optimize date parsing (Date.parse is ~7x faster than new Date().getTime() in hot loops)
-					// Cache it to avoid re-parsing for the same row
-					const ts = row._ts || (row._ts = Date.parse(row.timestamp));
-
-					let existing = uniqueInstances.get(id);
-
-					if (!existing || ts > existing._ts) {
-						// Preserve seen flags if the row is replaced by a newer record
-						const seen24h = existing ? existing._seen24h : false;
-						const seen48h = existing ? existing._seen48h : false;
-
-						uniqueInstances.set(id, row);
-						existing = row;
-
-						if (seen24h) existing._seen24h = true;
-						if (seen48h) existing._seen48h = true;
-					}
-
-					// Combined loop for recent 24h/48h stats
-					// ⚡ Bolt: Track 24h/48h activity directly on the deduplicated row object to prevent allocating
-					// temporary Maps per row which causes heavy garbage collection on large datasets
-					if (ts >= recent24h) {
-						existing._seen24h = true;
-					} else if (ts >= recent48h) {
-						existing._seen48h = true;
-					}
-				}
-
-				// ⚡ Bolt: Iterate directly over Map values to avoid allocating a large intermediate array
-				activeCount = uniqueInstances.size;
-
-				// ⚡ Bolt: Combine multiple .map() calls into a single-pass for loop with pre-allocated arrays
-				const actLen = activityAndEventsData.length;
-				const activityArr = new Array(actLen);
-				const eventsTrendArr = new Array(actLen);
-				for (let i = 0; i < actLen; i++) {
-					const row = activityAndEventsData[i];
-					activityArr[i] = {
-						date: row.day,
-						pings: Number(row.pings) || 0,
-						uniques: Number(row.uniques) || 0
-					};
-					eventsTrendArr[i] = {
-						date: row.day,
-						events: Number(row.events) || 0
-					};
-				}
-
-				// ⚡ Bolt: Optimize independent .map() arrays with pre-allocated loops to prevent GC pressure
-				const siteActLen = siteActivityData.length;
-				const siteActivityArr = new Array(siteActLen);
-				for (let i = 0; i < siteActLen; i++) {
-					const row = siteActivityData[i];
-					siteActivityArr[i] = {
-						date: row.day,
-						pageviews: Number(row.pageviews) || 0,
-						uniques: Number(row.uniques) || 0
-					};
-				}
-
-				const siteCtryLen = siteCountriesData.length;
-				const siteCountriesArr = new Array(siteCtryLen);
-				for (let i = 0; i < siteCtryLen; i++) {
-					const row = siteCountriesData[i];
-					siteCountriesArr[i] = {
-						name: row.country || 'Unknown',
-						count: Number(row.uniques) || 0
-					};
-				}
-				siteCountriesArr.sort((a, b) => b.count - a.count);
-
-				const stats = {
-					active_installs: activeCount,
-					active_installs_24h: 0,
-					active_installs_prev24h: 0,
-					total_installs: Math.max(activeCount, totalCount),
-					activity: activityArr,
-					events_trend: eventsTrendArr,
-					versions: [],
-					countries: [],
-					cpus: [],
-					os: [],
-					arch: [],
-					ram: [],
-					total_cameras: 0,
-					total_groups: 0,
-					total_events: 0,
-					gpu_enabled: 0,
-					notifications_enabled: 0,
-					total_mqtt_active: 0,
-					total_motion_opencv: 0,
-					total_motion_onvif: 0,
-					total_motion_ai_engine: 0,
-					total_motion_ai: 0,
-					total_onvif_cameras: 0,
-					total_substream_cameras: 0,
-					motion_engines: [],
-					site_activity: siteActivityArr,
-					site_countries: siteCountriesArr,
-					site_total_visitors_30d: Number(siteTotalsData[0]?.total_visitors) || 0,
-					site_total_visitors_all_time: Math.max(Number(siteTotalsData[0]?.total_visitors) || 0, siteTotalCountAllTime),
-					site_total_pageviews_30d: Number(siteTotalsData[0]?.total_pageviews) || 0,
-					site_total_pageviews_all_time: Math.max(Number(siteTotalsData[0]?.total_pageviews) || 0, siteTotalHitsAllTime)
-				};
-
-				const versionCounts = Object.create(null);
-				const countryCounts = Object.create(null);
-				const cpuModelCounts = Object.create(null);
-				const cpuCoresCounts = Object.create(null);
-				const osCounts = Object.create(null);
-				const archCounts = Object.create(null);
-				const ramCounts = Object.create(null);
-
-				const countryCounts24h = Object.create(null);
-				const versionCounts24h = Object.create(null);
-				const countryCounts48_24h = Object.create(null);
-				const osCounts24h = Object.create(null);
-				const archCounts24h = Object.create(null);
-				let activeCount24h = 0;
-				let activeCountPrev24h = 0;
-				
-				// ⚡ Bolt: Pre-initialize distribution objects to prevent conditional existence checks on every iteration
-				stats.cameras_dist = Object.create(null);
-				stats.groups_dist = Object.create(null);
-
-				for (const row of uniqueInstances.values()) {
-					// Aggregations
-					const v = row.version || 'unknown';
-					const c = row.country || 'Unknown';
-					const o = row.os || 'Unknown';
-					const a = row.arch || 'Unknown';
-
-					// 24h/48h counts
-					if (row._seen24h) {
-						activeCount24h++;
-						countryCounts24h[c] = (countryCounts24h[c] || 0) + 1;
-						versionCounts24h[v] = (versionCounts24h[v] || 0) + 1;
-						osCounts24h[o] = (osCounts24h[o] || 0) + 1;
-						archCounts24h[a] = (archCounts24h[a] || 0) + 1;
-					}
-					if (row._seen48h) {
-						activeCountPrev24h++;
-						countryCounts48_24h[c] = (countryCounts48_24h[c] || 0) + 1;
-					}
-
-					versionCounts[v] = (versionCounts[v] || 0) + 1;
-					countryCounts[c] = (countryCounts[c] || 0) + 1;
-					osCounts[o] = (osCounts[o] || 0) + 1;
-					archCounts[a] = (archCounts[a] || 0) + 1;
-
-					const r = row.ram ? row.ram : 'Unknown';
-					ramCounts[r] = (ramCounts[r] || 0) + 1;
-
-					// CPU model (commercial name, blob5)
-					const modelName = row.cpu && row.cpu !== 'unknown' && row.cpu !== '' ? row.cpu : null;
-					if (modelName) cpuModelCounts[modelName] = (cpuModelCounts[modelName] || 0) + 1;
-					// CPU cores (double1)
-					const coresLabel = row.cpu_cores ? row.cpu_cores : 'Unknown';
-					cpuCoresCounts[coresLabel] = (cpuCoresCounts[coresLabel] || 0) + 1;
-
-					stats.total_cameras += Number(row.cameras) || 0;
-					stats.total_groups += Number(row.groups) || 0;
-					stats.total_events += Number(row.events) || 0;
-					if (Number(row.gpu) > 0) stats.gpu_enabled++;
-					if (Number(row.notifications) > 0) stats.notifications_enabled++;
-					if (Number(row.mqtt_active) > 0) stats.total_mqtt_active++;
-					stats.total_motion_opencv += Number(row.motion_opencv) || 0;
-					stats.total_motion_onvif += Number(row.motion_onvif) || 0;
-					stats.total_motion_ai_engine += Number(row.motion_ai_engine) || 0;
-					stats.total_motion_ai += Number(row.motion_ai) || 0;
-					stats.total_onvif_cameras += Number(row.onvif_count) || 0;
-					stats.total_substream_cameras += Number(row.substream_count) || 0;
-
-					// Cameras distribution bucket
-					const nc = Number(row.cameras) || 0;
-					const bk = nc === 0 ? '0' : nc === 1 ? '1' : nc <= 3 ? '2-3' : nc <= 5 ? '4-5' : nc <= 10 ? '6-10' : nc <= 20 ? '11-20' : '21+';
-					stats.cameras_dist[bk] = (stats.cameras_dist[bk] || 0) + 1;
-
-					// Groups distribution bucket
-					const ng = Number(row.groups) || 0;
-					const gbk = ng === 0 ? '0' : ng === 1 ? '1' : ng <= 3 ? '2-3' : ng <= 5 ? '4-5' : ng <= 10 ? '6-10' : '11+';
-					stats.groups_dist[gbk] = (stats.groups_dist[gbk] || 0) + 1;
-				}
-
-				stats.versions = objectToSortedArray(versionCounts);
-				stats.countries = objectToSortedArray(countryCounts);
-				stats.cpu_models = objectToSortedArray(cpuModelCounts);
-				// ⚡ Bolt: Defer string concatenation for labels to the end of aggregation
-				stats.cpu_cores = objectToSortedArray(cpuCoresCounts, val => val !== 'Unknown' ? val + ' Cores' : val);
-				stats.os = objectToSortedArray(osCounts);
-				stats.arch = objectToSortedArray(archCounts);
-				// ⚡ Bolt: Defer string concatenation for labels to the end of aggregation
-				stats.ram = objectToSortedArray(ramCounts, val => val !== 'Unknown' ? val + ' GB' : val);
-				
-				// ⚡ Bolt: Prevent array allocation and redundant iterations by conditionally pushing to a new array and sorting it
-				const motionEnginesTemp = [];
-				if (stats.total_motion_ai_engine > 0) motionEnginesTemp.push({ name: 'AI Native', count: stats.total_motion_ai_engine });
-				if (stats.total_motion_opencv > 0) motionEnginesTemp.push({ name: 'OpenCV', count: stats.total_motion_opencv });
-				if (stats.total_motion_onvif > 0) motionEnginesTemp.push({ name: 'ONVIF Edge', count: stats.total_motion_onvif });
-				stats.motion_engines = motionEnginesTemp.sort((a, b) => b.count - a.count);
-
-				// Normalise cameras_dist to ordered array
-				// ⚡ Bolt: Replace .filter().map() with a single-pass loop to minimize array allocations in API mapping
-				const camDistTemp = [];
-				for (let i = 0; i < CAMERAS_DIST_ORDER.length; i++) {
-					const k = CAMERAS_DIST_ORDER[i];
-					if (stats.cameras_dist && stats.cameras_dist[k]) {
-						camDistTemp.push({ name: k, count: stats.cameras_dist[k] });
-					}
-				}
-				stats.cameras_dist = camDistTemp;
-
-				stats.countries_24h = objectToSortedArray(countryCounts24h);
-				stats.countries_prev24h = objectToSortedArray(countryCounts48_24h);
-				stats.versions_24h = objectToSortedArray(versionCounts24h);
-				stats.os_24h = objectToSortedArray(osCounts24h);
-				stats.arch_24h = objectToSortedArray(archCounts24h);
-				stats.active_installs_24h = activeCount24h;
-				stats.active_installs_prev24h = activeCountPrev24h;
-
-				// Normalise groups_dist to ordered array
-				// ⚡ Bolt: Replace .filter().map() with a single-pass loop to minimize array allocations in API mapping
-				const groupDistTemp = [];
-				for (let i = 0; i < GROUPS_DIST_ORDER.length; i++) {
-					const k = GROUPS_DIST_ORDER[i];
-					if (stats.groups_dist && stats.groups_dist[k]) {
-						groupDistTemp.push({ name: k, count: stats.groups_dist[k] });
-					}
-				}
-				stats.groups_dist = groupDistTemp;
-
-				return new Response(JSON.stringify(stats), {
-					headers: {
-						...SECURITY_HEADERS,
-						'Content-Type': 'application/json',
-						'Cache-Control': 'public, s-maxage=300, max-age=60',
-					}
-				});
-			} catch (err) {
-				// Generic error message to avoid leaking internal system details
-				console.error("Dashboard API Error:", err);
-				return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-					status: 500,
-					headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store, no-cache, must-revalidate' }
-				});
+			// Combined loop for recent 24h/48h stats
+			// ⚡ Bolt: Track 24h/48h activity directly on the deduplicated row object to prevent allocating
+			// temporary Maps per row which causes heavy garbage collection on large datasets
+			if (ts >= recent24h) {
+				existing._seen24h = true;
+			} else if (ts >= recent48h) {
+				existing._seen48h = true;
 			}
+		}
+
+		// ⚡ Bolt: Iterate directly over Map values to avoid allocating a large intermediate array
+		activeCount = uniqueInstances.size;
+
+		// ⚡ Bolt: Combine multiple .map() calls into a single-pass for loop with pre-allocated arrays
+		const actLen = activityAndEventsData.length;
+		const activityArr = new Array(actLen);
+		const eventsTrendArr = new Array(actLen);
+		for (let i = 0; i < actLen; i++) {
+			const row = activityAndEventsData[i];
+			activityArr[i] = {
+				date: row.day,
+				pings: Number(row.pings) || 0,
+				uniques: Number(row.uniques) || 0
+			};
+			eventsTrendArr[i] = {
+				date: row.day,
+				events: Number(row.events) || 0
+			};
+		}
+
+		// ⚡ Bolt: Optimize independent .map() arrays with pre-allocated loops to prevent GC pressure
+		const siteActLen = siteActivityData.length;
+		const siteActivityArr = new Array(siteActLen);
+		for (let i = 0; i < siteActLen; i++) {
+			const row = siteActivityData[i];
+			siteActivityArr[i] = {
+				date: row.day,
+				pageviews: Number(row.pageviews) || 0,
+				uniques: Number(row.uniques) || 0
+			};
+		}
+
+		const siteCtryLen = siteCountriesData.length;
+		const siteCountriesArr = new Array(siteCtryLen);
+		for (let i = 0; i < siteCtryLen; i++) {
+			const row = siteCountriesData[i];
+			siteCountriesArr[i] = {
+				name: row.country || 'Unknown',
+				count: Number(row.uniques) || 0
+			};
+		}
+		siteCountriesArr.sort((a, b) => b.count - a.count);
+
+		const stats = {
+			active_installs: activeCount,
+			active_installs_24h: 0,
+			active_installs_prev24h: 0,
+			total_installs: Math.max(activeCount, totalCount),
+			activity: activityArr,
+			events_trend: eventsTrendArr,
+			versions: [],
+			countries: [],
+			cpus: [],
+			os: [],
+			arch: [],
+			ram: [],
+			total_cameras: 0,
+			total_groups: 0,
+			total_events: 0,
+			gpu_enabled: 0,
+			notifications_enabled: 0,
+			total_mqtt_active: 0,
+			total_motion_opencv: 0,
+			total_motion_onvif: 0,
+			total_motion_ai_engine: 0,
+			total_motion_ai: 0,
+			total_onvif_cameras: 0,
+			total_substream_cameras: 0,
+			motion_engines: [],
+			site_activity: siteActivityArr,
+			site_countries: siteCountriesArr,
+			site_total_visitors_30d: Number(siteTotalsData[0]?.total_visitors) || 0,
+			site_total_visitors_all_time: Math.max(Number(siteTotalsData[0]?.total_visitors) || 0, siteTotalCountAllTime),
+			site_total_pageviews_30d: Number(siteTotalsData[0]?.total_pageviews) || 0,
+			site_total_pageviews_all_time: Math.max(Number(siteTotalsData[0]?.total_pageviews) || 0, siteTotalHitsAllTime)
+		};
+
+		const versionCounts = Object.create(null);
+		const countryCounts = Object.create(null);
+		const cpuModelCounts = Object.create(null);
+		const cpuCoresCounts = Object.create(null);
+		const osCounts = Object.create(null);
+		const archCounts = Object.create(null);
+		const ramCounts = Object.create(null);
+
+		const countryCounts24h = Object.create(null);
+		const versionCounts24h = Object.create(null);
+		const countryCounts48_24h = Object.create(null);
+		const osCounts24h = Object.create(null);
+		const archCounts24h = Object.create(null);
+		let activeCount24h = 0;
+		let activeCountPrev24h = 0;
+		
+		// ⚡ Bolt: Pre-initialize distribution objects to prevent conditional existence checks on every iteration
+		stats.cameras_dist = Object.create(null);
+		stats.groups_dist = Object.create(null);
+
+		for (const row of uniqueInstances.values()) {
+			// Aggregations
+			const v = row.version || 'unknown';
+			const c = row.country || 'Unknown';
+			const o = row.os || 'Unknown';
+			const a = row.arch || 'Unknown';
+
+			// 24h/48h counts
+			if (row._seen24h) {
+				activeCount24h++;
+				countryCounts24h[c] = (countryCounts24h[c] || 0) + 1;
+				versionCounts24h[v] = (versionCounts24h[v] || 0) + 1;
+				osCounts24h[o] = (osCounts24h[o] || 0) + 1;
+				archCounts24h[a] = (archCounts24h[a] || 0) + 1;
+			}
+			if (row._seen48h) {
+				activeCountPrev24h++;
+				countryCounts48_24h[c] = (countryCounts48_24h[c] || 0) + 1;
+			}
+
+			versionCounts[v] = (versionCounts[v] || 0) + 1;
+			countryCounts[c] = (countryCounts[c] || 0) + 1;
+			osCounts[o] = (osCounts[o] || 0) + 1;
+			archCounts[a] = (archCounts[a] || 0) + 1;
+
+			const r = row.ram ? row.ram : 'Unknown';
+			ramCounts[r] = (ramCounts[r] || 0) + 1;
+
+			// CPU model (commercial name, blob5)
+			const modelName = row.cpu && row.cpu !== 'unknown' && row.cpu !== '' ? row.cpu : null;
+			if (modelName) cpuModelCounts[modelName] = (cpuModelCounts[modelName] || 0) + 1;
+			// CPU cores (double1)
+			const coresLabel = row.cpu_cores ? row.cpu_cores : 'Unknown';
+			cpuCoresCounts[coresLabel] = (cpuCoresCounts[coresLabel] || 0) + 1;
+
+			stats.total_cameras += Number(row.cameras) || 0;
+			stats.total_groups += Number(row.groups) || 0;
+			stats.total_events += Number(row.events) || 0;
+			if (Number(row.gpu) > 0) stats.gpu_enabled++;
+			if (Number(row.notifications) > 0) stats.notifications_enabled++;
+			if (Number(row.mqtt_active) > 0) stats.total_mqtt_active++;
+			stats.total_motion_opencv += Number(row.motion_opencv) || 0;
+			stats.total_motion_onvif += Number(row.motion_onvif) || 0;
+			stats.total_motion_ai_engine += Number(row.motion_ai_engine) || 0;
+			stats.total_motion_ai += Number(row.motion_ai) || 0;
+			stats.total_onvif_cameras += Number(row.onvif_count) || 0;
+			stats.total_substream_cameras += Number(row.substream_count) || 0;
+
+			// Cameras distribution bucket
+			const nc = Number(row.cameras) || 0;
+			const bk = nc === 0 ? '0' : nc === 1 ? '1' : nc <= 3 ? '2-3' : nc <= 5 ? '4-5' : nc <= 10 ? '6-10' : nc <= 20 ? '11-20' : '21+';
+			stats.cameras_dist[bk] = (stats.cameras_dist[bk] || 0) + 1;
+
+			// Groups distribution bucket
+			const ng = Number(row.groups) || 0;
+			const gbk = ng === 0 ? '0' : ng === 1 ? '1' : ng <= 3 ? '2-3' : ng <= 5 ? '4-5' : ng <= 10 ? '6-10' : '11+';
+			stats.groups_dist[gbk] = (stats.groups_dist[gbk] || 0) + 1;
+		}
+
+		stats.versions = objectToSortedArray(versionCounts);
+		stats.countries = objectToSortedArray(countryCounts);
+		stats.cpu_models = objectToSortedArray(cpuModelCounts);
+		// ⚡ Bolt: Defer string concatenation for labels to the end of aggregation
+		stats.cpu_cores = objectToSortedArray(cpuCoresCounts, val => val !== 'Unknown' ? val + ' Cores' : val);
+		stats.os = objectToSortedArray(osCounts);
+		stats.arch = objectToSortedArray(archCounts);
+		// ⚡ Bolt: Defer string concatenation for labels to the end of aggregation
+		stats.ram = objectToSortedArray(ramCounts, val => val !== 'Unknown' ? val + ' GB' : val);
+		
+		// ⚡ Bolt: Prevent array allocation and redundant iterations by conditionally pushing to a new array and sorting it
+		const motionEnginesTemp = [];
+		if (stats.total_motion_ai_engine > 0) motionEnginesTemp.push({ name: 'AI Native', count: stats.total_motion_ai_engine });
+		if (stats.total_motion_opencv > 0) motionEnginesTemp.push({ name: 'OpenCV', count: stats.total_motion_opencv });
+		if (stats.total_motion_onvif > 0) motionEnginesTemp.push({ name: 'ONVIF Edge', count: stats.total_motion_onvif });
+		stats.motion_engines = motionEnginesTemp.sort((a, b) => b.count - a.count);
+
+		// Normalise cameras_dist to ordered array
+		// ⚡ Bolt: Replace .filter().map() with a single-pass loop to minimize array allocations in API mapping
+		const camDistTemp = [];
+		for (let i = 0; i < CAMERAS_DIST_ORDER.length; i++) {
+			const k = CAMERAS_DIST_ORDER[i];
+			if (stats.cameras_dist && stats.cameras_dist[k]) {
+				camDistTemp.push({ name: k, count: stats.cameras_dist[k] });
+			}
+		}
+		stats.cameras_dist = camDistTemp;
+
+		stats.countries_24h = objectToSortedArray(countryCounts24h);
+		stats.countries_prev24h = objectToSortedArray(countryCounts48_24h);
+		stats.versions_24h = objectToSortedArray(versionCounts24h);
+		stats.os_24h = objectToSortedArray(osCounts24h);
+		stats.arch_24h = objectToSortedArray(archCounts24h);
+		stats.active_installs_24h = activeCount24h;
+		stats.active_installs_prev24h = activeCountPrev24h;
+
+		// Normalise groups_dist to ordered array
+		// ⚡ Bolt: Replace .filter().map() with a single-pass loop to minimize array allocations in API mapping
+		const groupDistTemp = [];
+		for (let i = 0; i < GROUPS_DIST_ORDER.length; i++) {
+			const k = GROUPS_DIST_ORDER[i];
+			if (stats.groups_dist && stats.groups_dist[k]) {
+				groupDistTemp.push({ name: k, count: stats.groups_dist[k] });
+			}
+		}
+		stats.groups_dist = groupDistTemp;
+
+		return new Response(JSON.stringify(stats), {
+			headers: {
+				...SECURITY_HEADERS,
+				'Content-Type': 'application/json',
+				'Cache-Control': 'public, s-maxage=300, max-age=60',
+			}
+		});
+	} catch (err) {
+		// Generic error message to avoid leaking internal system details
+		console.error("Dashboard API Error:", err);
+		return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+			status: 500,
+			headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store, no-cache, must-revalidate' }
+		});
+	}
 };
