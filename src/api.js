@@ -124,6 +124,8 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 		// By chaining .json() directly to the fetch promises, we allow V8 to begin reading and parsing
 		// each individual response stream as soon as it arrives, rather than waiting for the slowest query
 		// to finish TTFB before processing any data.
+		// 🛡️ Sentinel: Add consistent error fallbacks to all SQL API fetches to prevent
+		// unhandled promise rejections from crashing the entire stats endpoint.
 		const [
 			activeJson, totalJson, activityAndEventsJson, siteActivityJson,
 			siteCountriesJson, siteTotalsJson
@@ -136,7 +138,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			}).then(async res => {
 				if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
 				return res.json();
-			}),
+			}).catch(() => ({ data: [] })),
 			env.VIBENVR_IDS ? Promise.resolve({ data: [] }) : fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 				method: 'POST',
 				headers: fetchHeaders,
@@ -145,7 +147,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			}).then(async res => {
 				if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
 				return res.json();
-			}),
+			}).catch(() => ({ data: [] })),
 			fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 				method: 'POST',
 				headers: fetchHeaders,
@@ -154,7 +156,7 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			}).then(async res => {
 				if (!res.ok) throw new Error("SQL API Error: Request failed with status " + res.status);
 				return res.json();
-			}),
+			}).catch(() => ({ data: [] })),
 			fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql`, {
 				method: 'POST',
 				headers: fetchHeaders,
