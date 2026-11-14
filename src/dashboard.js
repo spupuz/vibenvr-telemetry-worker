@@ -1212,7 +1212,7 @@ margin-top: 2px;
 
 	// ⚡ Bolt: Pre-compile regular expression outside the loop to avoid re-instantiating it
 	// and combine multiple replaces into one to optimize string manipulation performance
-	const CPU_CLEANUP_REGEX = /\\(R\\)|\\(TM\\)| Processor| CPU| @ \\d+\\.\\d+GHz/gi;
+	const CPU_CLEANUP_REGEX = /\\(R\\)|\\(TM\\)|\bProcessor\b| CPU| @ [\d.]+GHz/gi;
 
 	function prepData(list, lk='name', vk='count', limit=8, showFlags=false) {
 		if (!list) return { labels: [], data: [] };
@@ -1646,6 +1646,10 @@ margin-top: 2px;
 					if (spaceIdx !== -1) {
 						emoji = name.substring(0, spaceIdx);
 						textName = name.substring(spaceIdx + 1);
+					}
+					// Normalize emoji to single surrogate pair (first 2 chars) for display
+					if (emoji.length >= 2) {
+						emoji = emoji.substring(0, 2);
 					}
 				}
 

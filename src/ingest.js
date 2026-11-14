@@ -22,7 +22,10 @@ const parseNum = (val) => {
 	return isFinite(n) ? Math.min(Math.max(0, n), 999999) : 0;
 };
 
-const parseBool = (val) => (val === 'True' || val === 'true' || val === '1') ? 1 : 0;
+const parseBool = (val) => {
+	const lower = (val || '').toString().trim().toLowerCase();
+	return lower === 'true' || lower === '1' || lower === 'yes' ? 1 : 0;
+};
 
 export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) => {
 	const country = request.cf?.country || 'Unknown';
