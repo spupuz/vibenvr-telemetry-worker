@@ -568,10 +568,10 @@ margin-top: 2px;
 
 <!-- TOP BAR -->
 <header class="topbar">
-	<a class="topbar-brand" href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener noreferrer">
+	<a class="topbar-brand" href="https://github.com/spupuz/VibeNVR" target="_blank" rel="noopener noreferrer" aria-label="VibeNVR on GitHub (opens in a new tab)">
 
 		<img id="logo-img" src="${prefix}/assets/logo-dark" alt="" aria-hidden="true">
-			<span>VibeNVR Telemetry</span><span class="sr-only"> (opens in a new tab)</span>
+			<span>VibeNVR Telemetry</span>
 	</a>
 	<div class="topbar-right">
 		<div class="badge-live" aria-label="Live status" role="status"><span class="dot" aria-hidden="true"></span> <span aria-hidden="true">Live</span></div>
