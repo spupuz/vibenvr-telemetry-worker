@@ -218,7 +218,10 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 			const id = row.instance_id;
 			// ⚡ Bolt: Optimize date parsing (Date.parse is ~7x faster than new Date().getTime() in hot loops)
 			// Cache it to avoid re-parsing for the same row
-			const ts = row._ts || (row._ts = Date.parse(row.timestamp));
+						let ts = row._ts;
+						if (!Number.isFinite(ts)) {
+							ts = row._ts = Date.parse(row.timestamp);
+						}
 
 			let existing = uniqueInstances.get(id);
 
