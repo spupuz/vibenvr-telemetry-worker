@@ -108,6 +108,16 @@ export const handleApiStats = async (env, SECURITY_HEADERS) => {
 		});
 	}
 
+	// 🛡️ Sentinel: Validate ACCOUNT_ID format to prevent SSRF/path injection
+	// if the secret is ever misconfigured or tampered with.
+	if (!/^[a-zA-Z0-9-]+$/.test(env.ACCOUNT_ID)) {
+		console.error("Invalid ACCOUNT_ID format");
+		return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+			status: 500,
+			headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store, no-cache, must-revalidate' }
+		});
+	}
+
 	try {
 		// ⚡ Bolt: Kick off KV reads concurrently with SQL queries to prevent sequential network blocking and reduce overall TTFB
 		const kvPromise = env.VIBENVR_IDS ? Promise.all([
