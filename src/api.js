@@ -101,7 +101,9 @@ const GROUPS_DIST_ORDER = ['0', '1', '2-3', '4-5', '6-10', '11+'];
 const parseKvInt = (v) => { const n = parseInt(v || "0", 10); return Number.isFinite(n) ? n : 0; };
 
 export const handleApiStats = async (env, SECURITY_HEADERS) => {
-	if (!env.ACCOUNT_ID || !env.API_TOKEN) {
+	// 🛡️ Sentinel: Validate ACCOUNT_ID to prevent SSRF/path-injection via crafted config.
+	// Cloudflare account IDs are 32-character hexadecimal strings.
+	if (!env.ACCOUNT_ID || !/^[a-f0-9]{32}$/i.test(env.ACCOUNT_ID) || !env.API_TOKEN) {
 		return new Response(JSON.stringify({ error: "Internal Server Error" }), {
 			status: 500,
 			headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store, no-cache, must-revalidate' }
