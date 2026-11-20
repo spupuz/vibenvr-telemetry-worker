@@ -9,7 +9,6 @@ const STATIC_SECURITY_HEADERS = {
 	'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
 	'Cross-Origin-Opener-Policy': 'same-origin',
 	'X-Permitted-Cross-Domain-Policies': 'none',
-	'Vary': 'Origin',
 };
 
 export const getSecurityContext = (isHtml = true) => {
@@ -26,7 +25,6 @@ export const getSecurityContext = (isHtml = true) => {
 		'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
 		'Cross-Origin-Opener-Policy': 'same-origin',
 		'X-Permitted-Cross-Domain-Policies': 'none',
-		'Vary': 'Origin',
 	};
 	return { nonce, SECURITY_HEADERS };
 };
