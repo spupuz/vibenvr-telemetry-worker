@@ -30,7 +30,7 @@ export default {
 				return new Response(null, {
 					headers: {
 						...SECURITY_HEADERS,
-						'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+						'Access-Control-Allow-Methods': 'GET, OPTIONS',
 						'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 						'Cache-Control': 'no-cache, no-store, must-revalidate',
 					},
