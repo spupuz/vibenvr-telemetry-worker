@@ -37,6 +37,8 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			--primary: #3b82f6;
 			--primary-light: #eff6ff;
 			--primary-dark: #1d4ed8;
+			/* 🎨 Palette: AA-compliant link hover text (--primary #3b82f6 fails 4.5:1 on white) */
+			--link-hover: #1d4ed8;
 			--accent: #8b5cf6;
 			--success: #047857;
 			--err: #dc2626;
@@ -55,6 +57,8 @@ export const getDashboardHtml = (nonce, prefix = '') => {
 			--primary: #58a6ff;
 			--primary-light: rgba(88,166,255,.1);
 			--primary-dark: #1f6feb;
+			/* 🎨 Palette: lighter hover variant passes AA on dark surface (#58a6ff used for hover) */
+			--link-hover: #79c0ff;
 			--accent: #a78bfa;
 			--success: #10b981;
 			--err: #f87171;
@@ -434,7 +438,7 @@ margin-top: 2px;
 		}
 
 		.footer-link-site:hover, .footer-link-site:focus, .footer-link-site:focus-visible {
-			color: var(--primary);
+			color: var(--link-hover);
 		}
 		.footer-link-site:active { transform: scale(0.96); }
 
@@ -510,7 +514,7 @@ margin-top: 2px;
 		}
 		.footer-link:hover, .footer-link:focus-visible {
 			border-color: var(--primary);
-			color: var(--primary);
+			color: var(--link-hover);
 			background: var(--primary-light);
 			box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 		}
