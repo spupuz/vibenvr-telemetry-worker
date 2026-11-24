@@ -44,20 +44,35 @@ export const handleIngestion = async (request, url, env, ctx, SECURITY_HEADERS) 
 						ctx.waitUntil((async () => {
 							try {
 								const kvKey = `site_id:${visitor_id}`;
-								const existing = await env.VIBENVR_IDS.get(kvKey);
+								const hitsKey = 'site_stats:total_hits';
+
+								// ⚡ Bolt: The visitor-id lookup and the hit counter read are independent,
+								// so issue them concurrently. /site-telemetry.png fires on every pageview,
+								// making these the hottest KV round-trips in the Worker; doing them in
+								// sequence paid the full KV latency twice per pageview.
+								const [existing, currentHits] = await Promise.all([
+									env.VIBENVR_IDS.get(kvKey),
+									env.VIBENVR_IDS.get(hitsKey)
+								]);
+
+								const parsedHits = parseInt(currentHits || "0", 10);
+								const safeHits = Number.isFinite(parsedHits) ? parsedHits : 0;
+
+								// ⚡ Bolt: The new-visitor counter updates do not depend on the hit counter,
+								// so run both write chains concurrently instead of one after the other.
+								const pendingWrites = [env.VIBENVR_IDS.put(hitsKey, (safeHits + 1).toString())];
 
 								if (!existing) {
-									await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
-									const countKey = 'site_stats:total_count';
-									const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
-									const safeTotal = Number.isFinite(currentTotal) ? currentTotal : 0;
-									await env.VIBENVR_IDS.put(countKey, (safeTotal + 1).toString());
+									pendingWrites.push((async () => {
+										await env.VIBENVR_IDS.put(kvKey, Date.now().toString());
+										const countKey = 'site_stats:total_count';
+										const currentTotal = parseInt(await env.VIBENVR_IDS.get(countKey) || "0", 10);
+										const safeTotal = Number.isFinite(currentTotal) ? currentTotal : 0;
+										await env.VIBENVR_IDS.put(countKey, (safeTotal + 1).toString());
+									})());
 								}
 
-								const hitsKey = 'site_stats:total_hits';
-								const currentHits = parseInt(await env.VIBENVR_IDS.get(hitsKey) || "0", 10);
-								const safeHits = Number.isFinite(currentHits) ? currentHits : 0;
-								await env.VIBENVR_IDS.put(hitsKey, (safeHits + 1).toString());
+								await Promise.all(pendingWrites);
 							} catch (e) {
 								console.error("Failed to write to Site KV in background", e);
 							}

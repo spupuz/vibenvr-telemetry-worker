@@ -162,3 +162,7 @@
 ## 2026-11-09 - Optimize String Parsing for Delimiters
 **Learning:** Extracting a substring before a delimiter by chaining `.split(';')[0]` allocates an intermediate array and creates multiple string objects, leading to unnecessary GC overhead in hot paths.
 **Action:** To prevent intermediate array allocations and reduce garbage collection (GC) overhead when extracting a substring before a delimiter (such as parsing a `Content-Type` header up to a `;`), use `.indexOf()` and `.substring()` instead of `.split()[0]`.
+
+## 2026-11-24 - [Concurrent KV reads on the pageview hot path]
+**Learning:** `/site-telemetry.png` fires on every pageview, and its background `waitUntil` block awaited four KV operations in sequence (visitor lookup, hit-counter read, then the writes), paying the full KV round-trip latency once per step. The visitor lookup and the hit-counter read have no data dependency, and the new-visitor counter writes do not depend on the hit counter. Issuing them via `Promise.all` cut background wall time by ~33% in a latency-stubbed harness (new visitor 155ms -> 101ms, returning visitor 76ms -> 51ms at 25ms/op) with an identical final KV state and the same number of KV operations.
+**Action:** On high-volume write paths, group independent KV reads - and write chains that do not feed each other - into one `Promise.all` instead of awaiting them one by one: same operations, fewer serialized round-trips.
