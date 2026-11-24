@@ -1,6 +1,6 @@
 // ⚡ Bolt: Hoist constants to module scope to avoid reallocating on every request
 const SAFE_UPSTREAM_HEADERS = ['content-length', 'etag', 'last-modified'];
-const SAFE_CONTENT_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon'];
+const SAFE_CONTENT_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/x-icon', 'image/vnd.microsoft.icon'];
 
 const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
