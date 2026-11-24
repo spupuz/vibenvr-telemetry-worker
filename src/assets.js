@@ -6,6 +6,8 @@ export const handleAssets = async (url, SECURITY_HEADERS) => {
 	let target;
 	if (url.pathname === '/assets/logo-dark') {
 		target = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/frontend/public/vibe_logo_dark.png';
+	} else if (url.pathname === '/favicon.svg') {
+		target = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/frontend/public/favicon.svg';
 	} else if (url.pathname === '/assets/logo-light' || url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
 		target = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/docs/logo.png';
 	}

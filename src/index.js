@@ -89,7 +89,7 @@ export default {
 			}
 
 			// Assets Proxy
-			if (url.pathname.startsWith('/assets/') || url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
+			if (url.pathname.startsWith('/assets/') || url.pathname === '/favicon.ico' || url.pathname === '/favicon.png' || url.pathname === '/favicon.svg') {
 				if (request.method !== 'GET') {
 					return new Response('Method Not Allowed', { status: 405, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain;charset=UTF-8', 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 				}
