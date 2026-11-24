@@ -2,12 +2,35 @@
 const SAFE_UPSTREAM_HEADERS = ['content-length', 'etag', 'last-modified'];
 const SAFE_CONTENT_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon'];
 
+const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="vibeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4ADE80"/>
+      <stop offset="50%" style="stop-color:#22D3EE"/>
+      <stop offset="100%" style="stop-color:#6366F1"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 4 L56 18 L56 46 L32 60 L8 46 L8 18 Z" fill="none" stroke="url(#vibeGradient)" stroke-width="2"/>
+  <ellipse cx="32" cy="32" rx="18" ry="12" fill="none" stroke="url(#vibeGradient)" stroke-width="2"/>
+  <circle cx="32" cy="32" r="8" fill="none" stroke="url(#vibeGradient)" stroke-width="2"/>
+  <path d="M28 28 L32 38 L36 28" fill="none" stroke="url(#vibeGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
 export const handleAssets = async (url, SECURITY_HEADERS) => {
+	if (url.pathname === '/favicon.svg') {
+		return new Response(FAVICON_SVG, {
+			status: 200,
+			headers: {
+				...(SECURITY_HEADERS || {}),
+				'Content-Type': 'image/svg+xml;charset=UTF-8',
+				'Cache-Control': 'public, max-age=604800',
+			},
+		});
+	}
+
 	let target;
 	if (url.pathname === '/assets/logo-dark') {
 		target = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/frontend/public/vibe_logo_dark.png';
-	} else if (url.pathname === '/favicon.svg') {
-		target = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/frontend/public/favicon.svg';
 	} else if (url.pathname === '/assets/logo-light' || url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
 		target = 'https://raw.githubusercontent.com/spupuz/VibeNVR/main/docs/logo.png';
 	}
